@@ -1,7 +1,6 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Post, Category, PostStatus } from '../types';
-import { INITIAL_POSTS } from '../constants';
+import { INITIAL_POSTS, ADMIN_PASSWORD } from '../constants';
 
 interface BlogContextType {
   posts: Post[];
@@ -9,6 +8,9 @@ interface BlogContextType {
   updatePost: (id: string, post: Partial<Post>) => void;
   deletePost: (id: string) => void;
   getPostById: (id: string) => Post | undefined;
+  isAdminAuthenticated: boolean;
+  loginAdmin: (password: string) => boolean;
+  logoutAdmin: () => void;
 }
 
 const BlogContext = createContext<BlogContextType | undefined>(undefined);
@@ -22,6 +24,10 @@ export const BlogProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       console.error("Could not parse posts from localStorage", error);
       return INITIAL_POSTS;
     }
+  });
+
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => {
+    return sessionStorage.getItem('isAdminAuthenticated') === 'true';
   });
 
   useEffect(() => {
@@ -50,8 +56,22 @@ export const BlogProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return posts.find(p => p.id === id);
   };
 
+  const loginAdmin = (password: string): boolean => {
+    if (password === ADMIN_PASSWORD) {
+      sessionStorage.setItem('isAdminAuthenticated', 'true');
+      setIsAdminAuthenticated(true);
+      return true;
+    }
+    return false;
+  };
+
+  const logoutAdmin = () => {
+    sessionStorage.removeItem('isAdminAuthenticated');
+    setIsAdminAuthenticated(false);
+  };
+
   return (
-    <BlogContext.Provider value={{ posts, addPost, updatePost, deletePost, getPostById }}>
+    <BlogContext.Provider value={{ posts, addPost, updatePost, deletePost, getPostById, isAdminAuthenticated, loginAdmin, logoutAdmin }}>
       {children}
     </BlogContext.Provider>
   );

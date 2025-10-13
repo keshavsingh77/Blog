@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useBlog } from '../context/BlogContext';
 import { Post, Category, PostStatus } from '../types';
@@ -7,13 +6,17 @@ import { generateBlogPost } from '../services/geminiService';
 import Spinner from '../components/Spinner';
 
 const AdminPage: React.FC = () => {
-  const { posts, addPost, updatePost, deletePost } = useBlog();
+  const { posts, addPost, updatePost, deletePost, isAdminAuthenticated, loginAdmin, logoutAdmin } = useBlog();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [formData, setFormData] = useState({ title: '', content: '', category: Category.CENTRAL_GOVERNMENT, status: PostStatus.DRAFT });
   const [aiTopic, setAiTopic] = useState('');
   const [error, setError] = useState<string | null>(null);
+
+  // For Login
+  const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
 
   useEffect(() => {
     if (editingPost) {
@@ -81,19 +84,77 @@ const AdminPage: React.FC = () => {
       setIsGenerating(false);
     }
   };
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (loginAdmin(password)) {
+      setLoginError('');
+      setPassword('');
+    } else {
+      setLoginError('Incorrect password. Please try again.');
+    }
+  };
   
   const sortedPosts = [...posts].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  if (!isAdminAuthenticated) {
+    return (
+      <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-xl">
+          <div className="text-center">
+            <i className="fas fa-user-shield text-5xl text-blue-600"></i>
+            <h2 className="mt-4 text-3xl font-bold text-center text-gray-900">Admin Login</h2>
+          </div>
+          <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+            <div>
+              <label htmlFor="password" className="sr-only">Password</label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                className="appearance-none rounded-md relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+            {loginError && (
+              <p className="text-sm text-center text-red-600">{loginError}</p>
+            )}
+            <div>
+              <button
+                type="submit"
+                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Sign In
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-bold text-gray-800">Admin Panel</h1>
-        <button
-          onClick={() => handleOpenModal(null)}
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors shadow-md flex items-center"
-        >
-          <i className="fas fa-plus mr-2"></i> New Post
-        </button>
+        <div className="flex items-center gap-4">
+            <button
+            onClick={() => handleOpenModal(null)}
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors shadow-md flex items-center"
+            >
+            <i className="fas fa-plus mr-2"></i> New Post
+            </button>
+            <button
+            onClick={logoutAdmin}
+            className="bg-red-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors shadow-md flex items-center"
+            >
+            <i className="fas fa-sign-out-alt mr-2"></i> Logout
+            </button>
+        </div>
       </div>
 
       <div className="bg-white shadow-lg rounded-lg overflow-hidden">

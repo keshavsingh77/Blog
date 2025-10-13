@@ -1,4 +1,3 @@
-
 import { Post, Category, PostStatus } from './types';
 
 export const CATEGORIES: Category[] = [
@@ -9,6 +8,8 @@ export const CATEGORIES: Category[] = [
   Category.SCHEMES,
   Category.STUDY_MATERIAL,
 ];
+
+export const ADMIN_PASSWORD = 'keshavr.5321u';
 
 export const INITIAL_POSTS: Post[] = [
   {
