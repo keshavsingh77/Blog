@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useBlog } from '../context/BlogContext';
 import AdsensePlaceholder from '../components/AdsensePlaceholder';
+import SEO from '../components/SEO';
 
 const PostPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,6 +18,7 @@ const PostPage: React.FC = () => {
   if (!post) {
     return (
       <div className="text-center py-20">
+        <SEO title="Post Not Found" description="The requested post could not be found." />
         <h2 className="text-2xl font-bold">Post not found</h2>
         <Link to="/" className="text-blue-600 hover:underline mt-4 inline-block">Go back to Home</Link>
       </div>
@@ -24,9 +26,14 @@ const PostPage: React.FC = () => {
   }
 
   const getCategorySlug = (category: string) => category.toLowerCase().replace(/\s+/g, '-');
+  
+  // Extract a plain text snippet for the meta description
+  const plainTextContent = post.content.replace(/<[^>]+>/g, '');
+  const descriptionSnippet = plainTextContent.substring(0, 160).trim() + (plainTextContent.length > 160 ? '...' : '');
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <SEO title={post.title} description={descriptionSnippet} />
       <div className="bg-white shadow-xl rounded-lg overflow-hidden">
         <img className="w-full h-96 object-cover" src={post.imageUrl} alt={post.title} />
         <div className="p-6 md:p-10">

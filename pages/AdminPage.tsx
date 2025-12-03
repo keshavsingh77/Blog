@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { useBlog } from '../context/BlogContext';
 import { Post, Category, PostStatus } from '../types';
 import { CATEGORIES } from '../constants';
 import { generateBlogPost } from '../services/geminiService';
 import Spinner from '../components/Spinner';
+import SEO from '../components/SEO';
 
 const AdminPage: React.FC = () => {
   const { posts, addPost, updatePost, deletePost, isAdminAuthenticated, loginAdmin, logoutAdmin } = useBlog();
@@ -100,6 +102,7 @@ const AdminPage: React.FC = () => {
   if (!isAdminAuthenticated) {
     return (
       <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <SEO title="Admin Login" description="Secure login for site administration." />
         <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-xl">
           <div className="text-center">
             <i className="fas fa-user-shield text-5xl text-blue-600"></i>
@@ -139,6 +142,7 @@ const AdminPage: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <SEO title="Admin Panel" description="Manage content and settings for the AI Gov & Finance News Hub." />
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-bold text-gray-800">Admin Panel</h1>
         <div className="flex items-center gap-4">

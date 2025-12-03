@@ -4,6 +4,7 @@ import { useBlog } from '../context/BlogContext';
 import { PostStatus } from '../types';
 import PostCard from '../components/PostCard';
 import AdsensePlaceholder from '../components/AdsensePlaceholder';
+import SEO from '../components/SEO';
 
 const HomePage: React.FC = () => {
   const { posts } = useBlog();
@@ -16,6 +17,10 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <SEO 
+        title="Home" 
+        description="Your daily source for Central & Bihar Government updates, finance news, job opportunities, and government schemes. Powered by AI."
+      />
       <h1 className="text-4xl font-extrabold text-gray-900 mb-2 text-center">Latest News & Insights</h1>
       <p className="text-lg text-gray-600 mb-8 text-center">Your daily source for government updates, finance, and job opportunities.</p>
       

@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { useBlog } from '../context/BlogContext';
 import { PostStatus } from '../types';
 import PostCard from '../components/PostCard';
+import SEO from '../components/SEO';
 
 const CategoryPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -17,6 +18,10 @@ const CategoryPage: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <SEO 
+        title={categoryName || "Category"} 
+        description={`Explore the latest news, updates, and in-depth articles regarding ${categoryName}. Stay informed with AI Gov & Finance News Hub.`} 
+      />
       <div className="border-b-2 border-blue-600 pb-4 mb-8">
         <h1 className="text-4xl font-extrabold text-gray-900">{categoryName}</h1>
         <p className="mt-2 text-lg text-gray-600">Browse the latest articles and updates in this category.</p>
