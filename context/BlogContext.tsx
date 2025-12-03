@@ -1,64 +1,51 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Post, Category, PostStatus } from '../types';
-import { INITIAL_POSTS, ADMIN_PASSWORD } from '../constants';
+import { Post } from '../types';
+import { fetchPostsFromBlogger } from '../services/bloggerService';
 
 interface BlogContextType {
   posts: Post[];
-  addPost: (post: Omit<Post, 'id' | 'createdAt' | 'imageUrl'>) => void;
-  updatePost: (id: string, post: Partial<Post>) => void;
-  deletePost: (id: string) => void;
+  isLoading: boolean;
   getPostById: (id: string) => Post | undefined;
   isAdminAuthenticated: boolean;
   loginAdmin: (password: string) => boolean;
   logoutAdmin: () => void;
+  addPost: (post: Omit<Post, 'id' | 'createdAt' | 'imageUrl'> & { imageUrl?: string }) => void;
+  updatePost: (id: string, post: Partial<Post>) => void;
+  deletePost: (id: string) => void;
 }
 
 const BlogContext = createContext<BlogContextType | undefined>(undefined);
 
 export const BlogProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [posts, setPosts] = useState<Post[]>(() => {
-    try {
-      const savedPosts = localStorage.getItem('blogPosts');
-      return savedPosts ? JSON.parse(savedPosts) : INITIAL_POSTS;
-    } catch (error) {
-      console.error("Could not parse posts from localStorage", error);
-      return INITIAL_POSTS;
-    }
-  });
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
 
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => {
-    return sessionStorage.getItem('isAdminAuthenticated') === 'true';
-  });
-
+  // Fetch posts on mount
   useEffect(() => {
-    localStorage.setItem('blogPosts', JSON.stringify(posts));
-  }, [posts]);
-
-  const addPost = (post: Omit<Post, 'id' | 'createdAt' | 'imageUrl'>) => {
-    const newPost: Post = {
-      ...post,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
-      imageUrl: `https://picsum.photos/seed/${Date.now()}/800/400`,
+    const loadPosts = async () => {
+      setIsLoading(true);
+      try {
+        const fetchedPosts = await fetchPostsFromBlogger();
+        setPosts(fetchedPosts);
+      } catch (error) {
+        console.error("Error loading posts:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
-    setPosts([newPost, ...posts]);
-  };
 
-  const updatePost = (id: string, updatedPost: Partial<Post>) => {
-    setPosts(posts.map(p => (p.id === id ? { ...p, ...updatedPost } : p)));
-  };
-
-  const deletePost = (id: string) => {
-    setPosts(posts.filter(p => p.id !== id));
-  };
+    loadPosts();
+  }, []);
 
   const getPostById = (id: string): Post | undefined => {
     return posts.find(p => p.id === id);
   };
 
   const loginAdmin = (password: string): boolean => {
-    if (password === ADMIN_PASSWORD) {
-      sessionStorage.setItem('isAdminAuthenticated', 'true');
+    // Simple authentication for demo purposes
+    if (password === 'admin123') {
       setIsAdminAuthenticated(true);
       return true;
     }
@@ -66,12 +53,39 @@ export const BlogProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const logoutAdmin = () => {
-    sessionStorage.removeItem('isAdminAuthenticated');
     setIsAdminAuthenticated(false);
   };
 
+  const addPost = (postData: Omit<Post, 'id' | 'createdAt' | 'imageUrl'> & { imageUrl?: string }) => {
+    const newPost: Post = {
+      ...postData,
+      id: Date.now().toString(),
+      createdAt: new Date().toISOString(),
+      imageUrl: postData.imageUrl || `https://picsum.photos/seed/${Date.now()}/800/400`,
+    };
+    setPosts([newPost, ...posts]);
+  };
+
+  const updatePost = (id: string, updatedData: Partial<Post>) => {
+    setPosts(posts.map(post => (post.id === id ? { ...post, ...updatedData } : post)));
+  };
+
+  const deletePost = (id: string) => {
+    setPosts(posts.filter(post => post.id !== id));
+  };
+
   return (
-    <BlogContext.Provider value={{ posts, addPost, updatePost, deletePost, getPostById, isAdminAuthenticated, loginAdmin, logoutAdmin }}>
+    <BlogContext.Provider value={{
+      posts,
+      isLoading,
+      getPostById,
+      isAdminAuthenticated,
+      loginAdmin,
+      logoutAdmin,
+      addPost,
+      updatePost,
+      deletePost,
+    }}>
       {children}
     </BlogContext.Provider>
   );

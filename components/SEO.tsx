@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 
 interface SEOProps {
@@ -9,7 +8,7 @@ interface SEOProps {
 const SEO: React.FC<SEOProps> = ({ title, description }) => {
   useEffect(() => {
     // Update Document Title
-    document.title = `${title} | iPopcorn - Tech & Entertainment`;
+    document.title = `${title} | Creative Mind`;
 
     // Update Meta Description
     let metaDescription = document.querySelector('meta[name="description"]');

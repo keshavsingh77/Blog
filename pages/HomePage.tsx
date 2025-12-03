@@ -1,154 +1,99 @@
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useBlog } from '../context/BlogContext';
-import { PostStatus, Category } from '../types';
 import PostCard from '../components/PostCard';
-import AdsensePlaceholder from '../components/AdsensePlaceholder';
 import SEO from '../components/SEO';
-import { CATEGORIES } from '../constants';
+import Spinner from '../components/Spinner';
 
 const HomePage: React.FC = () => {
-  const { posts } = useBlog();
-  const publishedPosts = posts
-    .filter(p => p.status === PostStatus.PUBLISHED)
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  
-  const heroPost = publishedPosts[0];
-  const trendingPosts = publishedPosts.slice(1, 4);
-  const latestPosts = publishedPosts.slice(4);
+  const { posts, isLoading } = useBlog();
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const heroPosts = posts.slice(0, 3);
+  const latestPosts = posts.slice(3);
+
+  // Auto-scroll hero slider
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % heroPosts.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [heroPosts.length]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex justify-center items-center bg-white">
+        <Spinner />
+      </div>
+    );
+  }
 
   const getCategorySlug = (category: string) => category.toLowerCase().replace(/\s+/g, '-');
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-white min-h-screen font-sans">
       <SEO 
         title="Home" 
-        description="iPopcorn - Your daily dose of Tech, Gaming, Movies, and Entertainment news. Reviews, trending stories and more."
+        description="Creative Mind - The best place for viral tech tips, gaming updates, and entertainment news."
       />
 
-      {/* Hero Section */}
-      {heroPost && (
-        <section className="relative bg-gray-900 text-white">
-          <div className="absolute inset-0 opacity-50">
-             <img src={heroPost.imageUrl} alt="Background" className="w-full h-full object-cover filter blur-sm" />
-          </div>
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 flex items-end min-h-[500px]">
-             <div className="w-full md:w-2/3 lg:w-1/2 bg-black bg-opacity-70 p-8 rounded-lg border-l-8 border-red-600">
-                <Link to={`/category/${getCategorySlug(heroPost.category)}`} className="inline-block bg-red-600 text-white text-xs font-bold uppercase tracking-widest px-3 py-1 mb-4 rounded-sm">
-                   {heroPost.category}
-                </Link>
-                <h1 className="text-4xl md:text-5xl font-black leading-tight mb-4">
-                  <Link to={`/post/${heroPost.id}`} className="hover:text-red-400 transition-colors">
-                    {heroPost.title}
-                  </Link>
-                </h1>
-                <p className="text-gray-300 text-lg mb-6 line-clamp-2">
-                  {heroPost.content.replace(/<[^>]+>/g, '')}
-                </p>
-                <Link to={`/post/${heroPost.id}`} className="inline-flex items-center text-white font-bold uppercase tracking-wider hover:text-red-400">
-                  Read Full Story <i className="fas fa-chevron-right ml-2 text-xs"></i>
-                </Link>
-             </div>
-          </div>
+      {/* Hero Carousel Section */}
+      {heroPosts.length > 0 && (
+        <section className="relative w-full max-w-7xl mx-auto mt-4 px-4 sm:px-6 lg:px-8">
+           <div className="relative rounded-2xl overflow-hidden shadow-lg h-[250px] md:h-[400px]">
+              {heroPosts.map((post, index) => (
+                <div 
+                  key={post.id}
+                  className={`absolute inset-0 transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
+                >
+                  <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90"></div>
+                  <div className="absolute bottom-0 left-0 p-6 md:p-10 w-full">
+                     <span className="inline-block bg-blue-600 text-white text-[10px] md:text-xs font-bold uppercase tracking-wider px-2 py-1 rounded mb-2">
+                       {post.category}
+                     </span>
+                     <h2 className="text-xl md:text-3xl font-bold text-white leading-tight mb-2 drop-shadow-md">
+                       <Link to={`/post/${post.id}`}>{post.title}</Link>
+                     </h2>
+                  </div>
+                </div>
+              ))}
+              
+              {/* Slider Dots */}
+              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                {heroPosts.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentSlide(idx)}
+                    className={`w-2 h-2 rounded-full transition-colors ${idx === currentSlide ? 'bg-blue-500' : 'bg-gray-400 bg-opacity-50'}`}
+                  ></button>
+                ))}
+              </div>
+           </div>
         </section>
       )}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          
-          {/* Main Content Column */}
-          <div className="lg:col-span-8">
-            
-            {/* Trending Section */}
-            <div className="mb-12">
-              <div className="flex items-center justify-between mb-6 border-b-2 border-gray-200 pb-2">
-                 <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tighter">
-                   <span className="text-red-600 mr-2">/</span>Trending Now
-                 </h2>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {trendingPosts.map(post => (
-                   <div key={post.id} className="group cursor-pointer">
-                      <div className="overflow-hidden rounded-lg mb-3 shadow-md">
-                        <Link to={`/post/${post.id}`}>
-                           <img src={post.imageUrl} alt={post.title} className="w-full h-40 object-cover transform group-hover:scale-110 transition-transform duration-500" />
-                        </Link>
-                      </div>
-                      <Link to={`/category/${getCategorySlug(post.category)}`} className="text-xs font-bold text-red-600 uppercase mb-1 block">{post.category}</Link>
-                      <h3 className="font-bold text-gray-900 leading-snug group-hover:text-red-600 transition-colors">
-                        <Link to={`/post/${post.id}`}>{post.title}</Link>
-                      </h3>
-                   </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Latest News */}
-            <div className="mb-8">
-               <div className="flex items-center justify-between mb-6 border-b-2 border-gray-200 pb-2">
-                 <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tighter">
-                   <span className="text-red-600 mr-2">/</span>Latest Stories
-                 </h2>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {latestPosts.map(post => (
-                    <PostCard key={post.id} post={post} />
-                  ))}
-                  {latestPosts.length === 0 && <p className="text-gray-500 italic">More stories coming soon...</p>}
-              </div>
-            </div>
-
-            {/* Ad Unit */}
-            <AdsensePlaceholder className="w-full h-32 mb-12 bg-gray-200" />
-            
-          </div>
-
-          {/* Sidebar */}
-          <aside className="lg:col-span-4 space-y-10">
-            
-            {/* Search (Visual Only) */}
-            <div className="relative">
-              <input type="text" placeholder="Search articles..." className="w-full pl-4 pr-10 py-3 rounded-full border border-gray-300 focus:outline-none focus:border-red-600 shadow-sm" />
-              <button className="absolute right-3 top-3 text-gray-400 hover:text-red-600">
-                <i className="fas fa-search"></i>
-              </button>
-            </div>
-
-            {/* Categories Widget */}
-            <div className="bg-white p-6 rounded-lg shadow-lg border-t-4 border-red-600">
-               <h3 className="text-lg font-black uppercase mb-4">Categories</h3>
-               <ul className="space-y-2">
-                 {CATEGORIES.map(cat => (
-                   <li key={cat}>
-                     <Link to={`/category/${getCategorySlug(cat)}`} className="flex justify-between items-center text-gray-700 hover:text-red-600 font-medium transition-colors">
-                       <span>{cat}</span>
-                       <span className="bg-gray-100 text-gray-500 text-xs py-1 px-2 rounded-full">{posts.filter(p => p.category === cat).length}</span>
-                     </Link>
-                   </li>
-                 ))}
-               </ul>
-            </div>
-
-            {/* Social Widget */}
-            <div className="bg-gray-900 text-white p-6 rounded-lg shadow-lg">
-                <h3 className="text-lg font-black uppercase mb-4">Follow Us</h3>
-                <div className="flex space-x-4">
-                  <a href="#" className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center hover:bg-blue-500 transition"><i className="fab fa-facebook-f"></i></a>
-                  <a href="#" className="w-10 h-10 rounded-full bg-blue-400 flex items-center justify-center hover:bg-blue-300 transition"><i className="fab fa-twitter"></i></a>
-                  <a href="#" className="w-10 h-10 rounded-full bg-pink-600 flex items-center justify-center hover:bg-pink-500 transition"><i className="fab fa-instagram"></i></a>
-                  <a href="#" className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition"><i className="fab fa-youtube"></i></a>
-                </div>
-            </div>
-
-             {/* Sidebar Ad */}
-             <div className="bg-white p-4 rounded-lg shadow-md">
-                <div className="text-xs font-bold text-gray-400 uppercase mb-2 text-center">Advertisement</div>
-                <AdsensePlaceholder className="w-full h-64" />
-             </div>
-
-          </aside>
+      {/* Latest Posts Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex items-center justify-between mb-6">
+           <h2 className="text-xl font-black text-gray-800">
+             Latest Posts
+           </h2>
+           <div className="h-1 bg-gray-100 flex-grow ml-4 rounded"></div>
         </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+           {/* Include Hero posts in the grid for mobile feel if needed, or just latest */}
+           {[...heroPosts, ...latestPosts].map(post => (
+             <PostCard key={post.id} post={post} />
+           ))}
+        </div>
+        
+        {posts.length === 0 && (
+           <div className="text-center py-10 text-gray-500">
+             No posts available at the moment.
+           </div>
+        )}
       </div>
     </div>
   );
