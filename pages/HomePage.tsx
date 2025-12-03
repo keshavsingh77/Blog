@@ -33,8 +33,6 @@ const HomePage: React.FC = () => {
     );
   }
 
-  const getCategorySlug = (category: string) => category.toLowerCase().replace(/\s+/g, '-');
-
   return (
     <div className="bg-white min-h-screen font-sans">
       <SEO 
@@ -42,10 +40,10 @@ const HomePage: React.FC = () => {
         description="Creative Mind - The best place for viral tech tips, gaming updates, and entertainment news."
       />
 
-      {/* Hero Carousel Section */}
+      {/* Hero Carousel Section - Single Element */}
       {heroPosts.length > 0 && (
-        <section className="relative w-full max-w-7xl mx-auto mt-6 px-4 sm:px-6 lg:px-8 mb-10">
-           <div className="relative rounded-2xl overflow-hidden shadow-2xl h-[220px] sm:h-[350px] md:h-[450px]">
+        <section className="relative w-full max-w-7xl mx-auto mt-4 md:mt-6 px-4 sm:px-6 lg:px-8 mb-8">
+           <div className="relative rounded-xl md:rounded-2xl overflow-hidden shadow-xl h-[200px] sm:h-[350px] md:h-[450px]">
               {heroPosts.map((post, index) => (
                 <div 
                   key={post.id}
@@ -54,11 +52,11 @@ const HomePage: React.FC = () => {
                   <Link to={`/post/${post.id}`}>
                       <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
-                      <div className="absolute bottom-0 left-0 p-6 md:p-12 w-full max-w-4xl">
-                        <span className="inline-block bg-red-600 text-white text-[10px] md:text-xs font-bold uppercase tracking-wider px-3 py-1 rounded shadow-md mb-3 hover:bg-red-700 transition">
+                      <div className="absolute bottom-0 left-0 p-4 md:p-12 w-full max-w-4xl">
+                        <span className="inline-block bg-red-600 text-white text-[10px] md:text-xs font-bold uppercase tracking-wider px-2 py-1 md:px-3 rounded shadow-md mb-2 md:mb-3 hover:bg-red-700 transition">
                           {post.category}
                         </span>
-                        <h2 className="text-xl md:text-4xl font-black text-white leading-tight mb-2 drop-shadow-lg line-clamp-2">
+                        <h2 className="text-lg md:text-4xl font-black text-white leading-tight mb-1 md:mb-2 drop-shadow-lg line-clamp-2">
                           {post.title}
                         </h2>
                         <p className="hidden md:block text-gray-200 text-sm line-clamp-1 opacity-90">
@@ -70,12 +68,12 @@ const HomePage: React.FC = () => {
               ))}
               
               {/* Slider Dots */}
-              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+              <div className="absolute bottom-3 md:bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
                 {heroPosts.map((_, idx) => (
                   <button
                     key={idx}
                     onClick={() => setCurrentSlide(idx)}
-                    className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${idx === currentSlide ? 'bg-white scale-110 shadow-md' : 'bg-gray-500 bg-opacity-50 hover:bg-white'}`}
+                    className={`w-2 h-2 md:w-2.5 md:h-2.5 rounded-full transition-all duration-300 ${idx === currentSlide ? 'bg-white scale-110 shadow-md' : 'bg-gray-500 bg-opacity-50 hover:bg-white'}`}
                   ></button>
                 ))}
               </div>
@@ -83,16 +81,16 @@ const HomePage: React.FC = () => {
         </section>
       )}
 
-      {/* Latest Posts Section */}
+      {/* Latest Posts Section - Double Element (2 Col Grid) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="flex items-center justify-between mb-8 border-b-2 border-gray-100 pb-2">
-           <h2 className="text-2xl font-black text-gray-900 border-l-4 border-blue-600 pl-3">
+        <div className="flex items-center justify-between mb-6 border-b-2 border-gray-100 pb-2">
+           <h2 className="text-xl md:text-2xl font-black text-gray-900 border-l-4 border-blue-600 pl-3">
              Latest Posts
            </h2>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-           {/* Include Hero posts in the grid for mobile feel if needed, or just latest */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8">
+           {/* Displaying all posts to create the content flow */}
            {[...heroPosts, ...latestPosts].map(post => (
              <PostCard key={post.id} post={post} />
            ))}
@@ -104,8 +102,8 @@ const HomePage: React.FC = () => {
            </div>
         )}
 
-        <div className="mt-12 text-center mb-12">
-            <button className="px-8 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold rounded-full transition shadow-sm uppercase text-sm tracking-wide">
+        <div className="mt-10 text-center mb-12">
+            <button className="px-8 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold rounded-full transition shadow-sm uppercase text-xs md:text-sm tracking-wide">
                 Load More
             </button>
         </div>
