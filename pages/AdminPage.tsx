@@ -12,7 +12,14 @@ const AdminPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [editingPost, setEditingPost] = useState<Post | null>(null);
-  const [formData, setFormData] = useState({ title: '', content: '', category: Category.TECH, status: PostStatus.DRAFT, author: 'Editor' });
+  const [formData, setFormData] = useState({ 
+    title: '', 
+    content: '', 
+    category: Category.TECH, 
+    tags: '', 
+    status: PostStatus.DRAFT, 
+    author: 'Editor' 
+  });
   const [aiTopic, setAiTopic] = useState('');
   const [error, setError] = useState<string | null>(null);
 
@@ -26,6 +33,7 @@ const AdminPage: React.FC = () => {
         title: editingPost.title,
         content: editingPost.content,
         category: editingPost.category,
+        tags: editingPost.tags.join(', '),
         status: editingPost.status,
         author: editingPost.author || 'Editor'
       });
@@ -35,7 +43,7 @@ const AdminPage: React.FC = () => {
   }, [editingPost]);
 
   const resetForm = () => {
-    setFormData({ title: '', content: '', category: Category.TECH, status: PostStatus.DRAFT, author: 'Editor' });
+    setFormData({ title: '', content: '', category: Category.TECH, tags: '', status: PostStatus.DRAFT, author: 'Editor' });
     setAiTopic('');
     setEditingPost(null);
     setError(null);
@@ -58,10 +66,18 @@ const AdminPage: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const tagsArray = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
+    
     if (editingPost) {
-      updatePost(editingPost.id, formData);
+      updatePost(editingPost.id, {
+        ...formData,
+        tags: tagsArray
+      });
     } else {
-      addPost(formData);
+      addPost({
+        ...formData,
+        tags: tagsArray
+      });
     }
     handleCloseModal();
   };
@@ -183,6 +199,7 @@ const AdminPage: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <span className="bg-gray-200 px-2 py-1 rounded text-xs font-bold uppercase">{post.category}</span>
+                    <div className="text-[10px] text-gray-400 mt-1 max-w-[150px] truncate">{post.tags.join(', ')}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 inline-flex text-xs leading-5 font-bold rounded-full uppercase ${
@@ -239,7 +256,7 @@ const AdminPage: React.FC = () => {
                   <label htmlFor="content" className="block text-sm font-bold text-gray-700 uppercase">Content (HTML)</label>
                   <textarea name="content" id="content" value={formData.content} onChange={handleChange} rows={10} required className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 font-mono text-sm"></textarea>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                    <div>
                     <label htmlFor="category" className="block text-sm font-bold text-gray-700 uppercase">Category</label>
                     <select name="category" id="category" value={formData.category} onChange={handleChange} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md">
@@ -253,11 +270,18 @@ const AdminPage: React.FC = () => {
                       <option value={PostStatus.PUBLISHED}>Published</option>
                     </select>
                   </div>
-                  <div>
+                </div>
+                
+                <div>
+                  <label htmlFor="tags" className="block text-sm font-bold text-gray-700 uppercase">Tags (Comma Separated)</label>
+                  <input type="text" name="tags" id="tags" value={formData.tags} onChange={handleChange} placeholder="Technology, Viral, Tips, Mobile" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500"/>
+                </div>
+
+                <div>
                     <label htmlFor="author" className="block text-sm font-bold text-gray-700 uppercase">Author</label>
                     <input type="text" name="author" id="author" value={formData.author} onChange={handleChange} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500"/>
-                  </div>
                 </div>
+
                  <div className="pt-4 flex justify-end gap-3">
                   <button type="button" onClick={handleCloseModal} className="bg-gray-200 text-gray-700 px-6 py-2 rounded-md font-bold uppercase hover:bg-gray-300 transition">Cancel</button>
                   <button type="submit" className="bg-red-600 text-white px-6 py-2 rounded-md font-bold uppercase hover:bg-red-700 transition shadow-lg">{editingPost ? 'Update' : 'Publish'}</button>

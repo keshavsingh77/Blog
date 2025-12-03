@@ -44,6 +44,15 @@ export const fetchPostsFromBlogger = async (): Promise<Post[]> => {
         const img = div.querySelector('img');
         if (img && img.src) {
           imageUrl = img.src;
+          
+          // Attempt to get high-res image from Blogger URL
+          // Blogger URLs often look like: .../s320/image.jpg
+          // We can replace /sXXX/ or /wXXX-hXXX/ with /s1600/ or /w1280-h720/ for better quality
+          if (imageUrl.includes('blogspot.com')) {
+             // Replace standard thumbnail sizes with high res
+             imageUrl = imageUrl.replace(/\/s\d+(-c)?\//, '/s1600/');
+             imageUrl = imageUrl.replace(/\/w\d+-h\d+(-p-k-no-nu)?\//, '/w1280-h720/');
+          }
         }
       } catch (e) {
         // Fallback to regex if DOM parsing fails
@@ -55,8 +64,10 @@ export const fetchPostsFromBlogger = async (): Promise<Post[]> => {
       // Determine category from labels
       // Map loosely to our fixed categories or default to News/Tech
       let category: Category = Category.NEWS;
+      let tags: string[] = [];
       
       if (item.labels && item.labels.length > 0) {
+        tags = item.labels; // Store all labels as tags
         const label = item.labels[0].toLowerCase();
         
         // Try to match existing Enum values
@@ -78,6 +89,7 @@ export const fetchPostsFromBlogger = async (): Promise<Post[]> => {
         title: item.title,
         content: item.content, // Blogger returns HTML content
         category: category,
+        tags: tags,
         status: PostStatus.PUBLISHED,
         createdAt: item.published,
         imageUrl: imageUrl,

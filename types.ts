@@ -18,6 +18,7 @@ export interface Post {
   title: string;
   content: string;
   category: Category;
+  tags: string[]; // New field for tags
   status: PostStatus;
   createdAt: string;
   imageUrl: string;

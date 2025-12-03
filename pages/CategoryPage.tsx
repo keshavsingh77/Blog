@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import { useBlog } from '../context/BlogContext';
 import { PostStatus } from '../types';
 import PostCard from '../components/PostCard';
@@ -10,21 +10,43 @@ const CategoryPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { posts } = useBlog();
 
-  const categoryName = slug ? slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : '';
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [slug]);
+
+  const rawSlug = slug || '';
+  // Convert slug to readable name (e.g., 'tech-tips' -> 'Tech Tips')
+  const readableName = rawSlug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 
   const categoryPosts = posts.filter(
-    p => p.category === categoryName && p.status === PostStatus.PUBLISHED
+    p => {
+        if (p.status !== PostStatus.PUBLISHED) return false;
+        
+        // Match standard category
+        const categoryMatch = p.category.toLowerCase() === readableName.toLowerCase();
+        
+        // Match against tags (normalized)
+        const tagMatch = p.tags && p.tags.some(tag => tag.toLowerCase() === readableName.toLowerCase());
+        
+        return categoryMatch || tagMatch;
+    }
   ).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 min-h-screen">
       <SEO 
-        title={categoryName || "Category"} 
-        description={`Explore the latest news, updates, and in-depth articles regarding ${categoryName}. Stay informed with AI Gov & Finance News Hub.`} 
+        title={readableName || "Category"} 
+        description={`Explore the latest news, updates, and in-depth articles regarding ${readableName}. Stay informed with Creative Mind.`} 
       />
-      <div className="border-b-2 border-blue-600 pb-4 mb-8">
-        <h1 className="text-4xl font-extrabold text-gray-900">{categoryName}</h1>
-        <p className="mt-2 text-lg text-gray-600">Browse the latest articles and updates in this category.</p>
+      
+      <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-gray-200 pb-6 mb-8">
+        <div>
+           <span className="text-red-600 font-bold uppercase tracking-widest text-xs mb-1 block">Browsing Category</span>
+           <h1 className="text-4xl font-black text-gray-900">{readableName}</h1>
+        </div>
+        <div className="mt-4 md:mt-0 text-gray-500 text-sm">
+            Showing {categoryPosts.length} articles
+        </div>
       </div>
       
       {categoryPosts.length > 0 ? (
@@ -34,10 +56,13 @@ const CategoryPage: React.FC = () => {
           ))}
         </div>
       ) : (
-        <div className="text-center py-16">
-            <i className="fas fa-file-alt text-6xl text-gray-300 mb-4"></i>
-            <h2 className="text-2xl font-semibold text-gray-700">No Posts Found</h2>
-            <p className="text-gray-500 mt-2">There are currently no articles in the "{categoryName}" category.</p>
+        <div className="text-center py-24 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+            <div className="inline-block p-4 rounded-full bg-white shadow-sm mb-4">
+               <i className="fas fa-folder-open text-4xl text-blue-300"></i>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-700">No Posts Found</h2>
+            <p className="text-gray-500 mt-2 mb-6">There are currently no articles tagged with "{readableName}".</p>
+            <Link to="/" className="text-blue-600 font-bold hover:underline">Return to Home</Link>
         </div>
       )}
     </div>
