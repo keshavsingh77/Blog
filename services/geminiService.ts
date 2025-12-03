@@ -3,8 +3,6 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { Category } from '../types';
 
 if (!process.env.API_KEY) {
-  // In a real app, you'd want to handle this more gracefully.
-  // For this example, we'll alert the developer.
   alert("API_KEY environment variable not set. AI features will not work.");
 }
 
@@ -14,13 +12,14 @@ export const generateBlogPost = async (topic: string): Promise<{ title: string; 
   try {
     const prompt = `
       Generate a blog post about the following topic: "${topic}".
-      The blog post should be well-structured, informative, and engaging for a general audience interested in government news, finance, and jobs in India.
+      The blog post should be written for "iPopcorn", a modern tech, gaming, and entertainment magazine.
+      The tone should be engaging, professional, and trendy (like The Verge, IGN, or Polygon).
       The content should be formatted in HTML with paragraphs (<p>), lists (<ul>, <li>), and bold text (<b>) for emphasis.
-      Based on the topic, also suggest the most relevant category for this blog post.
+      Based on the topic, also suggest the most relevant category from: Tech, Gaming, Entertainment, Movies, Reviews, News.
 
       Return the response as a JSON object with the following structure:
       {
-        "title": "A compelling and SEO-friendly title",
+        "title": "A compelling, click-worthy headline",
         "content": "The full blog post content in HTML format.",
         "category": "One of the provided category names"
       }
@@ -49,10 +48,8 @@ export const generateBlogPost = async (topic: string): Promise<{ title: string; 
     const jsonText = response.text;
     const generatedPost = JSON.parse(jsonText);
     
-    // Validate if the returned category is a valid enum member
     if (!Object.values(Category).includes(generatedPost.category)) {
-        // Fallback category if Gemini hallucinates a new one
-        generatedPost.category = Category.CENTRAL_GOVERNMENT;
+        generatedPost.category = Category.TECH;
     }
 
     return generatedPost;

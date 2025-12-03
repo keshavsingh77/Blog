@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import { CATEGORIES } from '../constants';
 
 const Header: React.FC = () => {
@@ -9,24 +9,29 @@ const Header: React.FC = () => {
   const getCategorySlug = (category: string) => category.toLowerCase().replace(/\s+/g, '-');
 
   return (
-    <header className="bg-white shadow-md sticky top-0 z-50">
+    <header className="bg-black text-white sticky top-0 z-50 border-b-4 border-red-600 shadow-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex-shrink-0">
-            <NavLink to="/" className="flex items-center space-x-2">
-              <i className="fas fa-landmark text-2xl text-blue-600"></i>
-              <span className="text-xl font-bold text-gray-800">GovNews AI</span>
-            </NavLink>
+        <div className="flex justify-between items-center h-20">
+          {/* Logo */}
+          <div className="flex-shrink-0 flex items-center">
+            <Link to="/" className="flex items-center space-x-2 group">
+              <span className="text-3xl font-black italic tracking-tighter group-hover:text-red-500 transition-colors">
+                <i className="fas fa-play-circle text-red-600 mr-2"></i>
+                iPopcorn
+              </span>
+            </Link>
           </div>
+
+          {/* Desktop Navigation */}
           <div className="hidden md:block">
-            <nav className="flex items-center space-x-4">
+            <nav className="flex items-center space-x-1">
               {CATEGORIES.map((cat) => (
                 <NavLink
                   key={cat}
                   to={`/category/${getCategorySlug(cat)}`}
                   className={({ isActive }) =>
-                    `px-3 py-2 rounded-md text-sm font-medium ${
-                      isActive ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                    `px-3 py-2 rounded-md text-sm font-bold uppercase tracking-wide transition-colors duration-200 ${
+                      isActive ? 'bg-red-600 text-white' : 'text-gray-300 hover:text-white hover:bg-gray-800'
                     }`
                   }
                 >
@@ -35,16 +40,18 @@ const Header: React.FC = () => {
               ))}
               <NavLink
                 to="/admin"
-                className="ml-4 px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                className="ml-4 px-4 py-2 bg-gray-800 rounded-full text-xs font-bold uppercase hover:bg-gray-700 transition-colors"
               >
-                <i className="fas fa-user-shield mr-2"></i>Admin
+                <i className="fas fa-lock mr-1"></i> Admin
               </NavLink>
             </nav>
           </div>
+
+          {/* Mobile menu button */}
           <div className="md:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-800 focus:outline-none"
             >
               <span className="sr-only">Open main menu</span>
               {isMenuOpen ? (
@@ -56,8 +63,10 @@ const Header: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden">
+        <div className="md:hidden bg-gray-900 border-t border-gray-800">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             {CATEGORIES.map((cat) => (
               <NavLink
@@ -65,8 +74,8 @@ const Header: React.FC = () => {
                 to={`/category/${getCategorySlug(cat)}`}
                 onClick={() => setIsMenuOpen(false)}
                 className={({ isActive }) =>
-                  `block px-3 py-2 rounded-md text-base font-medium ${
-                    isActive ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                  `block px-3 py-2 rounded-md text-base font-bold uppercase ${
+                    isActive ? 'bg-red-600 text-white' : 'text-gray-300 hover:bg-gray-800 hover:text-white'
                   }`
                 }
               >
@@ -76,9 +85,9 @@ const Header: React.FC = () => {
             <NavLink
               to="/admin"
               onClick={() => setIsMenuOpen(false)}
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+              className="block px-3 py-2 rounded-md text-base font-bold uppercase text-gray-300 hover:bg-gray-800 hover:text-white"
             >
-               <i className="fas fa-user-shield mr-2"></i>Admin
+               Admin Panel
             </NavLink>
           </div>
         </div>

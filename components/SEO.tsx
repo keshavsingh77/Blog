@@ -9,7 +9,7 @@ interface SEOProps {
 const SEO: React.FC<SEOProps> = ({ title, description }) => {
   useEffect(() => {
     // Update Document Title
-    document.title = `${title} | AI Gov & Finance News Hub`;
+    document.title = `${title} | iPopcorn - Tech & Entertainment`;
 
     // Update Meta Description
     let metaDescription = document.querySelector('meta[name="description"]');

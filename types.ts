@@ -1,11 +1,11 @@
 
 export enum Category {
-  CENTRAL_GOVERNMENT = "Central Government",
-  BIHAR_GOVERNMENT = "Bihar Government",
-  FINANCE = "Finance",
-  JOBS = "Jobs",
-  SCHEMES = "Government Schemes",
-  STUDY_MATERIAL = "Study Material",
+  TECH = "Tech",
+  GAMING = "Gaming",
+  ENTERTAINMENT = "Entertainment",
+  MOVIES = "Movies",
+  REVIEWS = "Reviews",
+  NEWS = "News",
 }
 
 export enum PostStatus {
@@ -21,4 +21,5 @@ export interface Post {
   status: PostStatus;
   createdAt: string;
   imageUrl: string;
+  author?: string;
 }
