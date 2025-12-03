@@ -34,8 +34,8 @@ const Footer: React.FC = () => {
               <a href="#" className="w-8 h-8 rounded-full bg-gray-100 text-gray-600 hover:bg-[#1877F2] hover:text-white flex items-center justify-center transition shadow-sm">
                 <i className="fab fa-facebook-f text-xs"></i>
               </a>
-              <a href="#" className="w-8 h-8 rounded-full bg-gray-100 text-gray-600 hover:bg-black hover:text-white flex items-center justify-center transition shadow-sm">
-                <i className="fab fa-x-twitter text-xs"></i>
+              <a href="https://t.me/creativemind7" className="w-8 h-8 rounded-full bg-gray-100 text-gray-600 hover:bg-blue-500 hover:text-white flex items-center justify-center transition shadow-sm">
+                <i className="fab fa-telegram text-xs"></i>
               </a>
               <a href="https://www.instagram.com/filmy4uhd?igsh=cG93eDEyc3d2Nmc3" className="w-8 h-8 rounded-full bg-gray-100 text-gray-600 hover:bg-gradient-to-tr hover:from-yellow-400 hover:via-red-500 hover:to-purple-500 hover:text-white flex items-center justify-center transition shadow-sm">
                 <i className="fab fa-instagram text-xs"></i>

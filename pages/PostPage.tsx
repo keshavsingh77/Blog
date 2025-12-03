@@ -1,8 +1,6 @@
-
 import React, { useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useBlog } from '../context/BlogContext';
-import GoogleAd from '../components/GoogleAd';
 import SEO from '../components/SEO';
 import PostCard from '../components/PostCard';
 import { SkeletonPostDetail } from '../components/SkeletonLoaders';
@@ -27,7 +25,6 @@ const PostPage: React.FC = () => {
         <SEO title="Post Not Found" description="The requested post could not be found." />
         <div className="text-6xl text-gray-300 mb-4"><i className="fas fa-ghost"></i></div>
         <h2 className="text-3xl font-bold text-gray-800 mb-2">Post not found</h2>
-        <p className="text-gray-500 mb-6">The article you are looking for might have been removed or unavailable.</p>
         <Link to="/" className="bg-blue-600 text-white px-6 py-2 rounded-full font-bold hover:bg-blue-700 transition shadow-lg">Go back to Home</Link>
       </div>
     );
@@ -38,7 +35,7 @@ const PostPage: React.FC = () => {
   const plainTextContent = post.content.replace(/<[^>]+>/g, '');
   const descriptionSnippet = plainTextContent.substring(0, 160).trim() + (plainTextContent.length > 160 ? '...' : '');
 
-  // Related Posts Logic: Match category or tags
+  // Related Posts Logic
   const relatedPosts = posts.filter(p => 
       p.id !== post.id && (
       p.category === post.category || 
@@ -46,24 +43,16 @@ const PostPage: React.FC = () => {
       )
   ).slice(0, 4);
 
-  // Recent Posts Logic (excluding current and related)
+  // Recent Posts Logic
   const recentPosts = posts.filter(p => 
       p.id !== post.id && !relatedPosts.find(rp => rp.id === p.id)
   ).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 6);
 
-  // Trending Posts (Simulated random selection for now)
+  // Trending Posts
   const trendingPosts = [...posts]
     .filter(p => p.id !== post.id)
     .sort(() => 0.5 - Math.random())
     .slice(0, 5);
-
-  // Logic to split content and insert ad in the middle
-  const paragraphs = post.content.split('</p>');
-  const middleIndex = Math.max(1, Math.floor(paragraphs.length / 2));
-  
-  // Reconstruct HTML for first half and second half
-  const contentStart = paragraphs.slice(0, middleIndex).join('</p>') + (paragraphs.length > 0 ? '</p>' : '');
-  const contentEnd = paragraphs.slice(middleIndex).join('</p>');
 
   return (
     <div className="bg-white min-h-screen font-sans">
@@ -82,8 +71,7 @@ const PostPage: React.FC = () => {
             <h1 className="text-2xl md:text-5xl lg:text-6xl font-black leading-tight mb-4 md:mb-6 shadow-sm max-w-4xl">{post.title}</h1>
             <div className="flex flex-wrap items-center text-xs md:text-sm font-medium text-gray-300 gap-4 md:gap-6">
               <span className="flex items-center text-white"><i className="fas fa-user-circle text-lg mr-2 text-blue-400"></i> {post.author || 'Creative Admin'}</span>
-              <span className="flex items-center"><i className="far fa-clock mr-2 text-blue-400"></i> {new Date(post.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-              <span className="hidden md:flex items-center"><i className="far fa-eye mr-2 text-blue-400"></i> 1.2k Views</span>
+              <span className="flex items-center"><i className="far fa-clock mr-2 text-blue-400"></i> {new Date(post.createdAt).toLocaleDateString()}</span>
             </div>
          </div>
       </div>
@@ -94,36 +82,8 @@ const PostPage: React.FC = () => {
           {/* Main Content Column */}
           <div className="lg:col-span-8">
             
-            {/* Top Ad - Display Ad Unit */}
-            <div className="w-full h-auto mb-8 md:mb-10">
-                <GoogleAd 
-                slot="5754054742" 
-                format="auto" 
-                className="w-full" 
-                />
-            </div>
-
-            <article className="prose prose-lg md:prose-xl max-w-none text-gray-800 leading-relaxed mb-4
-              prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline
-              prose-headings:font-black prose-headings:text-gray-900
-              prose-img:rounded-xl prose-img:shadow-lg">
-                
-                {/* First half of content */}
-                <div dangerouslySetInnerHTML={{ __html: contentStart }} />
-                
-                {/* Middle Ad - In-Feed / Native Ad Unit */}
-                <div className="w-full block min-w-[250px] min-h-[280px] my-10 clear-both">
-                    <GoogleAd 
-                       slot="1909584638" 
-                       format="fluid" 
-                       layoutKey="-6t+ed+2i-1n-4w"
-                       className="w-full block" 
-                    />
-                </div>
-                
-                {/* Second half of content */}
-                <div dangerouslySetInnerHTML={{ __html: contentEnd }} />
-
+            <article className="prose prose-lg md:prose-xl max-w-none text-gray-800 leading-relaxed mb-4">
+                <div dangerouslySetInnerHTML={{ __html: post.content }} />
             </article>
 
             {/* Tags Section */}
@@ -138,7 +98,7 @@ const PostPage: React.FC = () => {
                             <Link 
                                 key={tag} 
                                 to={`/category/${getCategorySlug(tag)}`}
-                                className="inline-flex items-center px-4 py-2 md:px-5 md:py-2.5 rounded-full text-xs md:text-sm font-bold bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gradient-to-r hover:from-blue-600 hover:to-indigo-600 hover:text-white hover:border-transparent transition-all duration-300 shadow-sm hover:shadow-lg transform hover:-translate-y-0.5"
+                                className="inline-flex items-center px-4 py-2 md:px-5 md:py-2.5 rounded-full text-xs md:text-sm font-bold bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gradient-to-r hover:from-blue-600 hover:to-indigo-600 hover:text-white hover:border-transparent transition-all duration-300 shadow-sm hover:shadow-lg"
                             >
                                 <i className="fas fa-hashtag text-[10px] md:text-xs mr-2 opacity-50"></i>
                                 {tag}
@@ -152,37 +112,19 @@ const PostPage: React.FC = () => {
             <div className="mt-10 p-4 md:p-6 bg-gradient-to-r from-gray-50 to-white rounded-xl border border-gray-100 shadow-sm">
               <h3 className="font-bold text-gray-900 text-base md:text-lg mb-4 text-center">Share this Article</h3>
               <div className="flex justify-center space-x-2 md:space-x-4">
-                 <button className="flex-1 bg-[#1877F2] text-white px-3 py-2 md:px-4 md:py-3 rounded-lg text-xs md:text-sm font-bold hover:opacity-90 transition flex justify-center items-center shadow-md transform hover:-translate-y-1"><i className="fab fa-facebook-f mr-2 text-base"></i> <span className="hidden sm:inline">Facebook</span></button>
-                 <button className="flex-1 bg-[#1DA1F2] text-white px-3 py-2 md:px-4 md:py-3 rounded-lg text-xs md:text-sm font-bold hover:opacity-90 transition flex justify-center items-center shadow-md transform hover:-translate-y-1"><i className="fab fa-twitter mr-2 text-base"></i> <span className="hidden sm:inline">Twitter</span></button>
-                 <button className="flex-1 bg-[#25D366] text-white px-3 py-2 md:px-4 md:py-3 rounded-lg text-xs md:text-sm font-bold hover:opacity-90 transition flex justify-center items-center shadow-md transform hover:-translate-y-1"><i className="fab fa-whatsapp mr-2 text-base"></i> <span className="hidden sm:inline">WhatsApp</span></button>
+                 <button className="flex-1 bg-[#1877F2] text-white px-3 py-2 md:px-4 md:py-3 rounded-lg text-xs md:text-sm font-bold hover:opacity-90 transition flex justify-center items-center shadow-md"><i className="fab fa-facebook-f mr-2 text-base"></i> <span className="hidden sm:inline">Facebook</span></button>
+                 <button className="flex-1 bg-[#1DA1F2] text-white px-3 py-2 md:px-4 md:py-3 rounded-lg text-xs md:text-sm font-bold hover:opacity-90 transition flex justify-center items-center shadow-md"><i className="fab fa-twitter mr-2 text-base"></i> <span className="hidden sm:inline">Twitter</span></button>
+                 <button className="flex-1 bg-[#25D366] text-white px-3 py-2 md:px-4 md:py-3 rounded-lg text-xs md:text-sm font-bold hover:opacity-90 transition flex justify-center items-center shadow-md"><i className="fab fa-whatsapp mr-2 text-base"></i> <span className="hidden sm:inline">WhatsApp</span></button>
               </div>
-            </div>
-
-            {/* Bottom Ad - Fixed Size 600x500 (Hidden on mobile, block on md+) */}
-            <div className="mt-12 mb-12 flex justify-center">
-              <GoogleAd 
-                  slot="8617081290" 
-                  format="false" // Fixed size
-                  responsive={false}
-                  className="hidden md:block" // Hide on small screens to prevent overflow
-                  style={{ display: 'inline-block', width: '600px', height: '500px' }}
-              />
-               {/* Mobile fallback ad */}
-               <GoogleAd 
-                  slot="5754054742" 
-                  format="rectangle"
-                  className="block md:hidden w-full" 
-              />
             </div>
 
             {/* You Might Also Like (Related Posts) */}
             {relatedPosts.length > 0 && (
-                <div className="mb-12">
+                <div className="mb-12 mt-12">
                     <div className="flex items-center justify-between mb-6">
                        <h3 className="text-xl md:text-2xl font-black text-gray-900 border-l-4 border-blue-600 pl-4">You Might Also Like</h3>
                        <Link to="/" className="text-sm font-bold text-blue-600 hover:underline">View All</Link>
                     </div>
-                    {/* Updated to 2 columns on mobile to match the 'double element' theme */}
                     <div className="grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-8">
                         {relatedPosts.map(p => (
                             <PostCard key={p.id} post={p} />
@@ -196,7 +138,6 @@ const PostPage: React.FC = () => {
                 <div className="flex items-center justify-between mb-6">
                     <h3 className="text-xl md:text-2xl font-black text-gray-900 border-l-4 border-red-600 pl-4">Recent Uploads</h3>
                 </div>
-                {/* Updated to 2 columns on mobile */}
                 <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                     {recentPosts.map(p => (
                         <PostCard key={p.id} post={p} />
@@ -213,7 +154,6 @@ const PostPage: React.FC = () => {
 
           {/* Sidebar */}
           <aside className="lg:col-span-4 space-y-8">
-             {/* Sticky Container */}
              <div className="sticky top-24 space-y-8">
                  
                  {/* Author Widget */}
@@ -223,7 +163,6 @@ const PostPage: React.FC = () => {
                     </div>
                     <h4 className="font-bold text-gray-900 text-lg">{post.author || 'Creative Admin'}</h4>
                     <p className="text-xs text-blue-600 font-bold uppercase tracking-wide mb-3">Editor in Chief</p>
-                    <p className="text-sm text-gray-500 mb-4 leading-relaxed">Sharing the latest viral hits, tech insights, and gaming news. Stay curious!</p>
                     <button className="w-full border-2 border-blue-600 text-blue-600 font-bold text-sm py-2 rounded-full hover:bg-blue-600 hover:text-white transition">Follow</button>
                  </div>
 
@@ -248,15 +187,6 @@ const PostPage: React.FC = () => {
                             </Link>
                         ))}
                     </div>
-                 </div>
-
-                 {/* Sidebar Ad - Display Unit */}
-                 <div className="w-full h-[300px]">
-                    <GoogleAd 
-                    slot="5754054742" 
-                    format="auto"
-                    className="w-full h-full" 
-                    />
                  </div>
                  
                  {/* Categories Widget */}

@@ -1,11 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useBlog } from '../context/BlogContext';
 import PostCard from '../components/PostCard';
 import SEO from '../components/SEO';
 import { SkeletonCard, SkeletonHero } from '../components/SkeletonLoaders';
-import GoogleAd from '../components/GoogleAd';
 
 const HomePage: React.FC = () => {
   const { posts, isLoading } = useBlog();
@@ -34,7 +32,6 @@ const HomePage: React.FC = () => {
 
   const paginate = (pageNumber: number) => {
     setCurrentPage(pageNumber);
-    // Optional: scroll to top of latest posts section if needed
     const latestSection = document.getElementById('latest-posts');
     if (latestSection) {
         latestSection.scrollIntoView({ behavior: 'smooth' });
@@ -83,26 +80,9 @@ const HomePage: React.FC = () => {
 
   // Helper to inject ads into the grid
   const renderPostGrid = (posts: typeof currentLatestPosts) => {
-    const items = [];
-    posts.forEach((post, index) => {
-      items.push(<PostCard key={post.id} post={post} />);
-      // Insert Native Ad after the 3rd item
-      if (index === 2) {
-         items.push(
-           <div key="ad-feed" className="col-span-2 md:col-span-1 border border-gray-100 rounded-xl bg-gray-50 min-h-[280px] w-full block relative overflow-hidden">
-             <div className="w-full h-full min-h-[280px] block p-2">
-                <GoogleAd 
-                  slot="1909584638" 
-                  format="fluid" 
-                  layoutKey="-6t+ed+2i-1n-4w"
-                  className="w-full h-full m-0 min-w-[250px]"
-                />
-             </div>
-           </div>
-         );
-      }
-    });
-    return items;
+    return posts.map((post) => (
+      <PostCard key={post.id} post={post} />
+    ));
   };
 
   return (
@@ -140,7 +120,7 @@ const HomePage: React.FC = () => {
         </div>
       </div>
 
-      {/* Hero Carousel Section - Single Element */}
+      {/* Hero Carousel Section */}
       {heroPosts.length > 0 && (
         <section className="relative w-full max-w-7xl mx-auto mt-4 md:mt-6 px-4 sm:px-6 lg:px-8 mb-8">
            <div className="relative rounded-xl md:rounded-2xl overflow-hidden shadow-xl h-[200px] sm:h-[350px] md:h-[450px]">
@@ -159,9 +139,6 @@ const HomePage: React.FC = () => {
                         <h2 className="text-lg md:text-4xl font-black text-white leading-tight mb-1 md:mb-2 drop-shadow-lg line-clamp-2">
                           {post.title}
                         </h2>
-                        <p className="hidden md:block text-gray-200 text-sm line-clamp-1 opacity-90">
-                            Click to read the full story and explore more...
-                        </p>
                       </div>
                   </Link>
                 </div>
@@ -181,7 +158,7 @@ const HomePage: React.FC = () => {
         </section>
       )}
 
-      {/* Latest Posts Section - Double Element (2 Col Grid) */}
+      {/* Latest Posts Section */}
       <div id="latest-posts" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between mb-6 border-b-2 border-gray-100 pb-2">
            <h2 className="text-xl md:text-2xl font-black text-gray-900 border-l-4 border-blue-600 pl-3">
@@ -190,7 +167,6 @@ const HomePage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8">
-           {/* Displaying current page of posts with inserted Ad */}
            {currentPage === 1 
               ? renderPostGrid([...heroPosts, ...currentLatestPosts]) 
               : renderPostGrid(currentLatestPosts)

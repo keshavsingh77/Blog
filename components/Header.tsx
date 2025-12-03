@@ -160,8 +160,8 @@ const Header: React.FC = () => {
                   <a href="#" className="text-gray-400 hover:text-blue-600 transition">
                     <i className="fab fa-facebook-f text-xl"></i>
                   </a>
-                  <a href="#" className="text-gray-400 hover:text-black transition">
-                    <i className="fab fa-x-twitter text-xl"></i>
+                  <a href="https://t.me/creativemind7" className="text-gray-400 hover:text-blue-500 transition">
+                    <i className="fab fa-telegram text-xl"></i>
                   </a>
                   <a href="https://www.instagram.com/filmy4uhd?igsh=cG93eDEyc3d2Nmc3" className="text-gray-400 hover:text-pink-600 transition">
                     <i className="fab fa-instagram text-xl"></i>
