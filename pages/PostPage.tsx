@@ -62,7 +62,6 @@ const PostPage: React.FC = () => {
   const middleIndex = Math.max(1, Math.floor(paragraphs.length / 2));
   
   // Reconstruct HTML for first half and second half
-  // We join by </p> and add the closing tag back because split removes it
   const contentStart = paragraphs.slice(0, middleIndex).join('</p>') + (paragraphs.length > 0 ? '</p>' : '');
   const contentEnd = paragraphs.slice(middleIndex).join('</p>');
 
@@ -94,8 +93,15 @@ const PostPage: React.FC = () => {
           
           {/* Main Content Column */}
           <div className="lg:col-span-8">
-            {/* Top Ad */}
-            <GoogleAd slot="1234567890" className="w-full h-auto mb-8 md:mb-10" />
+            
+            {/* Top Ad - Display Ad Unit */}
+            <div className="w-full h-auto mb-8 md:mb-10">
+                <GoogleAd 
+                slot="5754054742" 
+                format="auto" 
+                className="w-full" 
+                />
+            </div>
 
             <article className="prose prose-lg md:prose-xl max-w-none text-gray-800 leading-relaxed mb-4
               prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline
@@ -105,8 +111,15 @@ const PostPage: React.FC = () => {
                 {/* First half of content */}
                 <div dangerouslySetInnerHTML={{ __html: contentStart }} />
                 
-                {/* Middle Ad - In-Content */}
-                <GoogleAd slot="0987654321" format="auto" className="my-10" />
+                {/* Middle Ad - In-Feed / Native Ad Unit */}
+                <div className="w-full block min-w-[250px] min-h-[280px] my-10 clear-both">
+                    <GoogleAd 
+                       slot="1909584638" 
+                       format="fluid" 
+                       layoutKey="-6t+ed+2i-1n-4w"
+                       className="w-full block" 
+                    />
+                </div>
                 
                 {/* Second half of content */}
                 <div dangerouslySetInnerHTML={{ __html: contentEnd }} />
@@ -145,8 +158,22 @@ const PostPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Bottom Ad */}
-            <GoogleAd slot="1122334455" className="w-full h-auto mt-12 mb-12" />
+            {/* Bottom Ad - Fixed Size 600x500 (Hidden on mobile, block on md+) */}
+            <div className="mt-12 mb-12 flex justify-center">
+              <GoogleAd 
+                  slot="8617081290" 
+                  format="false" // Fixed size
+                  responsive={false}
+                  className="hidden md:block" // Hide on small screens to prevent overflow
+                  style={{ display: 'inline-block', width: '600px', height: '500px' }}
+              />
+               {/* Mobile fallback ad */}
+               <GoogleAd 
+                  slot="5754054742" 
+                  format="rectangle"
+                  className="block md:hidden w-full" 
+              />
+            </div>
 
             {/* You Might Also Like (Related Posts) */}
             {relatedPosts.length > 0 && (
@@ -223,7 +250,14 @@ const PostPage: React.FC = () => {
                     </div>
                  </div>
 
-                 <GoogleAd slot="5566778899" className="w-full h-[300px]" />
+                 {/* Sidebar Ad - Display Unit */}
+                 <div className="w-full h-[300px]">
+                    <GoogleAd 
+                    slot="5754054742" 
+                    format="auto"
+                    className="w-full h-full" 
+                    />
+                 </div>
                  
                  {/* Categories Widget */}
                  <div className="bg-gray-900 text-white p-6 rounded-xl shadow-lg">

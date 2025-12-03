@@ -5,6 +5,7 @@ import { useBlog } from '../context/BlogContext';
 import PostCard from '../components/PostCard';
 import SEO from '../components/SEO';
 import { SkeletonCard, SkeletonHero } from '../components/SkeletonLoaders';
+import GoogleAd from '../components/GoogleAd';
 
 const HomePage: React.FC = () => {
   const { posts, isLoading } = useBlog();
@@ -79,6 +80,30 @@ const HomePage: React.FC = () => {
       </div>
     );
   }
+
+  // Helper to inject ads into the grid
+  const renderPostGrid = (posts: typeof currentLatestPosts) => {
+    const items = [];
+    posts.forEach((post, index) => {
+      items.push(<PostCard key={post.id} post={post} />);
+      // Insert Native Ad after the 3rd item
+      if (index === 2) {
+         items.push(
+           <div key="ad-feed" className="col-span-2 md:col-span-1 border border-gray-100 rounded-xl bg-gray-50 min-h-[280px] w-full block relative overflow-hidden">
+             <div className="w-full h-full min-h-[280px] block p-2">
+                <GoogleAd 
+                  slot="1909584638" 
+                  format="fluid" 
+                  layoutKey="-6t+ed+2i-1n-4w"
+                  className="w-full h-full m-0 min-w-[250px]"
+                />
+             </div>
+           </div>
+         );
+      }
+    });
+    return items;
+  };
 
   return (
     <div className="bg-white min-h-screen font-sans">
@@ -165,10 +190,11 @@ const HomePage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8">
-           {/* Displaying current page of posts */}
-           {(currentPage === 1 ? [...heroPosts, ...currentLatestPosts] : currentLatestPosts).map(post => (
-             <PostCard key={post.id} post={post} />
-           ))}
+           {/* Displaying current page of posts with inserted Ad */}
+           {currentPage === 1 
+              ? renderPostGrid([...heroPosts, ...currentLatestPosts]) 
+              : renderPostGrid(currentLatestPosts)
+           }
         </div>
         
         {posts.length === 0 && (
