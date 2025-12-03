@@ -5,10 +5,11 @@ import { useBlog } from '../context/BlogContext';
 import { PostStatus } from '../types';
 import PostCard from '../components/PostCard';
 import SEO from '../components/SEO';
+import { SkeletonCard } from '../components/SkeletonLoaders';
 
 const CategoryPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { posts } = useBlog();
+  const { posts, isLoading } = useBlog();
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 6;
 
@@ -16,6 +17,21 @@ const CategoryPage: React.FC = () => {
     window.scrollTo(0, 0);
     setCurrentPage(1); // Reset to page 1 when category changes
   }, [slug]);
+
+  if (isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 min-h-screen font-sans">
+           {/* Header Skeleton */}
+           <div className="mb-8 animate-pulse">
+              <div className="h-4 bg-gray-200 w-32 mb-2 rounded"></div>
+              <div className="h-10 bg-gray-200 w-64 rounded"></div>
+           </div>
+           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
+              {[1,2,3,4,5,6].map(i => <SkeletonCard key={i} />)}
+           </div>
+      </div>
+    );
+  }
 
   const rawSlug = slug || '';
   // Convert slug to readable name (e.g., 'tech-tips' -> 'Tech Tips')

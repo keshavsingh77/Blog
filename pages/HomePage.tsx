@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useBlog } from '../context/BlogContext';
 import PostCard from '../components/PostCard';
 import SEO from '../components/SEO';
-import Spinner from '../components/Spinner';
+import { SkeletonCard, SkeletonHero } from '../components/SkeletonLoaders';
 
 const HomePage: React.FC = () => {
   const { posts, isLoading } = useBlog();
@@ -62,8 +62,20 @@ const HomePage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex justify-center items-center bg-white">
-        <Spinner />
+      <div className="bg-white min-h-screen font-sans">
+         <div className="max-w-7xl mx-auto px-4 pt-4">
+             {/* Tag bar skeleton */}
+             <div className="flex space-x-3 overflow-hidden py-1 mb-4 animate-pulse">
+                 {[1,2,3,4,5].map(i => <div key={i} className="h-6 w-24 bg-gray-100 rounded-full"></div>)}
+             </div>
+         </div>
+         <SkeletonHero />
+         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="h-8 w-40 bg-gray-200 rounded mb-6 animate-pulse"></div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8">
+               {[1,2,3,4,5,6].map(i => <SkeletonCard key={i} />)}
+            </div>
+         </div>
       </div>
     );
   }

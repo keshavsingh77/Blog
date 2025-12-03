@@ -1,19 +1,25 @@
+
 import React, { useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useBlog } from '../context/BlogContext';
 import GoogleAd from '../components/GoogleAd';
 import SEO from '../components/SEO';
 import PostCard from '../components/PostCard';
+import { SkeletonPostDetail } from '../components/SkeletonLoaders';
 
 const PostPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { getPostById, posts } = useBlog();
+  const { getPostById, posts, isLoading } = useBlog();
   const navigate = useNavigate();
   const post = id ? getPostById(id) : undefined;
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [id]);
+
+  if (isLoading) {
+    return <SkeletonPostDetail />;
+  }
 
   if (!post) {
     return (
