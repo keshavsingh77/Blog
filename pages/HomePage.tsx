@@ -9,21 +9,56 @@ import Spinner from '../components/Spinner';
 const HomePage: React.FC = () => {
   const { posts, isLoading } = useBlog();
   const [currentSlide, setCurrentSlide] = useState(0);
+  
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 6; 
+
+  // Extract tags for "Discover more"
+  const allTags = Array.from(new Set(posts.flatMap(p => p.tags))).sort(() => 0.5 - Math.random());
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
+  // Separate Hero Posts (Top 3) from the rest
   const heroPosts = posts.slice(0, 3);
-  const latestPosts = posts.slice(3);
+  const remainingPosts = posts.slice(3);
+
+  // Pagination Logic for Remaining Posts
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentLatestPosts = remainingPosts.slice(indexOfFirstPost, indexOfLastPost);
+  const totalPages = Math.ceil(remainingPosts.length / postsPerPage);
+
+  const paginate = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+    // Optional: scroll to top of latest posts section if needed
+    const latestSection = document.getElementById('latest-posts');
+    if (latestSection) {
+        latestSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const nextPage = () => {
+    if (currentPage < totalPages) paginate(currentPage + 1);
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) paginate(currentPage - 1);
+  };
+
 
   // Auto-scroll hero slider
   useEffect(() => {
+    if (heroPosts.length === 0) return;
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % heroPosts.length);
     }, 5000);
     return () => clearInterval(timer);
   }, [heroPosts.length]);
+
+  const getCategorySlug = (tag: string) => tag.toLowerCase().replace(/\s+/g, '-');
 
   if (isLoading) {
     return (
@@ -39,6 +74,34 @@ const HomePage: React.FC = () => {
         title="Home" 
         description="Creative Mind - The best place for viral tech tips, gaming updates, and entertainment news."
       />
+
+      {/* Discover More - Horizontal Scroll Bar */}
+      <div className="bg-white pt-4 pb-2 border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center overflow-x-auto no-scrollbar space-x-3 py-1">
+             <span className="text-xs font-bold text-gray-400 uppercase whitespace-nowrap mr-2">Discover more</span>
+             {allTags.map(tag => (
+               <Link
+                 key={tag}
+                 to={`/category/${getCategorySlug(tag)}`}
+                 className="flex-shrink-0 px-4 py-1.5 rounded-full border border-blue-100 bg-blue-50 text-blue-600 text-xs font-bold hover:bg-blue-600 hover:text-white transition whitespace-nowrap flex items-center"
+               >
+                 <i className="fas fa-bolt mr-1.5 text-[10px]"></i> {tag}
+               </Link>
+             ))}
+             {/* Fallback tags if empty */}
+             {allTags.length === 0 && ['YouTube Shorts', 'Creative Mind', 'Video', 'Viral', 'Tech', 'Money'].map(tag => (
+                <Link
+                 key={tag}
+                 to={`/category/${getCategorySlug(tag)}`}
+                 className="flex-shrink-0 px-4 py-1.5 rounded-full border border-blue-100 bg-blue-50 text-blue-600 text-xs font-bold hover:bg-blue-600 hover:text-white transition whitespace-nowrap flex items-center"
+               >
+                 <i className="fas fa-bolt mr-1.5 text-[10px]"></i> {tag}
+               </Link>
+             ))}
+          </div>
+        </div>
+      </div>
 
       {/* Hero Carousel Section - Single Element */}
       {heroPosts.length > 0 && (
@@ -82,7 +145,7 @@ const HomePage: React.FC = () => {
       )}
 
       {/* Latest Posts Section - Double Element (2 Col Grid) */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div id="latest-posts" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between mb-6 border-b-2 border-gray-100 pb-2">
            <h2 className="text-xl md:text-2xl font-black text-gray-900 border-l-4 border-blue-600 pl-3">
              Latest Posts
@@ -90,8 +153,8 @@ const HomePage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8">
-           {/* Displaying all posts to create the content flow */}
-           {[...heroPosts, ...latestPosts].map(post => (
+           {/* Displaying current page of posts */}
+           {(currentPage === 1 ? [...heroPosts, ...currentLatestPosts] : currentLatestPosts).map(post => (
              <PostCard key={post.id} post={post} />
            ))}
         </div>
@@ -102,11 +165,30 @@ const HomePage: React.FC = () => {
            </div>
         )}
 
-        <div className="mt-10 text-center mb-12">
-            <button className="px-8 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold rounded-full transition shadow-sm uppercase text-xs md:text-sm tracking-wide">
-                Load More
-            </button>
-        </div>
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+            <div className="mt-12 flex justify-center items-center space-x-2">
+                <button 
+                    onClick={prevPage}
+                    disabled={currentPage === 1}
+                    className={`px-4 py-2 rounded-lg font-bold text-sm transition ${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-800 border border-gray-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200'}`}
+                >
+                    <i className="fas fa-chevron-left mr-1"></i> Previous
+                </button>
+                
+                <span className="text-sm font-medium text-gray-500 px-2">
+                    Page {currentPage} of {totalPages}
+                </span>
+
+                <button 
+                    onClick={nextPage}
+                    disabled={currentPage === totalPages}
+                    className={`px-4 py-2 rounded-lg font-bold text-sm transition ${currentPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white shadow-md hover:bg-blue-700'}`}
+                >
+                    Next <i className="fas fa-chevron-right ml-1"></i>
+                </button>
+            </div>
+        )}
       </div>
     </div>
   );

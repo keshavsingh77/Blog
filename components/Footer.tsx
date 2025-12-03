@@ -1,50 +1,117 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useBlog } from '../context/BlogContext';
 
 const Footer: React.FC = () => {
+  const { posts } = useBlog();
+  
+  // Extract unique tags
+  const allTags = Array.from(new Set(posts.flatMap(p => p.tags))).slice(0, 20);
+  const getCategorySlug = (tag: string) => tag.toLowerCase().replace(/\s+/g, '-');
+
   return (
-    <footer className="bg-gray-900 text-gray-400 mt-auto">
-      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-          <div>
-            <h3 className="text-white text-2xl font-black tracking-tight mb-4 flex items-center">
-              <i className="fas fa-brain text-blue-500 mr-2"></i> Creative Mind
-            </h3>
-            <p className="text-sm mb-6">
-              Your #1 source for viral tech tricks, gaming news, and daily doses of internet culture. We unlock the potential of the digital world for you.
+    <footer className="bg-white border-t border-gray-200 mt-auto font-sans">
+      
+      {/* Top Footer Section: Brand, Newsletter, Socials */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          
+          {/* Brand & Description */}
+          <div className="space-y-4">
+            <Link to="/" className="flex items-center group">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mr-2 text-white shadow-md group-hover:shadow-lg transition-all">
+                  <i className="fas fa-lightbulb text-sm"></i>
+                </div>
+                <span className="text-2xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-800">
+                  Creative Mind
+                </span>
+            </Link>
+            <p className="text-gray-500 text-sm leading-relaxed">
+              Your handshake, one source for viral tech tricks, gaming news, and daily dose of internet culture. We unlock the potential of the digital world for you.
             </p>
-            <div className="flex space-x-4">
-              <a href="https://t.me/creativemind7" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white hover:bg-blue-400 transition shadow-lg">
-                <i className="fab fa-telegram-plane"></i>
+            <div className="flex gap-4 pt-2">
+              <a href="#" className="w-8 h-8 rounded-full bg-gray-100 text-gray-600 hover:bg-[#1877F2] hover:text-white flex items-center justify-center transition shadow-sm">
+                <i className="fab fa-facebook-f text-xs"></i>
               </a>
-              <a href="https://www.instagram.com/filmy4uhd?igsh=cG93eDEyc3d2Nmc3" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-pink-600 flex items-center justify-center text-white hover:bg-pink-500 transition shadow-lg">
-                <i className="fab fa-instagram"></i>
+              <a href="#" className="w-8 h-8 rounded-full bg-gray-100 text-gray-600 hover:bg-black hover:text-white flex items-center justify-center transition shadow-sm">
+                <i className="fab fa-x-twitter text-xs"></i>
               </a>
-              <a href="https://youtube.com/@creativemind77-b8t?si=HyiSpwJhlz2B9f5M" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white hover:bg-red-500 transition shadow-lg">
-                <i className="fab fa-youtube"></i>
+              <a href="https://www.instagram.com/filmy4uhd?igsh=cG93eDEyc3d2Nmc3" className="w-8 h-8 rounded-full bg-gray-100 text-gray-600 hover:bg-gradient-to-tr hover:from-yellow-400 hover:via-red-500 hover:to-purple-500 hover:text-white flex items-center justify-center transition shadow-sm">
+                <i className="fab fa-instagram text-xs"></i>
+              </a>
+              <a href="https://youtube.com/@creativemind77-b8t?si=HyiSpwJhlz2B9f5M" className="w-8 h-8 rounded-full bg-gray-100 text-gray-600 hover:bg-[#FF0000] hover:text-white flex items-center justify-center transition shadow-sm">
+                <i className="fab fa-youtube text-xs"></i>
               </a>
             </div>
           </div>
-          <div>
-            <h4 className="text-white font-bold uppercase mb-4 tracking-wider">Explore</h4>
-            <ul className="space-y-2 text-sm">
-              <li><Link to="/" className="hover:text-blue-400 transition">Home</Link></li>
-              <li><Link to="/category/tech" className="hover:text-blue-400 transition">Tech Tricks</Link></li>
-              <li><Link to="/category/gaming" className="hover:text-blue-400 transition">Gaming</Link></li>
-              <li><Link to="/category/reviews" className="hover:text-blue-400 transition">Reviews</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-white font-bold uppercase mb-4 tracking-wider">Stay Updated</h4>
-            <p className="text-xs mb-4">Get the latest viral hits straight to your inbox.</p>
-            <div className="flex">
-              <input type="email" placeholder="Your email address" className="bg-gray-800 text-white px-4 py-2 rounded-l-md w-full focus:outline-none border border-gray-700 focus:border-blue-500" />
-              <button className="bg-blue-600 text-white px-4 py-2 rounded-r-md font-bold hover:bg-blue-700 transition">JOIN</button>
+
+          {/* Newsletter Section */}
+          <div className="md:col-span-2 md:pl-10">
+            <div className="bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-100">
+              <div className="md:flex md:items-center md:justify-between gap-6">
+                <div className="mb-4 md:mb-0">
+                  <h3 className="text-lg font-bold text-gray-900 mb-1">Subscribe to our Newsletter</h3>
+                  <p className="text-gray-500 text-sm">Get the latest viral tips, tricks, and tech news delivered directly to your inbox.</p>
+                </div>
+                <div className="flex-1 max-w-sm">
+                   <form className="flex rounded-lg shadow-sm overflow-hidden">
+                      <input 
+                        type="email" 
+                        placeholder="Enter email address" 
+                        className="flex-1 px-4 py-3 bg-white border-none outline-none text-sm text-gray-700 placeholder-gray-400"
+                        required 
+                      />
+                      <button type="submit" className="bg-blue-600 text-white px-6 py-3 font-bold text-sm hover:bg-blue-700 transition">
+                        JOIN
+                      </button>
+                   </form>
+                </div>
+              </div>
             </div>
+          </div>
+
+        </div>
+      </div>
+
+      {/* Categories Cloud Section */}
+      <div className="bg-[#1e293b] py-10 px-4 border-t border-gray-800">
+        <div className="max-w-4xl mx-auto text-center">
+          <h3 className="text-white text-sm font-bold uppercase tracking-widest mb-6 opacity-80">Explore Categories</h3>
+          <div className="flex flex-wrap justify-center gap-3">
+            {allTags.length > 0 ? allTags.map(tag => (
+              <Link 
+                key={tag} 
+                to={`/category/${getCategorySlug(tag)}`}
+                className="px-4 py-2 bg-[#334155] text-gray-300 rounded-full text-xs font-medium hover:bg-blue-600 hover:text-white transition-colors capitalize border border-gray-700"
+              >
+                {tag}
+              </Link>
+            )) : (
+              // Fallback if no tags yet
+              ['Free Followers', 'Instagram', 'AI', 'CapCut', 'ChatGPT', 'Google Ai Studio', 'Psychology', 'YouTube', 'Image', 'Image Genrate', 'Blogger', 'Bot', 'Earn Money Online'].map(tag => (
+                 <Link 
+                  key={tag} 
+                  to={`/category/${getCategorySlug(tag)}`}
+                  className="px-4 py-2 bg-[#334155] text-gray-300 rounded-full text-xs font-medium hover:bg-blue-600 hover:text-white transition-colors capitalize border border-gray-700"
+                >
+                  {tag}
+                </Link>
+              ))
+            )}
           </div>
         </div>
-        <div className="border-t border-gray-800 pt-8 text-center text-xs">
-          <p>&copy; {new Date().getFullYear()} Creative Mind. All rights reserved.</p>
+      </div>
+
+      {/* Bottom Copyright */}
+      <div className="bg-gray-900 py-6 text-center text-gray-500 text-xs border-t border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+           <p>&copy; {new Date().getFullYear()} Creative Mind. All rights reserved.</p>
+           <div className="mt-2 md:mt-0 space-x-4">
+             <Link to="/" className="hover:text-gray-300">Privacy Policy</Link>
+             <Link to="/" className="hover:text-gray-300">Terms of Service</Link>
+             <Link to="/" className="hover:text-gray-300">Contact</Link>
+           </div>
         </div>
       </div>
     </footer>

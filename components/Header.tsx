@@ -1,13 +1,18 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { CATEGORIES } from '../constants';
+import { useBlog } from '../context/BlogContext';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const { posts } = useBlog();
   const navigate = useNavigate();
+
+  // Extract unique tags for the menu
+  const allTags = Array.from(new Set(posts.flatMap(p => p.tags))).slice(0, 15);
 
   const getCategorySlug = (category: string) => category.toLowerCase().replace(/\s+/g, '-');
 
@@ -19,6 +24,18 @@ const Header: React.FC = () => {
     }
   };
 
+  // Prevent body scroll when menu is open
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [isMenuOpen]);
+
   return (
     <>
       <header className="bg-white text-gray-800 sticky top-0 z-50 shadow-sm border-b border-gray-100">
@@ -28,18 +45,18 @@ const Header: React.FC = () => {
             {/* Left: Mobile Menu Button */}
             <div className="flex items-center">
               <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-blue-600 hover:bg-gray-50 focus:outline-none transition-colors"
+                onClick={() => setIsMenuOpen(true)}
+                className="inline-flex items-center justify-center p-2 rounded-md text-gray-800 hover:text-blue-600 focus:outline-none transition-colors"
               >
-                <i className="fas fa-bars text-xl"></i>
+                <i className="fas fa-bars text-2xl"></i>
               </button>
             </div>
 
             {/* Center: Logo */}
             <div className="flex-1 flex justify-center">
               <Link to="/" className="flex items-center group">
-                <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mr-2 text-white shadow-md group-hover:shadow-lg transform group-hover:-translate-y-0.5 transition-all">
-                  <i className="fas fa-lightbulb text-lg"></i>
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mr-2 text-white shadow-md group-hover:shadow-lg transform group-hover:-translate-y-0.5 transition-all">
+                  <i className="fas fa-lightbulb text-sm"></i>
                 </div>
                 <span className="text-2xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-800">
                   Creative Mind
@@ -51,7 +68,7 @@ const Header: React.FC = () => {
             <div className="flex items-center">
               <button
                 onClick={() => setIsSearchOpen(!isSearchOpen)}
-                className="p-2 text-gray-500 hover:text-blue-600 transition-colors"
+                className="p-2 text-gray-800 hover:text-blue-600 transition-colors"
               >
                 <i className={`fas ${isSearchOpen ? 'fa-times' : 'fa-search'} text-xl`}></i>
               </button>
@@ -78,56 +95,86 @@ const Header: React.FC = () => {
           </div>
         )}
 
-        {/* Mobile/Sidebar Menu */}
-        <div className={`fixed inset-0 z-50 transform ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out`}>
-           <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm" onClick={() => setIsMenuOpen(false)}></div>
-           <nav className="relative bg-white h-full w-72 shadow-2xl flex flex-col">
-              <div className="p-5 border-b flex justify-between items-center bg-gray-50">
-                <div className="flex items-center">
-                   <div className="w-8 h-8 bg-blue-600 rounded-md flex items-center justify-center mr-2 text-white text-sm">
-                      <i className="fas fa-bolt"></i>
-                   </div>
-                   <span className="font-black text-gray-800 text-lg">Menu</span>
-                </div>
-                <button onClick={() => setIsMenuOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-200 hover:text-red-500 transition">
-                  <i className="fas fa-times"></i>
-                </button>
+        {/* Mobile/Sidebar Menu Overlay */}
+        {isMenuOpen && (
+          <div className="fixed inset-0 z-50 flex">
+            {/* Backdrop */}
+            <div 
+              className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" 
+              onClick={() => setIsMenuOpen(false)}
+            ></div>
+
+            {/* Drawer */}
+            <nav className="relative bg-white w-[85%] max-w-sm h-full shadow-2xl flex flex-col transform transition-transform duration-300 ease-in-out translate-x-0 overflow-y-auto">
+              
+              {/* Drawer Header */}
+              <div className="p-4 flex justify-between items-center border-b border-gray-100">
+                 <span className="text-xl font-black text-blue-600">Creative Mind</span>
+                 <button onClick={() => setIsMenuOpen(false)} className="text-gray-500 hover:text-black p-2">
+                   <i className="fas fa-times text-xl"></i>
+                 </button>
               </div>
-              <div className="py-4 px-3 space-y-1 overflow-y-auto custom-scrollbar">
-                <NavLink 
+
+              {/* Menu Items */}
+              <div className="py-2">
+                <Link 
                   to="/" 
                   onClick={() => setIsMenuOpen(false)}
-                  className={({ isActive }) => `flex items-center px-4 py-3 rounded-xl font-bold transition-all ${isActive ? 'bg-blue-50 text-blue-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}
+                  className="block px-6 py-3 text-base font-medium text-gray-800 hover:bg-gray-50"
                 >
-                  <i className="fas fa-home w-8 text-center"></i> Home
-                </NavLink>
+                  Home
+                </Link>
+
+                <div className="mt-4 px-6 mb-2">
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">CATEGORIES</p>
+                </div>
+                
+                {/* Standard Categories */}
                 {CATEGORIES.map((cat) => (
-                  <NavLink
+                  <Link
                     key={cat}
                     to={`/category/${getCategorySlug(cat)}`}
                     onClick={() => setIsMenuOpen(false)}
-                    className={({ isActive }) =>
-                      `flex items-center px-4 py-3 rounded-xl font-bold transition-all ${
-                        isActive ? 'bg-blue-50 text-blue-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                      }`
-                    }
+                    className="block px-6 py-3 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-gray-50 capitalize"
                   >
-                   <i className="fas fa-hashtag w-8 text-center text-gray-400"></i> {cat}
-                  </NavLink>
+                    {cat}
+                  </Link>
+                ))}
+
+                {/* Popular Tags from Context */}
+                {allTags.map((tag) => (
+                   <Link
+                    key={tag}
+                    to={`/category/${getCategorySlug(tag)}`}
+                    onClick={() => setIsMenuOpen(false)}
+                    className="block px-6 py-3 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-gray-50 capitalize"
+                  >
+                    {tag}
+                  </Link>
                 ))}
               </div>
-              <div className="mt-auto p-6 border-t bg-gray-50">
-                <div className="flex justify-center space-x-4 mb-4">
-                  <a href="https://t.me/creativemind7" target="_blank" rel="noreferrer" className="text-gray-400 hover:text-blue-500"><i className="fab fa-telegram text-xl"></i></a>
-                  <a href="https://www.instagram.com/filmy4uhd?igsh=cG93eDEyc3d2Nmc3" target="_blank" rel="noreferrer" className="text-gray-400 hover:text-pink-600"><i className="fab fa-instagram text-xl"></i></a>
-                  <a href="https://youtube.com/@creativemind77-b8t?si=HyiSpwJhlz2B9f5M" target="_blank" rel="noreferrer" className="text-gray-400 hover:text-red-600"><i className="fab fa-youtube text-xl"></i></a>
+
+              {/* Drawer Footer (Socials) */}
+              <div className="mt-auto p-6 border-t border-gray-100">
+                <div className="flex justify-center space-x-6">
+                  <a href="#" className="text-gray-400 hover:text-blue-600 transition">
+                    <i className="fab fa-facebook-f text-xl"></i>
+                  </a>
+                  <a href="#" className="text-gray-400 hover:text-black transition">
+                    <i className="fab fa-x-twitter text-xl"></i>
+                  </a>
+                  <a href="https://www.instagram.com/filmy4uhd?igsh=cG93eDEyc3d2Nmc3" className="text-gray-400 hover:text-pink-600 transition">
+                    <i className="fab fa-instagram text-xl"></i>
+                  </a>
+                   <a href="https://youtube.com/@creativemind77-b8t?si=HyiSpwJhlz2B9f5M" className="text-gray-400 hover:text-red-600 transition">
+                    <i className="fab fa-youtube text-xl"></i>
+                  </a>
                 </div>
-                <p className="text-xs text-center text-gray-400 font-medium">
-                  &copy; 2025 Creative Mind
-                </p>
               </div>
-           </nav>
-        </div>
+
+            </nav>
+          </div>
+        )}
       </header>
     </>
   );

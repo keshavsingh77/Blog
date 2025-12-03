@@ -1,8 +1,7 @@
-
 import React, { useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useBlog } from '../context/BlogContext';
-import AdsensePlaceholder from '../components/AdsensePlaceholder';
+import GoogleAd from '../components/GoogleAd';
 import SEO from '../components/SEO';
 import PostCard from '../components/PostCard';
 
@@ -52,6 +51,15 @@ const PostPage: React.FC = () => {
     .sort(() => 0.5 - Math.random())
     .slice(0, 5);
 
+  // Logic to split content and insert ad in the middle
+  const paragraphs = post.content.split('</p>');
+  const middleIndex = Math.max(1, Math.floor(paragraphs.length / 2));
+  
+  // Reconstruct HTML for first half and second half
+  // We join by </p> and add the closing tag back because split removes it
+  const contentStart = paragraphs.slice(0, middleIndex).join('</p>') + (paragraphs.length > 0 ? '</p>' : '');
+  const contentEnd = paragraphs.slice(middleIndex).join('</p>');
+
   return (
     <div className="bg-white min-h-screen font-sans">
       <SEO title={post.title} description={descriptionSnippet} />
@@ -80,15 +88,24 @@ const PostPage: React.FC = () => {
           
           {/* Main Content Column */}
           <div className="lg:col-span-8">
-            <AdsensePlaceholder className="w-full h-20 md:h-24 mb-8 md:mb-10" />
+            {/* Top Ad */}
+            <GoogleAd slot="1234567890" className="w-full h-auto mb-8 md:mb-10" />
 
-            <article
-              className="prose prose-lg md:prose-xl max-w-none text-gray-800 leading-relaxed mb-10
+            <article className="prose prose-lg md:prose-xl max-w-none text-gray-800 leading-relaxed mb-4
               prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline
               prose-headings:font-black prose-headings:text-gray-900
-              prose-img:rounded-xl prose-img:shadow-lg"
-              dangerouslySetInnerHTML={{ __html: post.content }}
-            />
+              prose-img:rounded-xl prose-img:shadow-lg">
+                
+                {/* First half of content */}
+                <div dangerouslySetInnerHTML={{ __html: contentStart }} />
+                
+                {/* Middle Ad - In-Content */}
+                <GoogleAd slot="0987654321" format="auto" className="my-10" />
+                
+                {/* Second half of content */}
+                <div dangerouslySetInnerHTML={{ __html: contentEnd }} />
+
+            </article>
 
             {/* Tags Section */}
             {post.tags && post.tags.length > 0 && (
@@ -122,7 +139,8 @@ const PostPage: React.FC = () => {
               </div>
             </div>
 
-            <AdsensePlaceholder className="w-full h-32 mt-12 mb-12" />
+            {/* Bottom Ad */}
+            <GoogleAd slot="1122334455" className="w-full h-auto mt-12 mb-12" />
 
             {/* You Might Also Like (Related Posts) */}
             {relatedPosts.length > 0 && (
@@ -199,7 +217,7 @@ const PostPage: React.FC = () => {
                     </div>
                  </div>
 
-                 <AdsensePlaceholder className="w-full h-[300px]" />
+                 <GoogleAd slot="5566778899" className="w-full h-[300px]" />
                  
                  {/* Categories Widget */}
                  <div className="bg-gray-900 text-white p-6 rounded-xl shadow-lg">
