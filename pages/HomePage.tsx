@@ -87,7 +87,7 @@ const HomePage: React.FC = () => {
         <PostCard post={post} />
         {/* Inject Native In-Feed Ad after the 3rd item */}
         {index === 2 && (
-           <div className="col-span-2 md:col-span-3 my-4">
+           <div className="col-span-2 md:col-span-3 my-4 min-h-[250px]">
               {/* Native In-Feed Ad Unit - Slot: 1909584638 */}
               <GoogleAd 
                 slot="1909584638" 
@@ -155,6 +155,8 @@ const HomePage: React.FC = () => {
                         loading={index === 0 ? "eager" : "lazy"}
                         // @ts-ignore
                         fetchpriority={index === 0 ? "high" : undefined}
+                        width="1280"
+                        height="720"
                       />
                       {/* Gradient Overlay */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-80"></div>
@@ -222,6 +224,7 @@ const HomePage: React.FC = () => {
                     onClick={prevPage}
                     disabled={currentPage === 1}
                     className={`px-4 py-2 rounded-lg font-bold text-sm transition-all flex items-center ${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 border border-gray-200 hover:bg-blue-50 hover:text-blue-600'}`}
+                    aria-label="Previous Page"
                 >
                     <i className="fas fa-arrow-left mr-2"></i> Prev
                 </button>
@@ -234,6 +237,7 @@ const HomePage: React.FC = () => {
                     onClick={nextPage}
                     disabled={currentPage === totalPages}
                     className={`px-4 py-2 rounded-lg font-bold text-sm transition-all flex items-center ${currentPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white shadow-md hover:bg-blue-700'}`}
+                     aria-label="Next Page"
                 >
                     Next <i className="fas fa-arrow-right ml-2"></i>
                 </button>

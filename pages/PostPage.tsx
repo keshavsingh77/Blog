@@ -72,6 +72,8 @@ const PostPage: React.FC = () => {
                src={post.imageUrl} 
                alt={post.title} 
                fetchPriority="high"
+               width="1280"
+               height="720"
              />
          </div>
          {/* Gradients for text readability */}
@@ -177,7 +179,7 @@ const PostPage: React.FC = () => {
                 <div className="flex-grow relative z-10">
                     <h3 className="text-2xl font-black text-gray-900 mb-1">{post.author || 'Creative Admin'}</h3>
                     <p className="text-xs text-blue-600 font-bold uppercase tracking-wide mb-4 bg-blue-50 inline-block px-2 py-1 rounded">Senior Editor</p>
-                    <p className="text-gray-600 text-base leading-relaxed mb-5">
+                    <p className="text-gray-700 text-base leading-relaxed mb-5 font-medium">
                         Passionate about technology, gaming, and the latest digital trends. dedicated to bringing you the most viral and useful content from around the web.
                     </p>
                     <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
@@ -186,6 +188,7 @@ const PostPage: React.FC = () => {
                             target="_blank" 
                             rel="noopener noreferrer"
                             className="bg-gray-900 text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-blue-600 transition-all shadow-md hover:shadow-lg flex items-center group"
+                            aria-label="Follow Author on Telegram"
                         >
                             <i className="fab fa-telegram-plane mr-2 group-hover:scale-110 transition-transform"></i> Follow Author
                         </a>
@@ -231,6 +234,7 @@ const PostPage: React.FC = () => {
                 <button 
                   onClick={() => navigate(-1)} 
                   className="text-gray-600 hover:text-blue-600 font-bold flex items-center transition px-5 py-3 rounded-xl hover:bg-gray-100 focus:outline-none"
+                  aria-label="Back to Feed"
                 >
                   <i className="fas fa-arrow-left mr-2" aria-hidden="true"></i> Back to Feed
                 </button>

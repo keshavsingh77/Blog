@@ -25,6 +25,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
               src={post.imageUrl} 
               alt={post.title} 
               loading="lazy"
+              decoding="async"
               width="640"
               height="360"
             />
@@ -40,7 +41,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
       {/* Content Container */}
       <div className="p-5 flex flex-col flex-grow">
-        <div className="mb-2 flex items-center text-xs text-gray-400 font-medium uppercase tracking-wide">
+        <div className="mb-2 flex items-center text-xs text-gray-500 font-medium uppercase tracking-wide">
            <span className="mr-3"><i className="far fa-clock mr-1"></i> {new Date(post.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
         </div>
         
@@ -57,9 +58,9 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
            <Link to={`/post/${post.id}`} className="inline-flex items-center font-bold text-xs uppercase text-blue-600 hover:text-blue-800 transition-colors">
             Read More
           </Link>
-          <div className="flex space-x-3 text-gray-400">
-             <i className="far fa-bookmark hover:text-gray-600 cursor-pointer"></i>
-             <i className="fas fa-share-alt hover:text-gray-600 cursor-pointer"></i>
+          <div className="flex space-x-3 text-gray-400 hover:text-gray-600">
+             <i className="far fa-bookmark cursor-pointer hover:text-blue-600 transition-colors" aria-label="Bookmark"></i>
+             <i className="fas fa-share-alt cursor-pointer hover:text-blue-600 transition-colors" aria-label="Share"></i>
           </div>
         </div>
       </div>

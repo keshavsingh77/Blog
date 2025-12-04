@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useBlog } from '../context/BlogContext';
@@ -26,20 +27,20 @@ const Footer: React.FC = () => {
                   Creative Mind
                 </span>
             </Link>
-            <p className="text-gray-600 text-sm leading-relaxed">
+            <p className="text-gray-700 text-sm leading-relaxed font-medium">
               Your handshake, one source for viral tech tricks, gaming news, and daily dose of internet culture. We unlock the potential of the digital world for you.
             </p>
             <div className="flex gap-4 pt-2">
-              <a href="#" className="w-8 h-8 rounded-full bg-gray-100 text-gray-700 hover:bg-[#1877F2] hover:text-white flex items-center justify-center transition shadow-sm" aria-label="Facebook">
+              <a href="#" className="w-8 h-8 rounded-full bg-gray-100 text-gray-600 hover:bg-[#1877F2] hover:text-white flex items-center justify-center transition shadow-sm" aria-label="Facebook">
                 <i className="fab fa-facebook-f text-xs"></i>
               </a>
-              <a href="https://t.me/creativemind7" className="w-8 h-8 rounded-full bg-gray-100 text-gray-700 hover:bg-blue-500 hover:text-white flex items-center justify-center transition shadow-sm" aria-label="Telegram">
+              <a href="https://t.me/creativemind7" className="w-8 h-8 rounded-full bg-gray-100 text-gray-600 hover:bg-blue-500 hover:text-white flex items-center justify-center transition shadow-sm" aria-label="Telegram">
                 <i className="fab fa-telegram text-xs"></i>
               </a>
-              <a href="https://www.instagram.com/filmy4uhd?igsh=cG93eDEyc3d2Nmc3" className="w-8 h-8 rounded-full bg-gray-100 text-gray-700 hover:bg-gradient-to-tr hover:from-yellow-400 hover:via-red-500 hover:to-purple-500 hover:text-white flex items-center justify-center transition shadow-sm" aria-label="Instagram">
+              <a href="https://www.instagram.com/filmy4uhd?igsh=cG93eDEyc3d2Nmc3" className="w-8 h-8 rounded-full bg-gray-100 text-gray-600 hover:bg-gradient-to-tr hover:from-yellow-400 hover:via-red-500 hover:to-purple-500 hover:text-white flex items-center justify-center transition shadow-sm" aria-label="Instagram">
                 <i className="fab fa-instagram text-xs"></i>
               </a>
-              <a href="https://youtube.com/@creativemind77-b8t?si=HyiSpwJhlz2B9f5M" className="w-8 h-8 rounded-full bg-gray-100 text-gray-700 hover:bg-[#FF0000] hover:text-white flex items-center justify-center transition shadow-sm" aria-label="YouTube">
+              <a href="https://youtube.com/@creativemind77-b8t?si=HyiSpwJhlz2B9f5M" className="w-8 h-8 rounded-full bg-gray-100 text-gray-600 hover:bg-[#FF0000] hover:text-white flex items-center justify-center transition shadow-sm" aria-label="YouTube">
                 <i className="fab fa-youtube text-xs"></i>
               </a>
             </div>
@@ -51,7 +52,7 @@ const Footer: React.FC = () => {
               <div className="md:flex md:items-center md:justify-between gap-6">
                 <div className="mb-4 md:mb-0">
                   <h3 className="text-lg font-bold text-gray-900 mb-1">Subscribe to our Newsletter</h3>
-                  <p className="text-gray-600 text-sm">Get the latest viral tips, tricks, and tech news delivered directly to your inbox.</p>
+                  <p className="text-gray-600 text-sm font-medium">Get the latest viral tips, tricks, and tech news delivered directly to your inbox.</p>
                 </div>
                 <div className="flex-1 max-w-sm">
                    <form className="flex rounded-lg shadow-sm overflow-hidden">
