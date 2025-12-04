@@ -87,8 +87,9 @@ const HomePage: React.FC = () => {
         <PostCard post={post} />
         {/* Inject Native In-Feed Ad after the 3rd item */}
         {index === 2 && (
-           <div className="col-span-2 md:col-span-3 my-4 min-h-[250px]">
+           <div className="col-span-2 md:col-span-3 my-4 min-h-[250px] bg-white rounded-xl shadow-sm overflow-hidden">
               {/* Native In-Feed Ad Unit - Slot: 1909584638 */}
+              <div className="text-[10px] text-gray-300 text-center uppercase tracking-widest pt-2">Sponsored</div>
               <GoogleAd 
                 slot="1909584638" 
                 format="fluid" 

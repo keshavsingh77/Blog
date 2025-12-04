@@ -60,6 +60,20 @@ const PostPage: React.FC = () => {
     .sort(() => 0.5 - Math.random())
     .slice(0, 5);
 
+  // --- SMART CONTENT SPLITTING FOR ADS ---
+  // Split content by paragraph closing tag to inject ad after the 2nd paragraph
+  const paragraphs = post.content.split('</p>');
+  let contentBeforeAd = post.content;
+  let contentAfterAd = '';
+  const showInContentAd = paragraphs.length > 2;
+
+  if (showInContentAd) {
+    // Reconstruct the first 2 paragraphs (adding the closing tag back)
+    contentBeforeAd = paragraphs.slice(0, 2).join('</p>') + '</p>';
+    // The rest of the content
+    contentAfterAd = paragraphs.slice(2).join('</p>');
+  }
+
   return (
     <div className="bg-white min-h-screen font-sans selection:bg-blue-100 selection:text-blue-900 pt-16">
       <SEO title={post.title} description={descriptionSnippet} />
@@ -103,24 +117,32 @@ const PostPage: React.FC = () => {
           {/* Main Content Column */}
           <main className="lg:col-span-8">
             
-            {/* Top Ad (In-Article) */}
-            <div className="mb-8 min-h-[100px] block w-full">
-               <GoogleAd 
-                 slot="1641433819" 
-                 format="fluid" 
-                 layout="in-article" 
-                 style={{ display: 'block', textAlign: 'center' }}
-               />
-            </div>
-
-            {/* Article Content with improved typography */}
+            {/* Article Content */}
             <article className="prose prose-lg md:prose-xl max-w-none text-gray-800 leading-relaxed prose-headings:font-black prose-headings:tracking-tight prose-a:text-blue-600 prose-img:rounded-2xl prose-img:shadow-lg animate-fade-in-up delay-100">
-                {/* Simulated Drop Cap & Content Injection */}
-                <div dangerouslySetInnerHTML={{ __html: post.content }} className="first-letter:float-left first-letter:text-5xl first-letter:pr-3 first-letter:font-black first-letter:text-blue-600 first-letter:mt-[-4px]" />
+                
+                {/* 1. First Part of Content (First 2 paragraphs) */}
+                <div dangerouslySetInnerHTML={{ __html: contentBeforeAd }} className="first-letter:float-left first-letter:text-5xl first-letter:pr-3 first-letter:font-black first-letter:text-blue-600 first-letter:mt-[-4px]" />
+                
+                {/* 2. In-Article Ad (Injected here for high CTR) */}
+                <div className="my-8 block w-full min-h-[100px] overflow-hidden">
+                   <div className="text-[10px] text-gray-400 text-center uppercase tracking-widest mb-1">Advertisement</div>
+                   <GoogleAd 
+                     slot="1641433819" 
+                     format="fluid" 
+                     layout="in-article" 
+                     style={{ display: 'block', textAlign: 'center' }}
+                   />
+                </div>
+
+                {/* 3. Remaining Content */}
+                {contentAfterAd && (
+                   <div dangerouslySetInnerHTML={{ __html: contentAfterAd }} />
+                )}
             </article>
 
-            {/* Bottom Ad (Multiplex) */}
-            <div className="mt-8 mb-8 min-h-[100px] block w-full">
+            {/* Bottom Ad (Multiplex - Auto Relaxed) */}
+            <div className="mt-12 mb-8 block w-full min-h-[100px]">
+                <div className="text-[10px] text-gray-400 text-center uppercase tracking-widest mb-1">Sponsored Links</div>
                 <GoogleAd 
                   slot="8617081290" 
                   format="autorelaxed" 
@@ -129,7 +151,7 @@ const PostPage: React.FC = () => {
 
             {/* Categories Section (derived from tags) */}
             {post.tags && post.tags.length > 0 && (
-                <div className="mt-12 pt-8 border-t border-gray-100">
+                <div className="mt-8 pt-8 border-t border-gray-100">
                     <div className="flex items-center mb-6">
                         <span className="w-1 h-6 bg-blue-600 rounded mr-3"></span>
                         <h4 className="text-gray-900 font-black uppercase text-sm tracking-widest">Categories</h4>
@@ -245,13 +267,6 @@ const PostPage: React.FC = () => {
           <aside className="lg:col-span-4 space-y-8">
              <div className="sticky top-24 space-y-8">
                  
-                 {/* Sidebar Ad (Optional - using display ad if needed, currently commented out based on user request to only use provided codes) */}
-                 {/* 
-                 <div className="min-h-[250px] block w-full">
-                     <GoogleAd slot="5754054742" format="rectangle" />
-                 </div>
-                 */}
-
                  {/* Trending Now Widget */}
                  <div className="bg-white border border-gray-100 p-6 rounded-3xl shadow-sm hover:shadow-md transition-shadow">
                     <h4 className="font-black text-gray-900 uppercase mb-6 text-sm tracking-widest flex items-center">
