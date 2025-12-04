@@ -64,21 +64,37 @@ const AdminPage: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Auto-update category based on first tag
+    if (name === 'tags') {
+      const firstTag = value.split(',')[0].trim();
+      setFormData(prev => ({ 
+        ...prev, 
+        [name]: value,
+        category: firstTag || prev.category // Set category to first tag if available
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const tagsArray = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
     
+    // Ensure category is the first tag if tags exist
+    const finalCategory = tagsArray.length > 0 ? tagsArray[0] : formData.category;
+
     if (editingPost) {
       updatePost(editingPost.id, {
         ...formData,
+        category: finalCategory,
         tags: tagsArray
       });
     } else {
       addPost({
         ...formData,
+        category: finalCategory,
         tags: tagsArray
       });
     }
@@ -99,6 +115,7 @@ const AdminPage: React.FC = () => {
         title: generated.title,
         content: generated.content,
         category: generated.category,
+        tags: generated.category // AI usually returns category, so use it as tag too
       }));
     } catch (err: any) {
       setError(err.message);
@@ -262,11 +279,8 @@ const AdminPage: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                    <div>
                     <label htmlFor="category" className="block text-sm font-bold text-gray-700 uppercase">Category</label>
-                    {/* Allow free text input for category or selection from list */}
-                    <input list="category-options" name="category" id="category" value={formData.category} onChange={handleChange} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500"/>
-                    <datalist id="category-options">
-                        {CATEGORIES.map(cat => <option key={cat} value={cat} />)}
-                    </datalist>
+                    <input list="category-options" name="category" id="category" value={formData.category} onChange={handleChange} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500" readOnly/>
+                    <p className="text-xs text-gray-500 mt-1">Automatically set from the first tag.</p>
                   </div>
                   <div>
                     <label htmlFor="status" className="block text-sm font-bold text-gray-700 uppercase">Status</label>
@@ -280,6 +294,7 @@ const AdminPage: React.FC = () => {
                 <div>
                   <label htmlFor="tags" className="block text-sm font-bold text-gray-700 uppercase">Tags (Comma Separated)</label>
                   <input type="text" name="tags" id="tags" value={formData.tags} onChange={handleChange} placeholder="Technology, Viral, Tips, Mobile" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500"/>
+                   <p className="text-xs text-gray-500 mt-1">The first tag will be used as the main Category.</p>
                 </div>
 
                 <div>

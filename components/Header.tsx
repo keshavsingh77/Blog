@@ -11,6 +11,15 @@ const Header: React.FC = () => {
   const { posts } = useBlog();
   const navigate = useNavigate();
 
+  // Derive dynamic categories from the actual tags in the posts
+  // If no posts are loaded yet, fall back to the CATEGORIES constant
+  const postTags = posts.length > 0 
+    ? Array.from(new Set(posts.flatMap(p => p.tags))).sort() 
+    : [];
+  
+  // Combine unique tags, favoring active post tags but ensuring defaults exist if empty
+  const displayCategories = postTags.length > 0 ? postTags : CATEGORIES;
+
   const getCategorySlug = (category: string) => category.toLowerCase().replace(/\s+/g, '-');
 
   const handleSearch = (e: React.FormEvent) => {
@@ -145,8 +154,8 @@ const Header: React.FC = () => {
                         Categories
                     </div>
                     
-                    {/* List the new specific categories (formerly trending tags) */}
-                    {CATEGORIES.map((cat) => (
+                    {/* List the new specific categories (derived from tags) */}
+                    {displayCategories.map((cat) => (
                     <Link
                         key={cat}
                         to={`/category/${getCategorySlug(cat)}`}

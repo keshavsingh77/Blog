@@ -161,10 +161,20 @@ const PostPage: React.FC = () => {
                     <p className="text-gray-600 text-base leading-relaxed mb-5">
                         Passionate about technology, gaming, and the latest digital trends. dedicated to bringing you the most viral and useful content from around the web.
                     </p>
-                    <div className="flex justify-center sm:justify-start space-x-5 text-gray-400">
-                        <a href="#" className="hover:text-blue-600 transition-transform hover:scale-110"><i className="fab fa-twitter text-lg"></i></a>
-                        <a href="#" className="hover:text-blue-800 transition-transform hover:scale-110"><i className="fab fa-linkedin text-lg"></i></a>
-                        <a href="#" className="hover:text-pink-600 transition-transform hover:scale-110"><i className="fab fa-instagram text-lg"></i></a>
+                    <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+                        <a 
+                            href="https://t.me/creativemind7" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="bg-gray-900 text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-blue-600 transition-all shadow-md hover:shadow-lg flex items-center group"
+                        >
+                            <i className="fab fa-telegram-plane mr-2 group-hover:scale-110 transition-transform"></i> Follow Author
+                        </a>
+                        <div className="flex space-x-5 text-gray-400">
+                             <a href="https://t.me/creativemind7" target="_blank" rel="noopener noreferrer" className="hover:text-blue-500 transition-transform hover:scale-110" aria-label="Telegram"><i className="fab fa-telegram text-lg"></i></a>
+                            <a href="https://www.instagram.com/filmy4uhd?igsh=cG93eDEyc3d2Nmc3" target="_blank" rel="noopener noreferrer" className="hover:text-pink-600 transition-transform hover:scale-110" aria-label="Instagram"><i className="fab fa-instagram text-lg"></i></a>
+                            <a href="https://youtube.com/@creativemind77-b8t?si=HyiSpwJhlz2B9f5M" target="_blank" rel="noopener noreferrer" className="hover:text-red-600 transition-transform hover:scale-110" aria-label="YouTube"><i className="fab fa-youtube text-lg"></i></a>
+                        </div>
                     </div>
                 </div>
             </div>

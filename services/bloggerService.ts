@@ -65,7 +65,7 @@ export const fetchPostsFromBlogger = async (): Promise<Post[]> => {
       
       if (item.labels && item.labels.length > 0) {
         tags = item.labels; // Store all labels as tags
-        category = item.labels[0]; // First tag is the category
+        category = item.labels[0]; // First tag is explicitly the category
       }
 
       return {
