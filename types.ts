@@ -1,12 +1,5 @@
 
-export enum Category {
-  TECH = "Tech",
-  GAMING = "Gaming",
-  ENTERTAINMENT = "Entertainment",
-  MOVIES = "Movies",
-  REVIEWS = "Reviews",
-  NEWS = "News",
-}
+export type Category = string;
 
 export enum PostStatus {
   DRAFT = "Draft",

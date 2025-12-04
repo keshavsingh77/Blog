@@ -1,5 +1,5 @@
 
-import { Post, PostStatus, Category } from '../types';
+import { Post, PostStatus } from '../types';
 import { INITIAL_POSTS } from '../constants';
 
 // =================================================================================
@@ -46,10 +46,7 @@ export const fetchPostsFromBlogger = async (): Promise<Post[]> => {
           imageUrl = img.src;
           
           // Attempt to get high-res image from Blogger URL
-          // Blogger URLs often look like: .../s320/image.jpg
-          // We can replace /sXXX/ or /wXXX-hXXX/ with /s1600/ or /w1280-h720/ for better quality
           if (imageUrl.includes('blogspot.com')) {
-             // Replace standard thumbnail sizes with high res
              imageUrl = imageUrl.replace(/\/s\d+(-c)?\//, '/s1600/');
              imageUrl = imageUrl.replace(/\/w\d+-h\d+(-p-k-no-nu)?\//, '/w1280-h720/');
           }
@@ -62,26 +59,13 @@ export const fetchPostsFromBlogger = async (): Promise<Post[]> => {
       }
 
       // Determine category from labels
-      // Map loosely to our fixed categories or default to News/Tech
-      let category: Category = Category.NEWS;
+      // Logic: The first label/tag IS the category
       let tags: string[] = [];
+      let category: string = 'General';
       
       if (item.labels && item.labels.length > 0) {
         tags = item.labels; // Store all labels as tags
-        const label = item.labels[0].toLowerCase();
-        
-        // Try to match existing Enum values
-        const exactMatch = Object.values(Category).find(c => c.toLowerCase() === label);
-        if (exactMatch) {
-          category = exactMatch;
-        } else {
-          // Heuristic mapping for common tags
-          if (label.includes('tech') || label.includes('app') || label.includes('social') || label.includes('trick')) category = Category.TECH;
-          else if (label.includes('game') || label.includes('gaming')) category = Category.GAMING;
-          else if (label.includes('movie') || label.includes('film') || label.includes('cinema')) category = Category.MOVIES;
-          else if (label.includes('review')) category = Category.REVIEWS;
-          else if (label.includes('entertain')) category = Category.ENTERTAINMENT;
-        }
+        category = item.labels[0]; // First tag is the category
       }
 
       return {

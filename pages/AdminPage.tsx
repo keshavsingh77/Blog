@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useBlog } from '../context/BlogContext';
-import { Post, Category, PostStatus } from '../types';
+import { Post, PostStatus } from '../types';
 import { CATEGORIES } from '../constants';
 import { generateBlogPost } from '../services/geminiService';
 import Spinner from '../components/Spinner';
@@ -12,14 +12,17 @@ const AdminPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [editingPost, setEditingPost] = useState<Post | null>(null);
+  
+  // Default to first new category
   const [formData, setFormData] = useState({ 
     title: '', 
     content: '', 
-    category: Category.TECH, 
+    category: CATEGORIES[0] || 'Tech', 
     tags: '', 
     status: PostStatus.DRAFT, 
     author: 'Editor' 
   });
+  
   const [aiTopic, setAiTopic] = useState('');
   const [error, setError] = useState<string | null>(null);
 
@@ -43,7 +46,7 @@ const AdminPage: React.FC = () => {
   }, [editingPost]);
 
   const resetForm = () => {
-    setFormData({ title: '', content: '', category: Category.TECH, tags: '', status: PostStatus.DRAFT, author: 'Editor' });
+    setFormData({ title: '', content: '', category: CATEGORIES[0] || 'Tech', tags: '', status: PostStatus.DRAFT, author: 'Editor' });
     setAiTopic('');
     setEditingPost(null);
     setError(null);
@@ -259,9 +262,11 @@ const AdminPage: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                    <div>
                     <label htmlFor="category" className="block text-sm font-bold text-gray-700 uppercase">Category</label>
-                    <select name="category" id="category" value={formData.category} onChange={handleChange} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md">
-                      {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                    </select>
+                    {/* Allow free text input for category or selection from list */}
+                    <input list="category-options" name="category" id="category" value={formData.category} onChange={handleChange} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500"/>
+                    <datalist id="category-options">
+                        {CATEGORIES.map(cat => <option key={cat} value={cat} />)}
+                    </datalist>
                   </div>
                   <div>
                     <label htmlFor="status" className="block text-sm font-bold text-gray-700 uppercase">Status</label>

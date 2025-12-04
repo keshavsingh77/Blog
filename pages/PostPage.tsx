@@ -34,6 +34,9 @@ const PostPage: React.FC = () => {
 
   const getCategorySlug = (text: string) => text.toLowerCase().replace(/\s+/g, '-');
   
+  // Logic: Use the first tag as the "Display Category"
+  const displayCategory = post.tags && post.tags.length > 0 ? post.tags[0] : post.category;
+  
   const plainTextContent = post.content.replace(/<[^>]+>/g, '');
   const descriptionSnippet = plainTextContent.substring(0, 160).trim() + (plainTextContent.length > 160 ? '...' : '');
 
@@ -75,10 +78,10 @@ const PostPage: React.FC = () => {
          
          <div className="absolute bottom-0 left-0 w-full p-6 md:p-12 lg:p-20 text-white max-w-7xl mx-auto animate-fade-in-up">
             <Link 
-              to={`/category/${getCategorySlug(post.category)}`} 
+              to={`/category/${getCategorySlug(displayCategory)}`} 
               className="inline-block bg-blue-600/90 backdrop-blur-md text-white text-[10px] md:text-xs font-black uppercase tracking-widest px-3 py-1.5 md:px-4 md:py-2 mb-4 md:mb-6 rounded-lg shadow-lg hover:bg-blue-600 transition transform hover:-translate-y-0.5"
             >
-              {post.category}
+              {displayCategory}
             </Link>
             <h1 className="text-3xl md:text-5xl lg:text-6xl font-black leading-tight mb-4 md:mb-6 shadow-sm max-w-5xl tracking-tight drop-shadow-lg">
                 {post.title}
@@ -103,23 +106,21 @@ const PostPage: React.FC = () => {
                 <div dangerouslySetInnerHTML={{ __html: post.content }} className="first-letter:float-left first-letter:text-5xl first-letter:pr-3 first-letter:font-black first-letter:text-blue-600 first-letter:mt-[-4px]" />
             </article>
 
-            {/* Tags Section */}
+            {/* Categories Section (derived from tags) */}
             {post.tags && post.tags.length > 0 && (
-                <div className="mt-14 pt-10 border-t border-gray-100">
+                <div className="mt-12 pt-8 border-t border-gray-100">
                     <div className="flex items-center mb-6">
-                        <div className="bg-blue-100 p-2 rounded-lg text-blue-600 mr-3">
-                            <i className="fas fa-hashtag text-sm"></i>
-                        </div>
-                        <h4 className="text-gray-900 font-black uppercase text-sm tracking-widest">Related Topics</h4>
+                        <span className="w-1 h-6 bg-blue-600 rounded mr-3"></span>
+                        <h4 className="text-gray-900 font-black uppercase text-sm tracking-widest">Categories</h4>
                     </div>
                     <div className="flex flex-wrap gap-2 md:gap-3">
                         {post.tags.map(tag => (
                             <Link 
                                 key={tag} 
                                 to={`/category/${getCategorySlug(tag)}`}
-                                className="group inline-flex items-center px-4 py-2 rounded-full text-xs md:text-sm font-bold bg-white text-gray-600 border border-gray-200 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all duration-200 shadow-sm hover:shadow-md"
+                                className="inline-flex items-center px-5 py-2.5 rounded-full text-sm font-bold bg-gray-50 text-gray-700 hover:bg-blue-600 hover:text-white transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 border border-gray-200 hover:border-blue-600"
                             >
-                                <span className="mr-1 text-gray-400 group-hover:text-blue-200">#</span> {tag}
+                                <i className="fas fa-hashtag text-[10px] mr-2 opacity-60"></i> {tag}
                             </Link>
                         ))}
                     </div>
@@ -218,19 +219,23 @@ const PostPage: React.FC = () => {
                         Trending Now
                     </h4>
                     <div className="space-y-6">
-                        {trendingPosts.map((tp, idx) => (
-                            <Link key={tp.id} to={`/post/${tp.id}`} className="flex items-start group">
-                                <span className="text-3xl font-black text-gray-200 group-hover:text-red-500 transition-colors leading-none -mt-1 w-8 text-center font-mono">
-                                    {idx + 1}
-                                </span>
-                                <div className="flex-1 ml-4 border-b border-gray-50 pb-4 group-last:border-0 group-last:pb-0">
-                                    <h5 className="font-bold text-gray-800 leading-snug text-sm group-hover:text-blue-600 transition-colors line-clamp-2">
-                                        {tp.title}
-                                    </h5>
-                                    <span className="text-[10px] text-gray-400 font-bold mt-1.5 block uppercase tracking-wide">{tp.category}</span>
-                                </div>
-                            </Link>
-                        ))}
+                        {trendingPosts.map((tp, idx) => {
+                             // Determine display category for trending items
+                             const trendingCat = tp.tags && tp.tags.length > 0 ? tp.tags[0] : tp.category;
+                             return (
+                                <Link key={tp.id} to={`/post/${tp.id}`} className="flex items-start group">
+                                    <span className="text-3xl font-black text-gray-200 group-hover:text-red-500 transition-colors leading-none -mt-1 w-8 text-center font-mono">
+                                        {idx + 1}
+                                    </span>
+                                    <div className="flex-1 ml-4 border-b border-gray-50 pb-4 group-last:border-0 group-last:pb-0">
+                                        <h5 className="font-bold text-gray-800 leading-snug text-sm group-hover:text-blue-600 transition-colors line-clamp-2">
+                                            {tp.title}
+                                        </h5>
+                                        <span className="text-[10px] text-gray-400 font-bold mt-1.5 block uppercase tracking-wide">{trendingCat}</span>
+                                    </div>
+                                </Link>
+                             );
+                        })}
                     </div>
                  </div>
                  
@@ -241,7 +246,7 @@ const PostPage: React.FC = () => {
                     <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-24 h-24 bg-indigo-600 rounded-full opacity-20 blur-2xl"></div>
                     
                     <h4 className="font-bold uppercase mb-6 text-sm tracking-widest relative z-10 flex items-center">
-                        <i className="fas fa-compass mr-2 text-blue-400"></i> Explore Topics
+                        <i className="fas fa-compass mr-2 text-blue-400"></i> Explore Categories
                     </h4>
                     <div className="flex flex-wrap gap-2 relative z-10">
                         {['Tech', 'Gaming', 'Viral', 'Money', 'Tips', 'Movies', 'Reviews', 'Shorts'].map(tag => (
