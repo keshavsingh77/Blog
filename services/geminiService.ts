@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
 import { CATEGORIES } from '../constants';
 
@@ -56,151 +57,179 @@ export const generateBlogPost = async (topic: string): Promise<{ title: string; 
   }
 };
 
-// --- NEW AI STUDIO FEATURES ---
-
-// 1. Text Generation (Flash Lite, Thinking, Search)
-export const generateSmartText = async (prompt: string, mode: 'fast' | 'thinking' | 'search' | 'standard') => {
+// --- Smart Text Generation (Writer) ---
+export const generateSmartText = async (
+  prompt: string, 
+  mode: 'fast' | 'thinking' | 'search' | 'standard'
+): Promise<{ text: string; groundingUrls?: string[] }> => {
   const ai = getAiClient();
   let model = 'gemini-2.5-flash';
   let config: any = {};
 
   if (mode === 'fast') {
-    model = 'gemini-2.5-flash-lite';
+    model = 'gemini-flash-lite-latest';
   } else if (mode === 'thinking') {
-    model = 'gemini-3-pro-preview';
-    config.thinkingConfig = { thinkingBudget: 1024 }; 
+    model = 'gemini-2.5-flash';
+    config.thinkingConfig = { thinkingBudget: 2048 }; 
   } else if (mode === 'search') {
     model = 'gemini-2.5-flash';
     config.tools = [{ googleSearch: {} }];
-  } else {
-    // Standard complex tasks use Pro
-    model = 'gemini-3-pro-preview';
   }
 
   const response = await ai.models.generateContent({
     model,
     contents: prompt,
-    config
+    config,
   });
-  
-  // Handle grounding metadata for search
+
+  const text = response.text || '';
   let groundingUrls: string[] = [];
+
   if (response.candidates?.[0]?.groundingMetadata?.groundingChunks) {
-     response.candidates[0].groundingMetadata.groundingChunks.forEach((chunk: any) => {
-        if (chunk.web?.uri) groundingUrls.push(chunk.web.uri);
-     });
+    groundingUrls = response.candidates[0].groundingMetadata.groundingChunks
+      .map((c: any) => c.web?.uri)
+      .filter((uri: string) => uri);
   }
 
-  return { text: response.text, groundingUrls };
+  return { text, groundingUrls };
 };
 
-// 2. Image Generation (Pro)
-export const generateImage = async (prompt: string, aspectRatio: string = "1:1", imageSize: string = "1K") => {
-   // User must select key in UI before calling this
-   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-   const response = await ai.models.generateContent({
-     model: 'gemini-3-pro-image-preview',
-     contents: { parts: [{ text: prompt }] },
-     config: {
-       imageConfig: {
-         aspectRatio: aspectRatio,
-         imageSize: imageSize
-       }
-     }
-   });
-   
-   // Extract image
-   const part = response.candidates?.[0]?.content?.parts?.find((p: any) => p.inlineData);
-   if (part && part.inlineData) {
-     return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
-   }
-   return null;
-}
-
-// 3. Image Editing (Flash Image)
-export const editImage = async (imageBase64: string, mimeType: string, prompt: string) => {
-    const ai = getAiClient();
-    // remove data:image/png;base64, prefix if present for API
-    const base64Data = imageBase64.split(',')[1] || imageBase64;
-    
-    const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-image',
-        contents: {
-            parts: [
-                { inlineData: { data: base64Data, mimeType } },
-                { text: prompt }
-            ]
-        }
-    });
-    
-    // Flash Image returns generated image
-    const part = response.candidates?.[0]?.content?.parts?.find((p: any) => p.inlineData);
-    if (part && part.inlineData) {
-        return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+// --- Image Generation (Imager) ---
+export const generateImage = async (prompt: string, aspectRatio: string, size: string): Promise<string> => {
+  const ai = getAiClient();
+  const model = 'gemini-3-pro-image-preview';
+  
+  const response = await ai.models.generateContent({
+    model,
+    contents: {
+        parts: [{ text: prompt }]
+    },
+    config: {
+      imageConfig: {
+        aspectRatio: aspectRatio as any, 
+        imageSize: size as any
+      }
     }
-    return null;
-}
+  });
 
-// 4. Video Generation (Veo)
-export const generateVideo = async (prompt: string, imageBase64: string | null, mimeType: string | null, aspectRatio: string) => {
-    // User must select key in UI before calling this
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    let imageParam = undefined;
-    
-    if (imageBase64 && mimeType) {
-        const base64Data = imageBase64.split(',')[1] || imageBase64;
-        imageParam = {
-            imageBytes: base64Data,
-            mimeType: mimeType
-        };
+  for (const part of response.candidates?.[0]?.content?.parts || []) {
+    if (part.inlineData) {
+      return `data:image/png;base64,${part.inlineData.data}`;
     }
+  }
+  
+  if (response.text) {
+      throw new Error(`Model returned text instead of image: ${response.text}`);
+  }
+  throw new Error("No image generated.");
+};
 
-    let operation = await ai.models.generateVideos({
-        model: 'veo-3.1-fast-generate-preview',
-        prompt,
-        image: imageParam,
-        config: {
-            numberOfVideos: 1,
-            resolution: '720p',
-            aspectRatio: aspectRatio as any
-        }
-    });
-    
-    // Poll for completion
-    while (!operation.done) {
-      await new Promise(resolve => setTimeout(resolve, 5000));
-      operation = await ai.operations.getVideosOperation({operation: operation});
+// --- Image Editing (Imager) ---
+export const editImage = async (base64Image: string, mimeType: string, prompt: string): Promise<string> => {
+  const ai = getAiClient();
+  const model = 'gemini-2.5-flash-image';
+  
+  const data = base64Image.split(',')[1] || base64Image;
+
+  const response = await ai.models.generateContent({
+    model,
+    contents: {
+      parts: [
+        { 
+          inlineData: { 
+            mimeType: mimeType, 
+            data: data 
+          } 
+        },
+        { text: prompt },
+      ],
+    },
+  });
+
+  for (const part of response.candidates?.[0]?.content?.parts || []) {
+    if (part.inlineData) {
+      return `data:image/png;base64,${part.inlineData.data}`;
     }
+  }
 
-    const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
-    if (downloadLink) {
-        // Fetch the video bytes using the key
-        const videoRes = await fetch(`${downloadLink}&key=${process.env.API_KEY}`);
-        const blob = await videoRes.blob();
-        return URL.createObjectURL(blob);
+  if (response.text) {
+     throw new Error(`Model returned text: ${response.text}`);
+  }
+  throw new Error("No edited image generated.");
+};
+
+// --- Video Generation (Veo) ---
+export const generateVideo = async (
+  prompt: string, 
+  imageBase64: string | null, 
+  imageMimeType: string | null, 
+  aspectRatio: string
+): Promise<string> => {
+  const ai = getAiClient();
+  const model = 'veo-3.1-fast-generate-preview';
+  
+  let operation;
+  const config = {
+      numberOfVideos: 1,
+      resolution: '720p',
+      aspectRatio: aspectRatio as any
+  };
+
+  if (imageBase64 && imageMimeType) {
+      const data = imageBase64.split(',')[1] || imageBase64;
+      operation = await ai.models.generateVideos({
+          model,
+          prompt,
+          image: {
+            imageBytes: data,
+            mimeType: imageMimeType
+          },
+          config
+      });
+  } else {
+      operation = await ai.models.generateVideos({
+          model,
+          prompt,
+          config
+      });
+  }
+
+  while (!operation.done) {
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    operation = await ai.operations.getVideosOperation({ operation });
+  }
+
+  const videoUri = operation.response?.generatedVideos?.[0]?.video?.uri;
+  if (!videoUri) throw new Error("Video generation failed.");
+
+  const videoRes = await fetch(`${videoUri}&key=${process.env.API_KEY}`);
+  if (!videoRes.ok) throw new Error("Failed to download video.");
+  
+  const blob = await videoRes.blob();
+  return URL.createObjectURL(blob);
+};
+
+// --- Media Analysis (Analyzer) ---
+export const analyzeMedia = async (base64Data: string, mimeType: string, prompt: string): Promise<string> => {
+  const ai = getAiClient();
+  const model = 'gemini-2.5-flash';
+  
+  const data = base64Data.split(',')[1] || base64Data;
+
+  const response = await ai.models.generateContent({
+    model,
+    contents: {
+      parts: [
+        { 
+          inlineData: { 
+            mimeType: mimeType, 
+            data: data 
+          } 
+        },
+        { text: prompt || "Analyze this media." }
+      ]
     }
-    return null;
-}
+  });
 
-// 5. Analysis (Audio/Image/Video)
-export const analyzeMedia = async (fileBase64: string, mimeType: string, prompt: string) => {
-    const ai = getAiClient();
-    const base64Data = fileBase64.split(',')[1] || fileBase64;
-    
-    // Audio uses Flash
-    let model = 'gemini-3-pro-preview';
-    if (mimeType.startsWith('audio/')) {
-        model = 'gemini-2.5-flash';
-    }
-
-    const response = await ai.models.generateContent({
-        model,
-        contents: {
-            parts: [
-                { inlineData: { data: base64Data, mimeType } },
-                { text: prompt || (mimeType.startsWith('audio/') ? "Transcribe this audio." : "Analyze this.") }
-            ]
-        }
-    });
-    return response.text;
-}
+  return response.text || "No analysis generated.";
+};

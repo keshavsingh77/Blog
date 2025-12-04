@@ -10,7 +10,6 @@ import { SkeletonPostDetail, SkeletonCard } from './components/SkeletonLoaders';
 const CategoryPage = React.lazy(() => import('./pages/CategoryPage'));
 const PostPage = React.lazy(() => import('./pages/PostPage'));
 const AdminPage = React.lazy(() => import('./pages/AdminPage'));
-const AIStudioPage = React.lazy(() => import('./pages/AIStudioPage')); // New Page
 
 // Component to Lazy Load AdSense Script
 const LazyAdSense = () => {
@@ -99,14 +98,6 @@ const App: React.FC = () => {
                    element={
                      <Suspense fallback={<div className="h-screen flex items-center justify-center">Loading Admin...</div>}>
                        <AdminPage />
-                     </Suspense>
-                   } 
-                />
-                 <Route 
-                   path="/studio" 
-                   element={
-                     <Suspense fallback={<PageLoader />}>
-                       <AIStudioPage />
                      </Suspense>
                    } 
                 />

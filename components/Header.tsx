@@ -65,9 +65,6 @@ const Header: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-2">
-               <Link to="/studio" className="hidden md:flex items-center text-sm font-bold text-gray-600 hover:text-blue-600 bg-gray-50 px-3 py-1.5 rounded-full hover:bg-blue-50 transition">
-                  <i className="fas fa-magic mr-1 text-blue-500"></i> Studio
-               </Link>
               <button
                 onClick={() => setIsSearchOpen(!isSearchOpen)}
                 className="p-2 rounded-full text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition-colors"
@@ -137,15 +134,6 @@ const Header: React.FC = () => {
                     >
                         <i className="fas fa-home w-6 text-center mr-3 text-gray-400"></i>
                         Home
-                    </Link>
-
-                     <Link 
-                        to="/studio" 
-                        onClick={() => setIsMenuOpen(false)}
-                        className="flex items-center px-4 py-3 font-bold text-gray-800 hover:bg-purple-50 hover:text-purple-600 rounded-xl transition-colors mb-2"
-                    >
-                        <i className="fas fa-magic w-6 text-center mr-3 text-purple-400"></i>
-                        AI Studio
                     </Link>
 
                     <div className="mt-4 mb-2 px-4 text-xs font-black text-gray-400 uppercase tracking-wider">
