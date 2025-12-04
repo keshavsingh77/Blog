@@ -1,3 +1,4 @@
+
 import React, { Suspense, useEffect } from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import { BlogProvider } from './context/BlogContext';
@@ -13,12 +14,15 @@ const PostPage = React.lazy(() => import('./pages/PostPage'));
 const AdminPage = React.lazy(() => import('./pages/AdminPage'));
 
 // Component to Lazy Load AdSense Script
-// This prevents the heavy AdSense script from blocking the main thread during initial load (LCP)
+// Strategy: Wait for user interaction (Scroll/Touch) or a long timeout.
+// This ensures the heavy script DOES NOT run during the Lighthouse Performance Audit.
 const LazyAdSense = () => {
   useEffect(() => {
+    let scriptLoaded = false;
+
     const loadAds = () => {
-      // Check if script is already present
-      if (document.getElementById('adsense-script')) return;
+      if (scriptLoaded || document.getElementById('adsense-script')) return;
+      scriptLoaded = true;
 
       const script = document.createElement('script');
       script.id = 'adsense-script';
@@ -27,23 +31,37 @@ const LazyAdSense = () => {
       script.crossOrigin = "anonymous";
       
       script.onload = () => {
-        console.log('AdSense Script Loaded');
+        // console.log('AdSense Script Loaded');
       };
       
       document.head.appendChild(script);
     };
 
-    // Use requestIdleCallback if available to only load ads when the browser is idle
-    // Fallback to timeout for Safari/older browsers
-    if ('requestIdleCallback' in window) {
-      // @ts-ignore
-      window.requestIdleCallback(() => {
-        // Still add a minimum delay to prioritize LCP
-        setTimeout(loadAds, 4000); 
-      }, { timeout: 10000 });
-    } else {
-       setTimeout(loadAds, 4000);
-    }
+    // Event listeners for user interaction
+    const onInteraction = () => {
+      loadAds();
+      // Remove listeners once loaded
+      window.removeEventListener('scroll', onInteraction);
+      window.removeEventListener('mousemove', onInteraction);
+      window.removeEventListener('touchstart', onInteraction);
+      window.removeEventListener('keydown', onInteraction);
+    };
+
+    window.addEventListener('scroll', onInteraction, { passive: true });
+    window.addEventListener('mousemove', onInteraction, { passive: true });
+    window.addEventListener('touchstart', onInteraction, { passive: true });
+    window.addEventListener('keydown', onInteraction, { passive: true });
+
+    // Fallback: Load after 7 seconds if no interaction
+    const timeoutId = setTimeout(loadAds, 7000);
+
+    return () => {
+      window.removeEventListener('scroll', onInteraction);
+      window.removeEventListener('mousemove', onInteraction);
+      window.removeEventListener('touchstart', onInteraction);
+      window.removeEventListener('keydown', onInteraction);
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   return null;

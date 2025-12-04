@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Post } from '../types';
@@ -58,7 +59,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
       {/* Content Container */}
       <div className="p-5 flex flex-col flex-grow">
         <div className="mb-2 flex items-center text-xs text-gray-500 font-medium uppercase tracking-wide">
-           <span className="mr-3"><i className="far fa-clock mr-1"></i> {new Date(post.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+           <span className="mr-3"><i className="far fa-clock mr-1" aria-hidden="true"></i> {new Date(post.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
         </div>
         
         <h2 className="text-lg font-bold text-gray-900 mb-2 leading-snug group-hover:text-blue-600 transition-colors line-clamp-2">
@@ -75,8 +76,8 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             Read More
           </Link>
           <div className="flex space-x-3 text-gray-400 hover:text-gray-600">
-             <i className="far fa-bookmark cursor-pointer hover:text-blue-600 transition-colors" aria-label="Bookmark"></i>
-             <i className="fas fa-share-alt cursor-pointer hover:text-blue-600 transition-colors" aria-label="Share"></i>
+             <i className="far fa-bookmark cursor-pointer hover:text-blue-600 transition-colors" aria-label="Bookmark" role="button"></i>
+             <i className="fas fa-share-alt cursor-pointer hover:text-blue-600 transition-colors" aria-label="Share" role="button"></i>
           </div>
         </div>
       </div>

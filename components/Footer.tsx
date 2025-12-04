@@ -32,16 +32,16 @@ const Footer: React.FC = () => {
             </p>
             <div className="flex gap-4 pt-2">
               <a href="#" className="w-8 h-8 rounded-full bg-gray-100 text-gray-600 hover:bg-[#1877F2] hover:text-white flex items-center justify-center transition shadow-sm" aria-label="Facebook">
-                <i className="fab fa-facebook-f text-xs"></i>
+                <i className="fab fa-facebook-f text-xs" aria-hidden="true"></i>
               </a>
               <a href="https://t.me/creativemind7" className="w-8 h-8 rounded-full bg-gray-100 text-gray-600 hover:bg-blue-500 hover:text-white flex items-center justify-center transition shadow-sm" aria-label="Telegram">
-                <i className="fab fa-telegram text-xs"></i>
+                <i className="fab fa-telegram text-xs" aria-hidden="true"></i>
               </a>
               <a href="https://www.instagram.com/filmy4uhd?igsh=cG93eDEyc3d2Nmc3" className="w-8 h-8 rounded-full bg-gray-100 text-gray-600 hover:bg-gradient-to-tr hover:from-yellow-400 hover:via-red-500 hover:to-purple-500 hover:text-white flex items-center justify-center transition shadow-sm" aria-label="Instagram">
-                <i className="fab fa-instagram text-xs"></i>
+                <i className="fab fa-instagram text-xs" aria-hidden="true"></i>
               </a>
               <a href="https://youtube.com/@creativemind77-b8t?si=HyiSpwJhlz2B9f5M" className="w-8 h-8 rounded-full bg-gray-100 text-gray-600 hover:bg-[#FF0000] hover:text-white flex items-center justify-center transition shadow-sm" aria-label="YouTube">
-                <i className="fab fa-youtube text-xs"></i>
+                <i className="fab fa-youtube text-xs" aria-hidden="true"></i>
               </a>
             </div>
           </div>
@@ -79,7 +79,7 @@ const Footer: React.FC = () => {
       {/* Categories Cloud Section */}
       <div className="bg-[#1e293b] py-10 px-4 border-t border-gray-800">
         <div className="max-w-4xl mx-auto text-center">
-          <h3 className="text-white text-sm font-bold uppercase tracking-widest mb-6 opacity-90">Explore Categories</h3>
+          <h3 className="text-white text-sm font-bold uppercase tracking-widest mb-6 opacity-90">Categories</h3>
           <div className="flex flex-wrap justify-center gap-3">
             {allTags.length > 0 ? allTags.map(tag => (
               <Link 
@@ -108,11 +108,11 @@ const Footer: React.FC = () => {
       {/* Bottom Copyright */}
       <div className="bg-gray-900 py-6 text-center text-gray-400 text-xs border-t border-gray-800">
         <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
-           <p>&copy; {new Date().getFullYear()} Creative Mind. All rights reserved.</p>
+           <p className="text-gray-500">&copy; {new Date().getFullYear()} Creative Mind. All rights reserved.</p>
            <div className="mt-2 md:mt-0 space-x-4">
-             <Link to="/" className="hover:text-white transition-colors">Privacy Policy</Link>
-             <Link to="/" className="hover:text-white transition-colors">Terms of Service</Link>
-             <Link to="/" className="hover:text-white transition-colors">Contact</Link>
+             <Link to="/" className="text-gray-500 hover:text-white transition-colors">Privacy Policy</Link>
+             <Link to="/" className="text-gray-500 hover:text-white transition-colors">Terms of Service</Link>
+             <Link to="/" className="text-gray-500 hover:text-white transition-colors">Contact</Link>
            </div>
         </div>
       </div>

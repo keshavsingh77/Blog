@@ -87,9 +87,8 @@ const HomePage: React.FC = () => {
         <PostCard post={post} />
         {/* Inject Native In-Feed Ad after the 3rd item */}
         {index === 2 && (
-           <div className="col-span-2 md:col-span-3 my-4 min-h-[250px] bg-white rounded-xl shadow-sm overflow-hidden">
+           <div className="col-span-2 md:col-span-3 my-4 min-h-[250px] bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
               {/* Native In-Feed Ad Unit - Slot: 1909584638 */}
-              <div className="text-[10px] text-gray-300 text-center uppercase tracking-widest pt-2">Sponsored</div>
               <GoogleAd 
                 slot="1909584638" 
                 format="fluid" 
@@ -154,10 +153,10 @@ const HomePage: React.FC = () => {
                         alt={post.title} 
                         className="w-full h-full object-cover transition-transform duration-[4s] hover:scale-105" 
                         loading={index === 0 ? "eager" : "lazy"}
-                        // @ts-ignore
-                        fetchpriority={index === 0 ? "high" : undefined}
+                        fetchPriority={index === 0 ? "high" : "auto"}
                         width="1280"
                         height="720"
+                        sizes="(max-width: 768px) 100vw, 1280px"
                       />
                       {/* Gradient Overlay */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-80"></div>
@@ -227,7 +226,7 @@ const HomePage: React.FC = () => {
                     className={`px-4 py-2 rounded-lg font-bold text-sm transition-all flex items-center ${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 border border-gray-200 hover:bg-blue-50 hover:text-blue-600'}`}
                     aria-label="Previous Page"
                 >
-                    <i className="fas fa-arrow-left mr-2"></i> Prev
+                    <i className="fas fa-arrow-left mr-2" aria-hidden="true"></i> Prev
                 </button>
                 
                 <div className="px-4 text-sm font-bold text-gray-600">
@@ -240,7 +239,7 @@ const HomePage: React.FC = () => {
                     className={`px-4 py-2 rounded-lg font-bold text-sm transition-all flex items-center ${currentPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white shadow-md hover:bg-blue-700'}`}
                      aria-label="Next Page"
                 >
-                    Next <i className="fas fa-arrow-right ml-2"></i>
+                    Next <i className="fas fa-arrow-right ml-2" aria-hidden="true"></i>
                 </button>
             </div>
         )}
