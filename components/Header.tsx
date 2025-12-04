@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { CATEGORIES } from '../constants';
@@ -11,13 +10,10 @@ const Header: React.FC = () => {
   const { posts } = useBlog();
   const navigate = useNavigate();
 
-  // Derive dynamic categories from the actual tags in the posts
-  // If no posts are loaded yet, fall back to the CATEGORIES constant
   const postTags = posts.length > 0 
     ? Array.from(new Set(posts.flatMap(p => p.tags))).sort() 
     : [];
   
-  // Combine unique tags, favoring active post tags but ensuring defaults exist if empty
   const displayCategories = postTags.length > 0 ? postTags : CATEGORIES;
 
   const getCategorySlug = (category: string) => category.toLowerCase().replace(/\s+/g, '-');
@@ -30,7 +26,6 @@ const Header: React.FC = () => {
     }
   };
 
-  // Prevent body scroll when menu is open
   useEffect(() => {
     if (isMenuOpen) {
       document.body.style.overflow = 'hidden';
@@ -48,7 +43,6 @@ const Header: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             
-            {/* Left: Mobile Menu Button */}
             <div className="flex items-center">
               <button
                 onClick={() => setIsMenuOpen(true)}
@@ -59,7 +53,6 @@ const Header: React.FC = () => {
               </button>
             </div>
 
-            {/* Center: Logo */}
             <div className="flex-1 flex justify-center items-center">
               <Link to="/" className="flex items-center group">
                 <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-2 text-white shadow-sm">
@@ -71,8 +64,10 @@ const Header: React.FC = () => {
               </Link>
             </div>
 
-            {/* Right: Search Icon */}
-            <div className="flex items-center">
+            <div className="flex items-center gap-2">
+               <Link to="/studio" className="hidden md:flex items-center text-sm font-bold text-gray-600 hover:text-blue-600 bg-gray-50 px-3 py-1.5 rounded-full hover:bg-blue-50 transition">
+                  <i className="fas fa-magic mr-1 text-blue-500"></i> Studio
+               </Link>
               <button
                 onClick={() => setIsSearchOpen(!isSearchOpen)}
                 className="p-2 rounded-full text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition-colors"
@@ -84,7 +79,6 @@ const Header: React.FC = () => {
           </div>
         </div>
 
-        {/* Search Bar Overlay */}
         {isSearchOpen && (
           <div className="absolute w-full top-16 left-0 z-40 border-t border-gray-100 bg-white shadow-lg animate-fade-in-down">
             <div className="max-w-4xl mx-auto p-4">
@@ -110,19 +104,15 @@ const Header: React.FC = () => {
           </div>
         )}
 
-        {/* Mobile/Sidebar Menu Drawer */}
         {isMenuOpen && (
           <div className="fixed inset-0 z-[60] flex" role="dialog" aria-modal="true">
-            {/* Backdrop */}
             <div 
               className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" 
               onClick={() => setIsMenuOpen(false)}
             ></div>
 
-            {/* Sidebar */}
             <nav className="relative bg-white w-[80%] max-w-[300px] h-full shadow-2xl flex flex-col transform transition-transform duration-300 ease-out translate-x-0">
               
-              {/* Header */}
               <div className="p-5 flex justify-between items-center border-b border-gray-100">
                  <div className="flex items-center">
                     <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-2 text-white">
@@ -138,7 +128,6 @@ const Header: React.FC = () => {
                  </button>
               </div>
 
-              {/* Scrollable Content */}
               <div className="flex-1 overflow-y-auto">
                 <div className="px-4 py-4">
                     <Link 
@@ -150,11 +139,19 @@ const Header: React.FC = () => {
                         Home
                     </Link>
 
+                     <Link 
+                        to="/studio" 
+                        onClick={() => setIsMenuOpen(false)}
+                        className="flex items-center px-4 py-3 font-bold text-gray-800 hover:bg-purple-50 hover:text-purple-600 rounded-xl transition-colors mb-2"
+                    >
+                        <i className="fas fa-magic w-6 text-center mr-3 text-purple-400"></i>
+                        AI Studio
+                    </Link>
+
                     <div className="mt-4 mb-2 px-4 text-xs font-black text-gray-400 uppercase tracking-wider">
                         Categories
                     </div>
                     
-                    {/* List the new specific categories (derived from tags) */}
                     {displayCategories.map((cat) => (
                     <Link
                         key={cat}
@@ -169,7 +166,6 @@ const Header: React.FC = () => {
                 </div>
               </div>
 
-              {/* Footer (Socials) */}
               <div className="p-5 border-t border-gray-100 bg-gray-50">
                 <div className="flex justify-around">
                   <a href="#" className="text-gray-400 hover:text-[#1877F2] transition-colors"><i className="fab fa-facebook-f text-xl"></i></a>
