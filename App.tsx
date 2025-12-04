@@ -1,4 +1,3 @@
-
 import React, { Suspense, useEffect } from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import { BlogProvider } from './context/BlogContext';
@@ -34,12 +33,17 @@ const LazyAdSense = () => {
       document.head.appendChild(script);
     };
 
-    // Delay loading ads by 3.5 seconds. 
-    // This allows Lighthouse to finish its performance audit (LCP, TBT) before ads impact the score.
-    // It also makes the UI feel snappier for the user immediately.
-    const timeout = setTimeout(loadAds, 3500);
-
-    return () => clearTimeout(timeout);
+    // Use requestIdleCallback if available to only load ads when the browser is idle
+    // Fallback to timeout for Safari/older browsers
+    if ('requestIdleCallback' in window) {
+      // @ts-ignore
+      window.requestIdleCallback(() => {
+        // Still add a minimum delay to prioritize LCP
+        setTimeout(loadAds, 4000); 
+      }, { timeout: 10000 });
+    } else {
+       setTimeout(loadAds, 4000);
+    }
   }, []);
 
   return null;
