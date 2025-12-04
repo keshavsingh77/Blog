@@ -4,6 +4,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useBlog } from '../context/BlogContext';
 import SEO from '../components/SEO';
 import PostCard from '../components/PostCard';
+import GoogleAd from '../components/GoogleAd'; // Import GoogleAd
 import { SkeletonPostDetail } from '../components/SkeletonLoaders';
 
 const PostPage: React.FC = () => {
@@ -100,11 +101,29 @@ const PostPage: React.FC = () => {
           {/* Main Content Column */}
           <main className="lg:col-span-8">
             
+            {/* Top Ad (In-Article) */}
+            <div className="mb-8 min-h-[100px] block w-full">
+               <GoogleAd 
+                 slot="1641433819" 
+                 format="fluid" 
+                 layout="in-article" 
+                 style={{ display: 'block', textAlign: 'center' }}
+               />
+            </div>
+
             {/* Article Content with improved typography */}
             <article className="prose prose-lg md:prose-xl max-w-none text-gray-800 leading-relaxed prose-headings:font-black prose-headings:tracking-tight prose-a:text-blue-600 prose-img:rounded-2xl prose-img:shadow-lg animate-fade-in-up delay-100">
                 {/* Simulated Drop Cap & Content Injection */}
                 <div dangerouslySetInnerHTML={{ __html: post.content }} className="first-letter:float-left first-letter:text-5xl first-letter:pr-3 first-letter:font-black first-letter:text-blue-600 first-letter:mt-[-4px]" />
             </article>
+
+            {/* Bottom Ad (Multiplex) */}
+            <div className="mt-8 mb-8 min-h-[100px] block w-full">
+                <GoogleAd 
+                  slot="8617081290" 
+                  format="autorelaxed" 
+                />
+            </div>
 
             {/* Categories Section (derived from tags) */}
             {post.tags && post.tags.length > 0 && (
@@ -222,6 +241,13 @@ const PostPage: React.FC = () => {
           <aside className="lg:col-span-4 space-y-8">
              <div className="sticky top-24 space-y-8">
                  
+                 {/* Sidebar Ad (Optional - using display ad if needed, currently commented out based on user request to only use provided codes) */}
+                 {/* 
+                 <div className="min-h-[250px] block w-full">
+                     <GoogleAd slot="5754054742" format="rectangle" />
+                 </div>
+                 */}
+
                  {/* Trending Now Widget */}
                  <div className="bg-white border border-gray-100 p-6 rounded-3xl shadow-sm hover:shadow-md transition-shadow">
                     <h4 className="font-black text-gray-900 uppercase mb-6 text-sm tracking-widest flex items-center">

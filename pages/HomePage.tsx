@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useBlog } from '../context/BlogContext';
 import PostCard from '../components/PostCard';
 import SEO from '../components/SEO';
+import GoogleAd from '../components/GoogleAd'; // Import GoogleAd
 import { SkeletonCard, SkeletonHero } from '../components/SkeletonLoaders';
 
 const HomePage: React.FC = () => {
@@ -79,10 +80,24 @@ const HomePage: React.FC = () => {
     );
   }
 
-  // Helper to inject ads into the grid (if needed)
+  // Helper to inject ads into the grid
   const renderPostGrid = (posts: typeof currentLatestPosts) => {
-    return posts.map((post) => (
-      <PostCard key={post.id} post={post} />
+    return posts.map((post, index) => (
+      <React.Fragment key={post.id}>
+        <PostCard post={post} />
+        {/* Inject Native In-Feed Ad after the 3rd item */}
+        {index === 2 && (
+           <div className="col-span-2 md:col-span-3 my-4">
+              {/* Native In-Feed Ad Unit - Slot: 1909584638 */}
+              <GoogleAd 
+                slot="1909584638" 
+                format="fluid" 
+                layoutKey="-6t+ed+2i-1n-4w" 
+                className="w-full"
+              />
+           </div>
+        )}
+      </React.Fragment>
     ));
   };
 

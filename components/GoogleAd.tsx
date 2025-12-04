@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 
 // Extend the Window interface to include adsbygoogle
@@ -9,9 +10,10 @@ declare global {
 
 interface GoogleAdProps {
   slot: string;
-  format?: 'auto' | 'fluid' | 'rectangle' | 'horizontal' | 'vertical'; // AdSense formats
+  format?: 'auto' | 'fluid' | 'rectangle' | 'horizontal' | 'vertical' | 'autorelaxed'; // Added autorelaxed
   layoutKey?: string; // For In-feed ads
-  style?: React.CSSProperties; // Custom styles (e.g., width/height for fixed ads)
+  layout?: string; // For In-article ads
+  style?: React.CSSProperties; // Custom styles
   className?: string;
   responsive?: boolean;
 }
@@ -19,7 +21,8 @@ interface GoogleAdProps {
 const GoogleAd: React.FC<GoogleAdProps> = ({ 
   slot, 
   format, 
-  layoutKey, 
+  layoutKey,
+  layout, 
   style, 
   className = '',
   responsive = true
@@ -29,7 +32,6 @@ const GoogleAd: React.FC<GoogleAdProps> = ({
     try {
       // Safe push to AdSense
       // We use a small timeout to ensure the DOM element is fully painted by React
-      // This helps prevent the 'availableWidth=0' error
       setTimeout(() => {
         (window.adsbygoogle = window.adsbygoogle || []).push({});
       }, 100);
@@ -38,22 +40,17 @@ const GoogleAd: React.FC<GoogleAdProps> = ({
     }
   }, [slot]);
 
-  // Default styles to prevent "availableWidth=0" error
-  // We MUST provide display:block and a min-height/width so AdSense sees the element
+  // Default styles
   const containerStyle: React.CSSProperties = {
     display: 'block',
     width: '100%',
-    minWidth: format === 'fluid' ? '250px' : undefined, // Force min-width for fluid to prevent crash
-    minHeight: format === 'fluid' ? '250px' : '100px', // Reserve space so it's not 0px height
-    ...style, // Override with specific styles if provided (like the 600x500 ad)
+    minWidth: format === 'fluid' ? '250px' : undefined,
+    minHeight: format === 'fluid' ? '250px' : '100px',
+    ...style,
   };
 
   return (
     <div className={`${className} google-ad-wrapper`} style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-      {/* 
-         AdSense Unit 
-         Publisher ID: ca-pub-9543073887536718
-      */}
       <ins
         className="adsbygoogle"
         style={containerStyle}
@@ -62,6 +59,7 @@ const GoogleAd: React.FC<GoogleAdProps> = ({
         data-ad-format={format}
         data-full-width-responsive={responsive ? "true" : "false"}
         {...(layoutKey ? { 'data-ad-layout-key': layoutKey } : {})}
+        {...(layout ? { 'data-ad-layout': layout } : {})}
       ></ins>
     </div>
   );
