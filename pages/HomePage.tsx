@@ -95,15 +95,15 @@ const HomePage: React.FC = () => {
       {/* Discover More - Horizontal Scroll Bar */}
       <div className="bg-white pt-4 pb-2 border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center overflow-x-auto no-scrollbar space-x-3 py-1">
+          <div className="flex items-center overflow-x-auto no-scrollbar space-x-3 py-1" role="navigation" aria-label="Tag navigation">
              <span className="text-xs font-bold text-gray-400 uppercase whitespace-nowrap mr-2">Discover more</span>
              {allTags.map(tag => (
                <Link
                  key={tag}
                  to={`/category/${getCategorySlug(tag)}`}
-                 className="flex-shrink-0 px-4 py-1.5 rounded-full border border-blue-100 bg-blue-50 text-blue-600 text-xs font-bold hover:bg-blue-600 hover:text-white transition whitespace-nowrap flex items-center"
+                 className="flex-shrink-0 px-4 py-1.5 rounded-full border border-blue-100 bg-blue-50 text-blue-600 text-xs font-bold hover:bg-blue-600 hover:text-white transition whitespace-nowrap flex items-center focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                >
-                 <i className="fas fa-bolt mr-1.5 text-[10px]"></i> {tag}
+                 <i className="fas fa-bolt mr-1.5 text-[10px]" aria-hidden="true"></i> {tag}
                </Link>
              ))}
              {/* Fallback tags if empty */}
@@ -111,9 +111,9 @@ const HomePage: React.FC = () => {
                 <Link
                  key={tag}
                  to={`/category/${getCategorySlug(tag)}`}
-                 className="flex-shrink-0 px-4 py-1.5 rounded-full border border-blue-100 bg-blue-50 text-blue-600 text-xs font-bold hover:bg-blue-600 hover:text-white transition whitespace-nowrap flex items-center"
+                 className="flex-shrink-0 px-4 py-1.5 rounded-full border border-blue-100 bg-blue-50 text-blue-600 text-xs font-bold hover:bg-blue-600 hover:text-white transition whitespace-nowrap flex items-center focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                >
-                 <i className="fas fa-bolt mr-1.5 text-[10px]"></i> {tag}
+                 <i className="fas fa-bolt mr-1.5 text-[10px]" aria-hidden="true"></i> {tag}
                </Link>
              ))}
           </div>
@@ -122,15 +122,24 @@ const HomePage: React.FC = () => {
 
       {/* Hero Carousel Section */}
       {heroPosts.length > 0 && (
-        <section className="relative w-full max-w-7xl mx-auto mt-4 md:mt-6 px-4 sm:px-6 lg:px-8 mb-8">
+        <section className="relative w-full max-w-7xl mx-auto mt-4 md:mt-6 px-4 sm:px-6 lg:px-8 mb-8" aria-label="Featured Posts">
            <div className="relative rounded-xl md:rounded-2xl overflow-hidden shadow-xl h-[200px] sm:h-[350px] md:h-[450px]">
               {heroPosts.map((post, index) => (
                 <div 
                   key={post.id}
-                  className={`absolute inset-0 transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
+                  className={`absolute inset-0 transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
+                  aria-hidden={index !== currentSlide}
                 >
-                  <Link to={`/post/${post.id}`}>
-                      <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover" />
+                  <Link to={`/post/${post.id}`} tabIndex={index === currentSlide ? 0 : -1}>
+                      <img 
+                        src={post.imageUrl} 
+                        alt={post.title} 
+                        className="w-full h-full object-cover" 
+                        // Performance: Eager load the first slide's image, lazy load others
+                        loading={index === 0 ? "eager" : "lazy"}
+                        // @ts-ignore - React might not define fetchPriority in types yet
+                        fetchpriority={index === 0 ? "high" : undefined}
+                      />
                       <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
                       <div className="absolute bottom-0 left-0 p-4 md:p-12 w-full max-w-4xl">
                         <span className="inline-block bg-red-600 text-white text-[10px] md:text-xs font-bold uppercase tracking-wider px-2 py-1 md:px-3 rounded shadow-md mb-2 md:mb-3 hover:bg-red-700 transition">
@@ -145,12 +154,14 @@ const HomePage: React.FC = () => {
               ))}
               
               {/* Slider Dots */}
-              <div className="absolute bottom-3 md:bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+              <div className="absolute bottom-3 md:bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
                 {heroPosts.map((_, idx) => (
                   <button
                     key={idx}
                     onClick={() => setCurrentSlide(idx)}
-                    className={`w-2 h-2 md:w-2.5 md:h-2.5 rounded-full transition-all duration-300 ${idx === currentSlide ? 'bg-white scale-110 shadow-md' : 'bg-gray-500 bg-opacity-50 hover:bg-white'}`}
+                    className={`w-2 h-2 md:w-2.5 md:h-2.5 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white ${idx === currentSlide ? 'bg-white scale-110 shadow-md' : 'bg-gray-500 bg-opacity-50 hover:bg-white'}`}
+                    aria-label={`Go to slide ${idx + 1}`}
+                    aria-current={idx === currentSlide}
                   ></button>
                 ))}
               </div>
@@ -181,25 +192,27 @@ const HomePage: React.FC = () => {
 
         {/* Pagination Controls */}
         {totalPages > 1 && (
-            <div className="mt-12 flex justify-center items-center space-x-2">
+            <div className="mt-12 flex justify-center items-center space-x-2" role="navigation" aria-label="Pagination">
                 <button 
                     onClick={prevPage}
                     disabled={currentPage === 1}
-                    className={`px-4 py-2 rounded-lg font-bold text-sm transition ${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-800 border border-gray-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200'}`}
+                    className={`px-4 py-2 rounded-lg font-bold text-sm transition focus:outline-none focus:ring-2 focus:ring-blue-500 ${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-800 border border-gray-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200'}`}
+                    aria-label="Previous Page"
                 >
-                    <i className="fas fa-chevron-left mr-1"></i> Previous
+                    <i className="fas fa-chevron-left mr-1" aria-hidden="true"></i> Previous
                 </button>
                 
-                <span className="text-sm font-medium text-gray-500 px-2">
+                <span className="text-sm font-medium text-gray-500 px-2" aria-live="polite">
                     Page {currentPage} of {totalPages}
                 </span>
 
                 <button 
                     onClick={nextPage}
                     disabled={currentPage === totalPages}
-                    className={`px-4 py-2 rounded-lg font-bold text-sm transition ${currentPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white shadow-md hover:bg-blue-700'}`}
+                    className={`px-4 py-2 rounded-lg font-bold text-sm transition focus:outline-none focus:ring-2 focus:ring-blue-500 ${currentPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white shadow-md hover:bg-blue-700'}`}
+                    aria-label="Next Page"
                 >
-                    Next <i className="fas fa-chevron-right ml-1"></i>
+                    Next <i className="fas fa-chevron-right ml-1" aria-hidden="true"></i>
                 </button>
             </div>
         )}

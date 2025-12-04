@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { CATEGORIES } from '../constants';
@@ -38,7 +37,7 @@ const Header: React.FC = () => {
 
   return (
     <>
-      <header className="bg-white text-gray-800 sticky top-0 z-50 shadow-sm border-b border-gray-100">
+      <header className="bg-white text-gray-900 sticky top-0 z-50 shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             
@@ -46,7 +45,9 @@ const Header: React.FC = () => {
             <div className="flex items-center">
               <button
                 onClick={() => setIsMenuOpen(true)}
-                className="inline-flex items-center justify-center p-2 rounded-md text-gray-800 hover:text-blue-600 focus:outline-none transition-colors"
+                className="inline-flex items-center justify-center p-2 rounded-md text-gray-800 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                aria-label="Open menu"
+                aria-expanded={isMenuOpen}
               >
                 <i className="fas fa-bars text-2xl"></i>
               </button>
@@ -54,7 +55,7 @@ const Header: React.FC = () => {
 
             {/* Center: Logo */}
             <div className="flex-1 flex justify-center">
-              <Link to="/" className="flex items-center group">
+              <Link to="/" className="flex items-center group" aria-label="Creative Mind Home">
                 <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mr-2 text-white shadow-md group-hover:shadow-lg transform group-hover:-translate-y-0.5 transition-all">
                   <i className="fas fa-lightbulb text-sm"></i>
                 </div>
@@ -68,7 +69,9 @@ const Header: React.FC = () => {
             <div className="flex items-center">
               <button
                 onClick={() => setIsSearchOpen(!isSearchOpen)}
-                className="p-2 text-gray-800 hover:text-blue-600 transition-colors"
+                className="p-2 text-gray-800 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-md"
+                aria-label={isSearchOpen ? "Close search" : "Open search"}
+                aria-expanded={isSearchOpen}
               >
                 <i className={`fas ${isSearchOpen ? 'fa-times' : 'fa-search'} text-xl`}></i>
               </button>
@@ -79,16 +82,18 @@ const Header: React.FC = () => {
         {/* Search Bar Overlay */}
         {isSearchOpen && (
           <div className="bg-white border-b border-gray-200 p-4 absolute w-full top-16 left-0 z-40 animate-fade-in-down shadow-lg">
-            <form onSubmit={handleSearch} className="max-w-3xl mx-auto flex gap-2">
+            <form onSubmit={handleSearch} className="max-w-3xl mx-auto flex gap-2" role="search">
+              <label htmlFor="site-search" className="sr-only">Search</label>
               <input 
+                id="site-search"
                 type="text" 
                 placeholder="Search viral tips, tech, and more..." 
-                className="flex-1 px-5 py-3 border border-gray-200 rounded-full focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-gray-50"
+                className="flex-1 px-5 py-3 border border-gray-300 rounded-full focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-gray-50 text-gray-900"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 autoFocus
               />
-              <button type="submit" className="bg-blue-600 text-white px-8 py-2 rounded-full font-bold hover:bg-blue-700 transition shadow-md">
+              <button type="submit" className="bg-blue-600 text-white px-8 py-2 rounded-full font-bold hover:bg-blue-700 transition shadow-md focus:ring-2 focus:ring-offset-2 focus:ring-blue-600">
                 Search
               </button>
             </form>
@@ -97,11 +102,12 @@ const Header: React.FC = () => {
 
         {/* Mobile/Sidebar Menu Overlay */}
         {isMenuOpen && (
-          <div className="fixed inset-0 z-50 flex">
+          <div className="fixed inset-0 z-50 flex" role="dialog" aria-modal="true" aria-label="Mobile Navigation">
             {/* Backdrop */}
             <div 
-              className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" 
+              className="fixed inset-0 bg-black bg-opacity-60 transition-opacity" 
               onClick={() => setIsMenuOpen(false)}
+              aria-hidden="true"
             ></div>
 
             {/* Drawer */}
@@ -110,7 +116,11 @@ const Header: React.FC = () => {
               {/* Drawer Header */}
               <div className="p-4 flex justify-between items-center border-b border-gray-100">
                  <span className="text-xl font-black text-blue-600">Creative Mind</span>
-                 <button onClick={() => setIsMenuOpen(false)} className="text-gray-500 hover:text-black p-2">
+                 <button 
+                  onClick={() => setIsMenuOpen(false)} 
+                  className="text-gray-600 hover:text-black p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  aria-label="Close menu"
+                 >
                    <i className="fas fa-times text-xl"></i>
                  </button>
               </div>
@@ -126,7 +136,7 @@ const Header: React.FC = () => {
                 </Link>
 
                 <div className="mt-4 px-6 mb-2">
-                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">CATEGORIES</p>
+                  <p className="text-xs font-bold text-gray-600 uppercase tracking-wider">CATEGORIES</p>
                 </div>
                 
                 {/* Standard Categories */}
@@ -135,7 +145,7 @@ const Header: React.FC = () => {
                     key={cat}
                     to={`/category/${getCategorySlug(cat)}`}
                     onClick={() => setIsMenuOpen(false)}
-                    className="block px-6 py-3 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-gray-50 capitalize"
+                    className="block px-6 py-3 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 capitalize"
                   >
                     {cat}
                   </Link>
@@ -147,7 +157,7 @@ const Header: React.FC = () => {
                     key={tag}
                     to={`/category/${getCategorySlug(tag)}`}
                     onClick={() => setIsMenuOpen(false)}
-                    className="block px-6 py-3 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-gray-50 capitalize"
+                    className="block px-6 py-3 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 capitalize"
                   >
                     {tag}
                   </Link>
@@ -157,16 +167,16 @@ const Header: React.FC = () => {
               {/* Drawer Footer (Socials) */}
               <div className="mt-auto p-6 border-t border-gray-100">
                 <div className="flex justify-center space-x-6">
-                  <a href="#" className="text-gray-400 hover:text-blue-600 transition">
+                  <a href="#" className="text-gray-500 hover:text-blue-600 transition" aria-label="Facebook">
                     <i className="fab fa-facebook-f text-xl"></i>
                   </a>
-                  <a href="https://t.me/creativemind7" className="text-gray-400 hover:text-blue-500 transition">
+                  <a href="https://t.me/creativemind7" className="text-gray-500 hover:text-blue-500 transition" aria-label="Telegram">
                     <i className="fab fa-telegram text-xl"></i>
                   </a>
-                  <a href="https://www.instagram.com/filmy4uhd?igsh=cG93eDEyc3d2Nmc3" className="text-gray-400 hover:text-pink-600 transition">
+                  <a href="https://www.instagram.com/filmy4uhd?igsh=cG93eDEyc3d2Nmc3" className="text-gray-500 hover:text-pink-600 transition" aria-label="Instagram">
                     <i className="fab fa-instagram text-xl"></i>
                   </a>
-                   <a href="https://youtube.com/@creativemind77-b8t?si=HyiSpwJhlz2B9f5M" className="text-gray-400 hover:text-red-600 transition">
+                   <a href="https://youtube.com/@creativemind77-b8t?si=HyiSpwJhlz2B9f5M" className="text-gray-500 hover:text-red-600 transition" aria-label="YouTube">
                     <i className="fab fa-youtube text-xl"></i>
                   </a>
                 </div>
