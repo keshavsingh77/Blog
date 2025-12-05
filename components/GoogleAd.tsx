@@ -34,22 +34,28 @@ const GoogleAd: React.FC<GoogleAdProps> = ({
     const element = adRef.current;
     if (!element) return;
 
+    // Smart Polling Mechanism: Wait for container width
     const tryPushAd = () => {
        try {
-         if (element && element.clientWidth > 0) {
-            if (format === 'fluid' && element.clientWidth < 250) return false;
+         // Check if element has width to prevent "availableWidth=0" error
+         if (element && element.offsetParent !== null && element.clientWidth > 0) {
+            // Special check for fluid/in-feed ads which crash if too narrow
+            if (format === 'fluid' && element.clientWidth < 200) return false;
+            
             (window.adsbygoogle = window.adsbygoogle || []).push({});
             setAdLoaded(true);
             return true;
          }
        } catch (e) {
-         console.error('AdSense error:', e);
+         console.warn('AdSense push deferred:', e);
        }
        return false;
     };
 
+    // Immediate attempt
     if (tryPushAd()) return;
 
+    // Observer attempt (Best for React/Responsive layouts)
     const observer = new ResizeObserver((entries) => {
         for (const entry of entries) {
             if (entry.contentRect.width > 0) {
@@ -62,12 +68,12 @@ const GoogleAd: React.FC<GoogleAdProps> = ({
     return () => observer.disconnect();
   }, [slot, format, adLoaded]);
 
-  // STRICT CSS to prevent CLS
+  // STRICT CSS to prevent CLS (Cumulative Layout Shift)
   const containerStyle: React.CSSProperties = {
     display: 'block',
     width: '100%',
-    minHeight: format === 'fluid' ? '250px' : '280px', // Prevent height collapse
-    backgroundColor: '#f9f9f9', // Placeholder color to visualize space
+    minHeight: format === 'fluid' ? '250px' : '280px', // Reserve space immediately
+    backgroundColor: '#fafafa', // Subtle placeholder
     ...style,
   };
 

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
   <head>
@@ -8,32 +7,21 @@
     <meta name="google-site-verification" content="3pzphnk4tF8_SO4tk5qjVf_A7_axA3tM0pFpSQf5PWM" />
     <title>Creative Mind - Tech, Gaming & Viral Tips</title>
     
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BHCBDSGG4E"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-BHCBDSGG4E');
-    </script>
-    
-    <!-- Performance Optimization: Preconnect to key origins -->
-    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin />
+    <!-- Performance Optimization: Critical Preconnects -->
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://picsum.photos" />
     <link rel="preconnect" href="https://blogger.googleusercontent.com" />
-    <link rel="preconnect" href="https://lh3.googleusercontent.com" />
     
-    <!-- DNS Prefetch -->
+    <!-- DNS Prefetch for Third Party Scripts -->
     <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
     <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
     <link rel="dns-prefetch" href="https://googleads.g.doubleclick.net" />
     <link rel="dns-prefetch" href="https://tpc.googlesyndication.com" />
 
-    <!-- Tailwind CSS (CDN) - Optimized -->
-    <script src="https://cdn.tailwindcss.com" crossorigin="anonymous"></script>
+    <!-- Tailwind CSS (CDN) with Typography Plugin -->
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     <script>
       tailwind.config = {
         theme: {
@@ -58,7 +46,7 @@
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     </noscript>
     
-    <!-- Google Fonts -->
+    <!-- Google Fonts (Optimized) -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" as="style" />
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
 
@@ -71,6 +59,15 @@
       @keyframes fade-in-down { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
       .animate-fade-in-down { animation: fade-in-down 0.3s ease-out forwards; }
     </style>
+
+    <!-- Defer Google Analytics (GA4) so it doesn't block LCP -->
+    <script defer src="https://www.googletagmanager.com/gtag/js?id=G-BHCBDSGG4E"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-BHCBDSGG4E');
+    </script>
   <script type="importmap">
 {
   "imports": {

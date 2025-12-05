@@ -25,13 +25,12 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
   return (
     <article 
-      className="group bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col h-full overflow-hidden border border-gray-100"
-      style={{ contentVisibility: 'auto', containIntrinsicSize: '0 300px' }} 
+      className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full overflow-hidden border border-gray-100 transform-gpu"
     >
       <div className="relative aspect-video overflow-hidden bg-gray-100">
          <Link to={`/post/${post.id}`} className="block w-full h-full" aria-label={`Read ${post.title}`}>
             <img 
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 transform-gpu" 
               src={thumbnailUrl} 
               alt={post.title} 
               loading="lazy"
@@ -43,7 +42,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
          
          <Link 
             to={`/category/${getCategorySlug(displayCategory)}`} 
-            className="absolute top-3 left-3 bg-blue-600 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded shadow-md hover:bg-blue-700 transition-colors"
+            className="absolute top-3 left-3 bg-blue-600/90 backdrop-blur-sm text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded shadow-md hover:bg-blue-700 transition-colors"
          >
            {displayCategory}
          </Link>
