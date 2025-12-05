@@ -1,3 +1,4 @@
+
 import React, { Suspense, useEffect } from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import { BlogProvider } from './context/BlogContext';
@@ -10,6 +11,7 @@ import { SkeletonPostDetail, SkeletonCard } from './components/SkeletonLoaders';
 const CategoryPage = React.lazy(() => import('./pages/CategoryPage'));
 const PostPage = React.lazy(() => import('./pages/PostPage'));
 const AdminPage = React.lazy(() => import('./pages/AdminPage'));
+const DownloaderPage = React.lazy(() => import('./pages/DownloaderPage'));
 
 // Component to Lazy Load AdSense Script
 const LazyAdSense = () => {
@@ -90,6 +92,14 @@ const App: React.FC = () => {
                   element={
                     <Suspense fallback={<SkeletonPostDetail />}>
                       <PostPage />
+                    </Suspense>
+                  } 
+                />
+                 <Route 
+                  path="/downloader" 
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <DownloaderPage />
                     </Suspense>
                   } 
                 />
