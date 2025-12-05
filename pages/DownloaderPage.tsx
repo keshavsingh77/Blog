@@ -28,25 +28,50 @@ const DownloaderPage: React.FC = () => {
     }
   };
 
+  // Structured Data for SEO (SoftwareApplication Schema)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Creative Mind All-in-One Video Downloader",
+    "applicationCategory": "MultimediaApplication",
+    "operatingSystem": "Any",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "featureList": "Download videos from TikTok, Instagram, Facebook without watermark",
+    "description": "A free online tool to download HD videos from social media platforms without watermarks."
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 font-sans pt-20 pb-12">
       <SEO 
-        title="Free Video Downloader - No Watermark" 
-        description="Download videos from TikTok, Instagram, Facebook, and more in HD quality without watermark. Fast, free, and secure online video saver." 
+        title="Free Video Downloader - No Watermark (TikTok, Insta, FB)" 
+        description="Download videos from TikTok, Instagram, Facebook, and more in HD quality without watermark. Fast, free, and secure online video saver and MP3 converter." 
+      />
+      
+      {/* Inject Schema for Google safely */}
+      <script 
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
       {/* Hero / Tool Section */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10">
+          <span className="inline-block py-1 px-3 rounded-full bg-blue-100 text-blue-700 text-xs font-bold uppercase tracking-wider mb-4">
+            Free Online Tool
+          </span>
           <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-4 tracking-tight">
             All-in-One <span className="text-blue-600">Video Downloader</span>
           </h1>
-          <p className="text-lg text-gray-600">
-            Paste a link from TikTok, Instagram, Facebook, or Twitter to download without watermark.
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Paste a link from TikTok, Instagram, Facebook, or Twitter to download high-quality videos <strong>without watermark</strong> instantly.
           </p>
         </div>
 
-        <div className="bg-white rounded-3xl shadow-xl border border-blue-100 p-6 md:p-10 transform transition-all hover:shadow-2xl">
+        <div className="bg-white rounded-3xl shadow-xl border border-blue-100 p-6 md:p-10 transform transition-all hover:shadow-2xl z-10 relative">
           <form onSubmit={handleDownload} className="relative">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-grow relative">
@@ -57,7 +82,7 @@ const DownloaderPage: React.FC = () => {
                   type="text"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
-                  placeholder="Paste video URL here..."
+                  placeholder="Paste video URL here (e.g., https://...)"
                   className="w-full pl-11 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-gray-800 text-lg placeholder-gray-400"
                 />
               </div>
@@ -82,8 +107,9 @@ const DownloaderPage: React.FC = () => {
             <div className="mt-8 pt-8 border-t border-gray-100 animate-fade-in-up">
               <div className="flex flex-col md:flex-row gap-8 items-start">
                 {/* Thumbnail */}
-                <div className="w-full md:w-1/3 rounded-xl overflow-hidden shadow-md bg-gray-100">
+                <div className="w-full md:w-1/3 rounded-xl overflow-hidden shadow-md bg-gray-100 group relative">
                   <img src={result.thumbnail} alt={result.title} className="w-full h-auto object-cover" />
+                  <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
                 </div>
                 
                 {/* Details */}
@@ -98,8 +124,11 @@ const DownloaderPage: React.FC = () => {
 
                   <div className="grid gap-3">
                     {result.medias.map((media, idx) => {
-                      // Styling based on type
-                      const isNoWatermark = media.quality.includes('no_watermark');
+                      // Styling based on type - Safe checks for quality and extension
+                      const quality = media.quality || '';
+                      const extension = media.extension || '';
+                      
+                      const isNoWatermark = quality.includes('no_watermark');
                       const isAudio = media.type === 'audio';
                       
                       return (
@@ -122,7 +151,7 @@ const DownloaderPage: React.FC = () => {
                                 <span>
                                     {isAudio ? 'Download MP3 Audio' : 
                                      isNoWatermark ? 'Download HD (No Watermark)' : 
-                                     `Download ${media.extension.toUpperCase()}`}
+                                     `Download ${extension.toUpperCase()}`}
                                 </span>
                                 {media.formattedSize && <span className="text-[10px] opacity-70 font-normal">{media.formattedSize}</span>}
                             </div>
@@ -139,49 +168,120 @@ const DownloaderPage: React.FC = () => {
         </div>
       </div>
 
-      {/* SEO Content Section */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 prose prose-lg prose-blue text-gray-600">
-         <div className="text-center mb-12">
-            <h2 className="text-3xl font-black text-gray-900 mb-4">Why Use Creative Mind Downloader?</h2>
-            <div className="w-20 h-1.5 bg-blue-600 mx-auto rounded-full"></div>
-         </div>
-
-         <div className="grid md:grid-cols-3 gap-8 mb-12 not-prose">
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center">
+      {/* SEO Content & Article Section */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
+         
+         {/* Features Grid */}
+         <div className="grid md:grid-cols-3 gap-8 mb-16">
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow">
                 <div className="w-14 h-14 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
                     <i className="fas fa-bolt"></i>
                 </div>
                 <h3 className="font-bold text-gray-900 text-lg mb-2">Lightning Fast</h3>
-                <p className="text-sm">Get your download links in milliseconds. No waiting, no queues.</p>
+                <p className="text-gray-600 text-sm">Our advanced API fetches video links in milliseconds. No waiting queues, no lag.</p>
             </div>
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center">
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow">
                 <div className="w-14 h-14 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
-                    <i className="fas fa-ban"></i>
+                    <i className="fas fa-magic"></i>
                 </div>
                 <h3 className="font-bold text-gray-900 text-lg mb-2">No Watermark</h3>
-                <p className="text-sm">Remove distracting logos and usernames from TikTok and Reels automatically.</p>
+                <p className="text-gray-600 text-sm">Download clean videos from TikTok and Reels. We automatically strip logos and user IDs.</p>
             </div>
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center">
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow">
                 <div className="w-14 h-14 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
                     <i className="fas fa-shield-alt"></i>
                 </div>
-                <h3 className="font-bold text-gray-900 text-lg mb-2">100% Safe & Free</h3>
-                <p className="text-sm">No software installation required. Secure and completely free to use.</p>
+                <h3 className="font-bold text-gray-900 text-lg mb-2">Secure & Free</h3>
+                <p className="text-gray-600 text-sm">No signup required. No software installation. 100% safe for all devices.</p>
             </div>
          </div>
 
-         <h3>How to Download Videos from Social Media?</h3>
-         <ol>
-            <li><strong>Copy the URL:</strong> Open the app (TikTok, Instagram, Facebook) and copy the link of the video you want to save.</li>
-            <li><strong>Paste the Link:</strong> Paste the URL into the input box at the top of this page.</li>
-            <li><strong>Click Download:</strong> Hit the download button and choose your preferred format (HD Video or MP3 Audio).</li>
-         </ol>
+         {/* Detailed Article */}
+         <article className="prose prose-lg prose-blue max-w-none bg-white p-8 md:p-12 rounded-3xl shadow-sm border border-gray-100">
+            <h2 className="text-3xl font-black text-gray-900 mb-6 flex items-center">
+               <span className="w-2 h-8 bg-blue-600 rounded-full mr-3"></span>
+               The Ultimate Social Media Video Downloader
+            </h2>
+            <p className="text-gray-600 leading-relaxed">
+               In the age of viral content, saving your favorite videos to watch offline or share with friends is essential. 
+               The <strong>Creative Mind Downloader</strong> is engineered to be the most versatile tool on the web. 
+               Unlike other downloaders that limit you to one platform, our tool connects to multiple social networks to provide a seamless experience.
+            </p>
 
-         <h3>Supported Platforms</h3>
-         <p>
-            Our tool supports a wide range of platforms including <strong>TikTok, Instagram Reels, Facebook Videos, Twitter (X), Threads, Pinterest</strong>, and more. 
-            Whether you need to save a funny meme, a tutorial, or a music clip, Creative Mind Downloader handles it all.
-         </p>
+            <div className="my-8 p-6 bg-blue-50 rounded-2xl border border-blue-100">
+               <h3 className="text-blue-900 font-bold text-xl mt-0 mb-4">Supported Platforms</h3>
+               <ul className="grid grid-cols-2 md:grid-cols-4 gap-4 list-none pl-0 my-0">
+                  <li className="flex items-center font-medium text-gray-700"><i className="fab fa-tiktok text-black mr-2"></i> TikTok</li>
+                  <li className="flex items-center font-medium text-gray-700"><i className="fab fa-instagram text-pink-600 mr-2"></i> Instagram</li>
+                  <li className="flex items-center font-medium text-gray-700"><i className="fab fa-facebook text-blue-700 mr-2"></i> Facebook</li>
+                  <li className="flex items-center font-medium text-gray-700"><i className="fab fa-twitter text-blue-400 mr-2"></i> Twitter/X</li>
+                  <li className="flex items-center font-medium text-gray-700"><i className="fab fa-pinterest text-red-600 mr-2"></i> Pinterest</li>
+                  <li className="flex items-center font-medium text-gray-700"><i className="fab fa-threads text-black mr-2"></i> Threads</li>
+                  <li className="flex items-center font-medium text-gray-700"><i className="fab fa-youtube text-red-600 mr-2"></i> Shorts</li>
+               </ul>
+            </div>
+
+            <h3 className="text-2xl font-bold text-gray-900">How to Download Videos from TikTok without Watermark</h3>
+            <p className="text-gray-600">
+               TikTok adds a bouncing watermark to every downloaded video, which can be annoying if you want to reuse your content or watch it cleanly. Here is how to remove it:
+            </p>
+            <ol className="text-gray-600">
+               <li>Open the TikTok app and find the video you wish to save.</li>
+               <li>Tap the <strong>Share</strong> button (arrow icon) and select <strong>Copy Link</strong>.</li>
+               <li>Come back to this page and paste the link in the input box above.</li>
+               <li>Click the <strong>Download</strong> button.</li>
+               <li>Select the button labeled <strong>"HD (No Watermark)"</strong>.</li>
+            </ol>
+
+            <h3 className="text-2xl font-bold text-gray-900 mt-8">Download Instagram Reels & Stories</h3>
+            <p className="text-gray-600">
+               Instagram doesn't provide a native way to download Reels with audio. Our tool extracts the original MP4 file directly from Instagram's servers, ensuring you get the highest quality video with synchronized audio.
+            </p>
+
+            <h3 className="text-2xl font-bold text-gray-900 mt-8">Frequently Asked Questions (FAQ)</h3>
+            
+            <div className="not-prose space-y-4 mt-6">
+                <details className="group bg-gray-50 rounded-xl border border-gray-200 overflow-hidden transition-all duration-300 open:bg-white open:shadow-md">
+                   <summary className="flex items-center justify-between p-4 cursor-pointer font-bold text-gray-800">
+                      Is this video downloader truly free?
+                      <i className="fas fa-chevron-down text-gray-400 transition-transform group-open:rotate-180"></i>
+                   </summary>
+                   <div className="px-4 pb-4 text-gray-600 text-sm leading-relaxed border-t border-gray-100 pt-3">
+                      Yes, Creative Mind Downloader is 100% free to use. You don't need to register, pay a subscription, or install any browser extensions.
+                   </div>
+                </details>
+
+                <details className="group bg-gray-50 rounded-xl border border-gray-200 overflow-hidden transition-all duration-300 open:bg-white open:shadow-md">
+                   <summary className="flex items-center justify-between p-4 cursor-pointer font-bold text-gray-800">
+                      Where are the videos saved on my device?
+                      <i className="fas fa-chevron-down text-gray-400 transition-transform group-open:rotate-180"></i>
+                   </summary>
+                   <div className="px-4 pb-4 text-gray-600 text-sm leading-relaxed border-t border-gray-100 pt-3">
+                      On mobile devices (Android/iOS), videos are usually saved to your "Downloads" folder or directly to your Gallery/Photos app. On PC, they appear in the default "Downloads" folder selected in your browser settings.
+                   </div>
+                </details>
+
+                <details className="group bg-gray-50 rounded-xl border border-gray-200 overflow-hidden transition-all duration-300 open:bg-white open:shadow-md">
+                   <summary className="flex items-center justify-between p-4 cursor-pointer font-bold text-gray-800">
+                      Does it store a copy of downloaded videos?
+                      <i className="fas fa-chevron-down text-gray-400 transition-transform group-open:rotate-180"></i>
+                   </summary>
+                   <div className="px-4 pb-4 text-gray-600 text-sm leading-relaxed border-t border-gray-100 pt-3">
+                      No. We do not store any videos or keep logs of your download history. The downloading process is completely anonymous and secure.
+                   </div>
+                </details>
+
+                <details className="group bg-gray-50 rounded-xl border border-gray-200 overflow-hidden transition-all duration-300 open:bg-white open:shadow-md">
+                   <summary className="flex items-center justify-between p-4 cursor-pointer font-bold text-gray-800">
+                      Can I download MP3 Audio from TikTok videos?
+                      <i className="fas fa-chevron-down text-gray-400 transition-transform group-open:rotate-180"></i>
+                   </summary>
+                   <div className="px-4 pb-4 text-gray-600 text-sm leading-relaxed border-t border-gray-100 pt-3">
+                      Absolutely. After pasting the link, look for the button labeled <strong>"Download Audio (MP3)"</strong>. This extracts just the sound from the video for you to save.
+                   </div>
+                </details>
+            </div>
+         </article>
       </div>
     </div>
   );
