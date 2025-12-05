@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import SEO from '../components/SEO';
 import Spinner from '../components/Spinner';
+import GoogleAd from '../components/GoogleAd';
 import { fetchVideoInfo, VideoData } from '../services/downloaderService';
 
 const DownloaderPage: React.FC = () => {
@@ -32,7 +33,7 @@ const DownloaderPage: React.FC = () => {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    "name": "Creative Mind All-in-One Video Downloader",
+    "name": "SnapLoad - Universal Video Downloader",
     "applicationCategory": "MultimediaApplication",
     "operatingSystem": "Any",
     "offers": {
@@ -47,8 +48,8 @@ const DownloaderPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 font-sans pt-20 pb-12">
       <SEO 
-        title="Free Video Downloader - No Watermark (TikTok, Insta, FB)" 
-        description="Download videos from TikTok, Instagram, Facebook, and more in HD quality without watermark. Fast, free, and secure online video saver and MP3 converter." 
+        title="SnapLoad | Free Video Downloader - No Watermark (TikTok, Insta, FB)" 
+        description="SnapLoad is the fastest free tool to download videos from TikTok, Instagram, Facebook, and more in HD quality without watermark. Save MP4 and MP3 instantly." 
       />
       
       {/* Inject Schema for Google safely */}
@@ -64,7 +65,7 @@ const DownloaderPage: React.FC = () => {
             Free Online Tool
           </span>
           <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-4 tracking-tight">
-            All-in-One <span className="text-blue-600">Video Downloader</span>
+            SnapLoad <span className="text-blue-600">Media Saver</span>
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Paste a link from TikTok, Instagram, Facebook, or Twitter to download high-quality videos <strong>without watermark</strong> instantly.
@@ -72,7 +73,7 @@ const DownloaderPage: React.FC = () => {
         </div>
 
         <div className="bg-white rounded-3xl shadow-xl border border-blue-100 p-6 md:p-10 transform transition-all hover:shadow-2xl z-10 relative">
-          <form onSubmit={handleDownload} className="relative">
+          <form onSubmit={handleDownload} className="relative z-20">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-grow relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -95,6 +96,14 @@ const DownloaderPage: React.FC = () => {
               </button>
             </div>
           </form>
+
+          {/* AD PLACEMENT: Below Download Button */}
+          <div className="mt-8 mb-2">
+             <div className="text-[10px] text-gray-300 text-center uppercase tracking-widest mb-1">Advertisement</div>
+             <div className="min-h-[100px] w-full bg-gray-50 rounded-lg overflow-hidden flex justify-center items-center">
+                 <GoogleAd slot="1909584638" format="horizontal" responsive={true} style={{ display: 'block', width: '100%' }} />
+             </div>
+          </div>
 
           {error && (
             <div className="mt-6 p-4 bg-red-50 text-red-700 rounded-xl border border-red-100 flex items-center animate-fade-in-down">
@@ -178,7 +187,7 @@ const DownloaderPage: React.FC = () => {
                     <i className="fas fa-bolt"></i>
                 </div>
                 <h3 className="font-bold text-gray-900 text-lg mb-2">Lightning Fast</h3>
-                <p className="text-gray-600 text-sm">Our advanced API fetches video links in milliseconds. No waiting queues, no lag.</p>
+                <p className="text-gray-600 text-sm">SnapLoad fetches video links in milliseconds. No waiting queues, no lag.</p>
             </div>
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow">
                 <div className="w-14 h-14 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
@@ -200,11 +209,11 @@ const DownloaderPage: React.FC = () => {
          <article className="prose prose-lg prose-blue max-w-none bg-white p-8 md:p-12 rounded-3xl shadow-sm border border-gray-100">
             <h2 className="text-3xl font-black text-gray-900 mb-6 flex items-center">
                <span className="w-2 h-8 bg-blue-600 rounded-full mr-3"></span>
-               The Ultimate Social Media Video Downloader
+               Why Choose SnapLoad?
             </h2>
             <p className="text-gray-600 leading-relaxed">
                In the age of viral content, saving your favorite videos to watch offline or share with friends is essential. 
-               The <strong>Creative Mind Downloader</strong> is engineered to be the most versatile tool on the web. 
+               <strong>SnapLoad</strong> is engineered to be the most versatile tool on the web. 
                Unlike other downloaders that limit you to one platform, our tool connects to multiple social networks to provide a seamless experience.
             </p>
 
@@ -228,7 +237,7 @@ const DownloaderPage: React.FC = () => {
             <ol className="text-gray-600">
                <li>Open the TikTok app and find the video you wish to save.</li>
                <li>Tap the <strong>Share</strong> button (arrow icon) and select <strong>Copy Link</strong>.</li>
-               <li>Come back to this page and paste the link in the input box above.</li>
+               <li>Come back to SnapLoad and paste the link in the input box above.</li>
                <li>Click the <strong>Download</strong> button.</li>
                <li>Select the button labeled <strong>"HD (No Watermark)"</strong>.</li>
             </ol>
@@ -237,17 +246,22 @@ const DownloaderPage: React.FC = () => {
             <p className="text-gray-600">
                Instagram doesn't provide a native way to download Reels with audio. Our tool extracts the original MP4 file directly from Instagram's servers, ensuring you get the highest quality video with synchronized audio.
             </p>
+            
+            <div className="my-8">
+               <div className="text-[10px] text-gray-300 text-center uppercase tracking-widest mb-1">Sponsored</div>
+                <GoogleAd slot="8617081290" format="autorelaxed" />
+            </div>
 
             <h3 className="text-2xl font-bold text-gray-900 mt-8">Frequently Asked Questions (FAQ)</h3>
             
             <div className="not-prose space-y-4 mt-6">
                 <details className="group bg-gray-50 rounded-xl border border-gray-200 overflow-hidden transition-all duration-300 open:bg-white open:shadow-md">
                    <summary className="flex items-center justify-between p-4 cursor-pointer font-bold text-gray-800">
-                      Is this video downloader truly free?
+                      Is SnapLoad truly free?
                       <i className="fas fa-chevron-down text-gray-400 transition-transform group-open:rotate-180"></i>
                    </summary>
                    <div className="px-4 pb-4 text-gray-600 text-sm leading-relaxed border-t border-gray-100 pt-3">
-                      Yes, Creative Mind Downloader is 100% free to use. You don't need to register, pay a subscription, or install any browser extensions.
+                      Yes, SnapLoad is 100% free to use. You don't need to register, pay a subscription, or install any browser extensions.
                    </div>
                 </details>
 

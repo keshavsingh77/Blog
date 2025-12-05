@@ -1,10 +1,14 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
 import { CATEGORIES } from '../constants';
 
-// Safely access process.env to avoid ReferenceError in browsers
+// Safely access process.env to avoid ReferenceError in browsers that don't polyfill it
 const getApiKey = () => {
   try {
-    return process.env.API_KEY || '';
+    if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
+        return process.env.API_KEY;
+    }
+    return '';
   } catch (e) {
     return '';
   }
@@ -62,7 +66,7 @@ export const generateBlogPost = async (topic: string): Promise<{ title: string; 
   }
 };
 
-// --- AI Studio Functions ---
+// --- AI Studio Functions (Re-added for completion but safe) ---
 
 export const generateSmartText = async (prompt: string, mode: 'fast' | 'thinking' | 'search' | 'standard'): Promise<{ text: string, groundingUrls?: string[] }> => {
     const ai = getAiClient();
@@ -71,20 +75,16 @@ export const generateSmartText = async (prompt: string, mode: 'fast' | 'thinking
 
     switch (mode) {
         case 'standard':
-            // Complex Text Tasks
             model = 'gemini-3-pro-preview';
             break;
         case 'fast':
-            // Basic Text Tasks
             model = 'gemini-2.5-flash';
             break;
         case 'thinking':
-            // Thinking Config only for 2.5 series
             model = 'gemini-2.5-flash';
             config.thinkingConfig = { thinkingBudget: 4096 };
             break;
         case 'search':
-            // Search Grounding
             model = 'gemini-2.5-flash';
             config.tools = [{ googleSearch: {} }];
             break;
