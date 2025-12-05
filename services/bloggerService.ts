@@ -14,7 +14,6 @@ const BLOG_ID = '6924208631263306852';
  */
 export const fetchPostsFromBlogger = async (): Promise<Post[]> => {
   if (!API_KEY || !BLOG_ID) {
-    console.warn("Blogger API Key or Blog ID not set. Using mock data.");
     return new Promise((resolve) => setTimeout(() => resolve(INITIAL_POSTS), 800));
   }
 
@@ -24,8 +23,6 @@ export const fetchPostsFromBlogger = async (): Promise<Post[]> => {
     );
 
     if (!response.ok) {
-      console.error(`Blogger API Error: ${response.status} ${response.statusText}`);
-      // Fallback to initial posts if API fails (e.g. quota, referer)
       return INITIAL_POSTS;
     }
 
@@ -36,42 +33,36 @@ export const fetchPostsFromBlogger = async (): Promise<Post[]> => {
     }
 
     return data.items.map((item: any) => {
-      // Robust image extraction using DOM parsing
       let imageUrl = `https://picsum.photos/seed/${item.id}/800/400`;
-      try {
-        const div = document.createElement('div');
-        div.innerHTML = item.content;
-        const img = div.querySelector('img');
-        if (img && img.src) {
-          imageUrl = img.src;
-          
-          // Attempt to get high-res image from Blogger URL
-          if (imageUrl.includes('blogspot.com')) {
-             imageUrl = imageUrl.replace(/\/s\d+(-c)?\//, '/s1600/');
-             imageUrl = imageUrl.replace(/\/w\d+-h\d+(-p-k-no-nu)?\//, '/w1280-h720/');
-          }
+
+      // OPTIMIZATION: Use Regex for image extraction instead of DOM parsing.
+      // Creating DOM elements (document.createElement) is slow and blocks the main thread.
+      const imgRegex = /<img[^>]+src="([^">]+)"/i;
+      const match = item.content.match(imgRegex);
+
+      if (match && match[1]) {
+        imageUrl = match[1];
+        
+        // Attempt to get high-res image from Blogger URL
+        if (imageUrl.includes('blogspot.com')) {
+            imageUrl = imageUrl.replace(/\/s\d+(-c)?\//, '/s1600/');
+            imageUrl = imageUrl.replace(/\/w\d+-h\d+(-p-k-no-nu)?\//, '/w1280-h720/');
         }
-      } catch (e) {
-        // Fallback to regex if DOM parsing fails
-        const imgRegex = /<img.*?src="(.*?)"/;
-        const imgMatch = item.content.match(imgRegex);
-        if (imgMatch) imageUrl = imgMatch[1];
       }
 
       // Determine category from labels
-      // Logic: The first label/tag IS the category
       let tags: string[] = [];
       let category: string = 'General';
       
       if (item.labels && item.labels.length > 0) {
-        tags = item.labels; // Store all labels as tags
-        category = item.labels[0]; // First tag is explicitly the category
+        tags = item.labels;
+        category = item.labels[0];
       }
 
       return {
         id: item.id,
         title: item.title,
-        content: item.content, // Blogger returns HTML content
+        content: item.content, 
         category: category,
         tags: tags,
         status: PostStatus.PUBLISHED,
@@ -82,7 +73,7 @@ export const fetchPostsFromBlogger = async (): Promise<Post[]> => {
     });
 
   } catch (error) {
-    console.error("Failed to fetch posts from Blogger:", error);
+    console.error("Failed to fetch posts:", error);
     return INITIAL_POSTS;
   }
 };

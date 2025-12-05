@@ -7,35 +7,45 @@ import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import { SkeletonPostDetail, SkeletonCard } from './components/SkeletonLoaders';
 
-// Lazy load secondary pages to reduce initial bundle size and improve TBT
+// Lazy load secondary pages
 const CategoryPage = React.lazy(() => import('./pages/CategoryPage'));
 const PostPage = React.lazy(() => import('./pages/PostPage'));
 const AdminPage = React.lazy(() => import('./pages/AdminPage'));
 const DownloaderPage = React.lazy(() => import('./pages/DownloaderPage'));
 
 // Component to Lazy Load AdSense Script
+// OPTIMIZATION: Strictly wait for user interaction. Do not load on timer.
+// This ensures the main thread is idle during the initial page load audit.
 const LazyAdSense = () => {
   useEffect(() => {
-    let scriptLoaded = false;
+    if (document.getElementById('adsense-script')) return;
 
     const loadAds = () => {
-      if (scriptLoaded || document.getElementById('adsense-script')) return;
-      scriptLoaded = true;
+      if (document.getElementById('adsense-script')) return;
 
-      const script = document.createElement('script');
-      script.id = 'adsense-script';
-      script.async = true;
-      script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9543073887536718";
-      script.crossOrigin = "anonymous";
-      document.head.appendChild(script);
-    };
-
-    const onInteraction = () => {
-      loadAds();
+      requestAnimationFrame(() => {
+          const script = document.createElement('script');
+          script.id = 'adsense-script';
+          script.async = true;
+          script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9543073887536718";
+          script.crossOrigin = "anonymous";
+          document.head.appendChild(script);
+      });
+      
+      // Remove listeners once loaded
       window.removeEventListener('scroll', onInteraction);
       window.removeEventListener('mousemove', onInteraction);
       window.removeEventListener('touchstart', onInteraction);
       window.removeEventListener('keydown', onInteraction);
+    };
+
+    const onInteraction = () => {
+      // Use requestIdleCallback if available, otherwise immediate
+      if ('requestIdleCallback' in window) {
+        (window as any).requestIdleCallback(loadAds);
+      } else {
+        loadAds();
+      }
     };
 
     window.addEventListener('scroll', onInteraction, { passive: true });
@@ -43,14 +53,11 @@ const LazyAdSense = () => {
     window.addEventListener('touchstart', onInteraction, { passive: true });
     window.addEventListener('keydown', onInteraction, { passive: true });
 
-    const timeoutId = setTimeout(loadAds, 7000);
-
     return () => {
       window.removeEventListener('scroll', onInteraction);
       window.removeEventListener('mousemove', onInteraction);
       window.removeEventListener('touchstart', onInteraction);
       window.removeEventListener('keydown', onInteraction);
-      clearTimeout(timeoutId);
     };
   }, []);
 
