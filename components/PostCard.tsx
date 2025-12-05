@@ -8,22 +8,17 @@ interface PostCardProps {
 }
 
 const PostCard: React.FC<PostCardProps> = ({ post }) => {
-  // Logic: Use the first tag as the "Display Category" if available, otherwise fallback to the main Category
   const displayCategory = post.tags && post.tags.length > 0 ? post.tags[0] : post.category;
   const getCategorySlug = (category: string) => category.toLowerCase().replace(/\s+/g, '-');
   
-  const plainTextContent = post.content.replace(/<[^>]+>/g, '');
-  const snippet = plainTextContent.substring(0, 100) + '...';
-
-  // OPTIMIZATION: Request smaller images for the grid view to save bandwidth and improve LCP/Performance
-  // If using Picsum or common CDN patterns, rewrite the URL.
+  // PERFORMANCE: URL Rewriting to request 400px wide thumbnails instead of full size
   let thumbnailUrl = post.imageUrl;
   
   if (thumbnailUrl.includes('picsum.photos')) {
-    // Replace large dimensions with smaller ones for the card (e.g. 400x225 for 16:9)
+    // Picsum dynamic resizing: /seed/ID/400/225
     thumbnailUrl = thumbnailUrl.replace(/\/seed\/([^/]+)\/\d+\/\d+/, '/seed/$1/400/225');
   } else if (thumbnailUrl.includes('googleusercontent.com') || thumbnailUrl.includes('blogspot.com')) {
-    // Try to request a smaller size for Blogger images (w400)
+    // Blogger dynamic resizing: Replace /sXXXX/ with /w400-h225-p-k-no-nu/
     thumbnailUrl = thumbnailUrl.replace(/\/s\d+(-c)?\//, '/w400-h225-p-k-no-nu/');
     thumbnailUrl = thumbnailUrl.replace(/\/w\d+-h\d+(-p-k-no-nu)?\//, '/w400-h225-p-k-no-nu/');
   }
@@ -31,10 +26,8 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   return (
     <article 
       className="group bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col h-full overflow-hidden border border-gray-100"
-      // content-visibility: auto skips rendering work for off-screen cards
-      style={{ contentVisibility: 'auto', containIntrinsicSize: '0 400px' }} 
+      style={{ contentVisibility: 'auto', containIntrinsicSize: '0 300px' }} 
     >
-      {/* Image Container */}
       <div className="relative aspect-video overflow-hidden bg-gray-100">
          <Link to={`/post/${post.id}`} className="block w-full h-full" aria-label={`Read ${post.title}`}>
             <img 
@@ -56,29 +49,21 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
          </Link>
       </div>
 
-      {/* Content Container */}
-      <div className="p-5 flex flex-col flex-grow">
+      <div className="p-4 flex flex-col flex-grow">
         <div className="mb-2 flex items-center text-xs text-gray-500 font-medium uppercase tracking-wide">
            <span className="mr-3"><i className="far fa-clock mr-1" aria-hidden="true"></i> {new Date(post.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
         </div>
         
-        <h2 className="text-lg font-bold text-gray-900 mb-2 leading-snug group-hover:text-blue-600 transition-colors line-clamp-2">
+        <h2 className="text-base md:text-lg font-bold text-gray-900 mb-2 leading-snug group-hover:text-blue-600 transition-colors line-clamp-2">
           <Link to={`/post/${post.id}`}>
             {post.title}
           </Link>
         </h2>
         
-        {/* Hide snippet on mobile for compact view, show on md+ */}
-        <p className="hidden md:block text-gray-600 text-sm mb-4 flex-grow line-clamp-3 leading-relaxed">{snippet}</p>
-        
         <div className="mt-auto pt-3 border-t border-gray-50 flex justify-between items-center">
            <Link to={`/post/${post.id}`} className="inline-flex items-center font-bold text-xs uppercase text-blue-600 hover:text-blue-800 transition-colors">
             Read More
           </Link>
-          <div className="flex space-x-3 text-gray-400 hover:text-gray-600">
-             <i className="far fa-bookmark cursor-pointer hover:text-blue-600 transition-colors" aria-label="Bookmark" role="button"></i>
-             <i className="fas fa-share-alt cursor-pointer hover:text-blue-600 transition-colors" aria-label="Share" role="button"></i>
-          </div>
         </div>
       </div>
     </article>

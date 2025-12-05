@@ -18,22 +18,22 @@
       gtag('config', 'G-BHCBDSGG4E');
     </script>
     
-    <!-- Performance Optimization: Preconnect to key origins with crossorigin -->
+    <!-- Performance Optimization: Preconnect to key origins -->
     <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin />
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://www.googletagmanager.com" />
-    <link rel="preconnect" href="https://www.google-analytics.com" />
-    <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin />
+    <link rel="preconnect" href="https://picsum.photos" />
+    <link rel="preconnect" href="https://blogger.googleusercontent.com" />
+    <link rel="preconnect" href="https://lh3.googleusercontent.com" />
     
-    <!-- DNS Prefetch for Images & Ads -->
-    <link rel="dns-prefetch" href="https://picsum.photos" />
-    <link rel="dns-prefetch" href="https://lh3.googleusercontent.com" />
-    <link rel="dns-prefetch" href="https://blogger.googleusercontent.com" />
+    <!-- DNS Prefetch -->
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+    <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
     <link rel="dns-prefetch" href="https://googleads.g.doubleclick.net" />
+    <link rel="dns-prefetch" href="https://tpc.googlesyndication.com" />
 
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS (CDN) - Optimized -->
+    <script src="https://cdn.tailwindcss.com" crossorigin="anonymous"></script>
     <script>
       tailwind.config = {
         theme: {
@@ -46,7 +46,7 @@
       }
     </script>
     
-    <!-- Non-blocking Font Awesome loading -->
+    <!-- Non-blocking Font Awesome -->
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" as="style" />
     <link 
       rel="stylesheet" 
@@ -58,36 +58,18 @@
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     </noscript>
     
-    <!-- Fonts with display=swap for performance -->
+    <!-- Google Fonts -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" as="style" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap');
       body { font-family: 'Roboto', sans-serif; text-rendering: optimizeLegibility; }
-      /* Custom Scrollbar for Tags */
-      .no-scrollbar::-webkit-scrollbar {
-          display: none;
-      }
-      .no-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-      }
-      /* Custom Animation Utils */
-      @keyframes fade-in-up {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-      .animate-fade-in-up {
-        animation: fade-in-up 0.8s ease-out forwards;
-      }
-      .delay-100 { animation-delay: 0.1s; }
-      .delay-200 { animation-delay: 0.2s; }
-      
-      @keyframes fade-in-down {
-         from { opacity: 0; transform: translateY(-10px); }
-         to { opacity: 1; transform: translateY(0); }
-      }
-      .animate-fade-in-down {
-          animation: fade-in-down 0.3s ease-out forwards;
-      }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      @keyframes fade-in-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+      .animate-fade-in-up { animation: fade-in-up 0.8s ease-out forwards; }
+      @keyframes fade-in-down { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+      .animate-fade-in-down { animation: fade-in-down 0.3s ease-out forwards; }
     </style>
   <script type="importmap">
 {

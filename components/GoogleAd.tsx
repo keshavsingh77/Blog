@@ -1,7 +1,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 
-// Extend the Window interface to include adsbygoogle
 declare global {
   interface Window {
     adsbygoogle: any[];
@@ -11,9 +10,9 @@ declare global {
 interface GoogleAdProps {
   slot: string;
   format?: 'auto' | 'fluid' | 'rectangle' | 'horizontal' | 'vertical' | 'autorelaxed'; 
-  layoutKey?: string; // For In-feed ads
-  layout?: string; // For In-article ads
-  style?: React.CSSProperties; // Custom styles
+  layoutKey?: string;
+  layout?: string;
+  style?: React.CSSProperties;
   className?: string;
   responsive?: boolean;
 }
@@ -31,23 +30,14 @@ const GoogleAd: React.FC<GoogleAdProps> = ({
   const [adLoaded, setAdLoaded] = useState(false);
 
   useEffect(() => {
-    // Prevent double loading
     if (adLoaded) return;
-    
     const element = adRef.current;
     if (!element) return;
 
-    // Function to attempt pushing the ad safely
     const tryPushAd = () => {
        try {
          if (element && element.clientWidth > 0) {
-            // CRITICAL CHECK: Fluid ads require at least 250px width.
-            // If width is smaller (e.g., hidden or mobile layout issue), we wait.
-            if (format === 'fluid' && element.clientWidth < 250) {
-                // console.warn(`AdSense: Fluid ad container width (${element.clientWidth}px) is too small. Waiting for layout...`);
-                return false; 
-            }
-
+            if (format === 'fluid' && element.clientWidth < 250) return false;
             (window.adsbygoogle = window.adsbygoogle || []).push({});
             setAdLoaded(true);
             return true;
@@ -58,45 +48,26 @@ const GoogleAd: React.FC<GoogleAdProps> = ({
        return false;
     };
 
-    // 1. Try immediately (in case layout is ready)
     if (tryPushAd()) return;
 
-    // 2. Setup ResizeObserver to detect when container gets dimensions
-    // This fixes the race condition where React renders before CSS layout is finalized
     const observer = new ResizeObserver((entries) => {
         for (const entry of entries) {
             if (entry.contentRect.width > 0) {
-                 if (tryPushAd()) {
-                     observer.disconnect(); // Stop observing once ad is pushed
-                 }
+                 if (tryPushAd()) observer.disconnect();
             }
         }
     });
 
     observer.observe(element);
-
-    // 3. Fallback polling (safety net for browsers with ResizeObserver quirks)
-    const intervalId = setInterval(() => {
-        if (tryPushAd()) {
-            clearInterval(intervalId);
-            observer.disconnect();
-        }
-    }, 1000);
-
-    // Cleanup
-    return () => {
-      observer.disconnect();
-      clearInterval(intervalId);
-    };
+    return () => observer.disconnect();
   }, [slot, format, adLoaded]);
 
-  // Robust container styles to ensure the element takes up space immediately
+  // STRICT CSS to prevent CLS
   const containerStyle: React.CSSProperties = {
     display: 'block',
     width: '100%',
-    minWidth: format === 'fluid' ? '250px' : undefined, // Force min-width for fluid ads
-    minHeight: format === 'fluid' ? '250px' : '280px',  // Reserve vertical space to prevent CLS
-    textAlign: layout === 'in-article' ? 'center' : undefined,
+    minHeight: format === 'fluid' ? '250px' : '280px', // Prevent height collapse
+    backgroundColor: '#f9f9f9', // Placeholder color to visualize space
     ...style,
   };
 

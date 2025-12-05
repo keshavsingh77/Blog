@@ -4,29 +4,40 @@ import { Link } from 'react-router-dom';
 import { useBlog } from '../context/BlogContext';
 import PostCard from '../components/PostCard';
 import SEO from '../components/SEO';
-import GoogleAd from '../components/GoogleAd'; // Import GoogleAd
+import GoogleAd from '../components/GoogleAd';
 import { SkeletonCard, SkeletonHero } from '../components/SkeletonLoaders';
+
+// Helper to optimize image URLs for Hero
+const getOptimizedHeroImage = (url: string, width: number) => {
+  if (!url) return '';
+  if (url.includes('picsum.photos')) {
+    // Picsum dynamic resizing
+    return url.replace(/\/seed\/([^/]+)\/\d+\/\d+/, `/seed/$1/${width}/${Math.round(width * 9/16)}`);
+  }
+  if (url.includes('googleusercontent.com') || url.includes('blogspot.com')) {
+    // Blogger dynamic resizing
+    // Replaces /s1600/ or /wXXX-hYYY/ with specific width, keeping aspect ratio
+    return url.replace(/\/s\d+(-c)?\//, `/w${width}-h${Math.round(width * 9/16)}-p-k-no-nu/`)
+              .replace(/\/w\d+-h\d+(-p-k-no-nu)?\//, `/w${width}-h${Math.round(width * 9/16)}-p-k-no-nu/`);
+  }
+  return url;
+};
 
 const HomePage: React.FC = () => {
   const { posts, isLoading } = useBlog();
   const [currentSlide, setCurrentSlide] = useState(0);
-  
-  // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 6; 
 
-  // Extract tags for "Discover more"
   const allTags = Array.from(new Set(posts.flatMap(p => p.tags))).sort(() => 0.5 - Math.random());
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  // Separate Hero Posts (Top 3) from the rest
   const heroPosts = posts.slice(0, 3);
   const remainingPosts = posts.slice(3);
 
-  // Pagination Logic for Remaining Posts
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
   const currentLatestPosts = remainingPosts.slice(indexOfFirstPost, indexOfLastPost);
@@ -34,22 +45,12 @@ const HomePage: React.FC = () => {
 
   const paginate = (pageNumber: number) => {
     setCurrentPage(pageNumber);
-    const latestSection = document.getElementById('latest-posts');
-    if (latestSection) {
-        latestSection.scrollIntoView({ behavior: 'smooth' });
-    }
+    document.getElementById('latest-posts')?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const nextPage = () => {
-    if (currentPage < totalPages) paginate(currentPage + 1);
-  };
+  const nextPage = () => currentPage < totalPages && paginate(currentPage + 1);
+  const prevPage = () => currentPage > 1 && paginate(currentPage - 1);
 
-  const prevPage = () => {
-    if (currentPage > 1) paginate(currentPage - 1);
-  };
-
-
-  // Auto-scroll hero slider
   useEffect(() => {
     if (heroPosts.length === 0) return;
     const timer = setInterval(() => {
@@ -64,7 +65,6 @@ const HomePage: React.FC = () => {
     return (
       <div className="bg-gray-50 min-h-screen font-sans pt-16">
          <div className="max-w-7xl mx-auto px-4 pt-4">
-             {/* Tag bar skeleton */}
              <div className="flex space-x-3 overflow-hidden py-2 mb-4 animate-pulse">
                  {[1,2,3,4,5].map(i => <div key={i} className="h-8 w-24 bg-gray-200 rounded-full"></div>)}
              </div>
@@ -80,21 +80,13 @@ const HomePage: React.FC = () => {
     );
   }
 
-  // Helper to inject ads into the grid
   const renderPostGrid = (posts: typeof currentLatestPosts) => {
     return posts.map((post, index) => (
       <React.Fragment key={post.id}>
         <PostCard post={post} />
-        {/* Inject Native In-Feed Ad after the 3rd item */}
         {index === 2 && (
-           <div className="col-span-2 md:col-span-3 my-4 min-h-[250px] bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
-              {/* Native In-Feed Ad Unit - Slot: 1909584638 */}
-              <GoogleAd 
-                slot="1909584638" 
-                format="fluid" 
-                layoutKey="-6t+ed+2i-1n-4w" 
-                className="w-full"
-              />
+           <div className="col-span-2 md:col-span-3 my-4 bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 min-h-[250px] relative">
+              <GoogleAd slot="1909584638" format="fluid" layoutKey="-6t+ed+2i-1n-4w" className="w-full" />
            </div>
         )}
       </React.Fragment>
@@ -103,82 +95,67 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="bg-[#FAFAFA] min-h-screen font-sans pt-16">
-      <SEO 
-        title="Home" 
-        description="Creative Mind - The best place for viral tech tips, gaming updates, and entertainment news."
-      />
+      <SEO title="Home" description="Creative Mind - The best place for viral tech tips, gaming updates, and entertainment news." />
 
-      {/* Discover More - Horizontal Scroll Bar */}
       <div className="bg-white border-b border-gray-200 sticky top-16 z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center overflow-x-auto no-scrollbar space-x-3 py-3" role="navigation" aria-label="Tag navigation">
+          <div className="flex items-center overflow-x-auto no-scrollbar space-x-3 py-3">
              <span className="text-[10px] md:text-xs font-black text-blue-600 uppercase whitespace-nowrap mr-2 tracking-widest flex items-center">
                 <i className="fas fa-bolt mr-2 text-yellow-500"></i> Creative Mind
              </span>
              {allTags.map(tag => (
-               <Link
-                 key={tag}
-                 to={`/category/${getCategorySlug(tag)}`}
-                 className="flex-shrink-0 px-4 py-1.5 rounded-full border border-gray-200 bg-gray-50 text-gray-700 text-[11px] font-bold hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all whitespace-nowrap flex items-center"
-               >
+               <Link key={tag} to={`/category/${getCategorySlug(tag)}`} className="flex-shrink-0 px-4 py-1.5 rounded-full border border-gray-200 bg-gray-50 text-gray-700 text-[11px] font-bold hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all whitespace-nowrap flex items-center">
                  #{tag}
                </Link>
              ))}
-             {/* Fallback tags if empty */}
-             {allTags.length === 0 && ['Creative Mind', 'YouTube Shorts', 'Viral Hacks', 'Tech', 'Money', 'AI Tools'].map(tag => (
-                <Link
-                 key={tag}
-                 to={`/category/${getCategorySlug(tag)}`}
-                 className="flex-shrink-0 px-4 py-1.5 rounded-full border border-gray-200 bg-gray-50 text-gray-700 text-[11px] font-bold hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all whitespace-nowrap flex items-center"
-               >
-                 #{tag}
-               </Link>
+             {allTags.length === 0 && ['Creative Mind', 'Tech', 'AI'].map(tag => (
+                <Link key={tag} to={`/category/${getCategorySlug(tag)}`} className="flex-shrink-0 px-4 py-1.5 rounded-full border border-gray-200 bg-gray-50 text-gray-700 text-[11px] font-bold">#{tag}</Link>
              ))}
           </div>
         </div>
       </div>
 
-      {/* Hero Carousel Section */}
       {heroPosts.length > 0 && (
-        <section className="relative w-full max-w-7xl mx-auto mt-6 px-4 sm:px-6 lg:px-8 mb-10" aria-label="Featured Posts">
-           <div className="relative rounded-2xl overflow-hidden shadow-lg h-[220px] sm:h-[350px] md:h-[450px] group">
-              {heroPosts.map((post, index) => (
-                <div 
-                  key={post.id}
-                  className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
-                >
-                  <Link to={`/post/${post.id}`} className="block w-full h-full relative">
-                      <img 
-                        src={post.imageUrl} 
-                        alt={post.title} 
-                        className="w-full h-full object-cover transition-transform duration-[4s] hover:scale-105" 
-                        loading={index === 0 ? "eager" : "lazy"}
-                        fetchPriority={index === 0 ? "high" : "auto"}
-                        width="1280"
-                        height="720"
-                        sizes="(max-width: 768px) 100vw, 1280px"
-                      />
-                      {/* Gradient Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-80"></div>
-
-                      <div className="absolute bottom-0 left-0 p-5 md:p-10 w-full max-w-4xl">
-                        <div className="flex items-center space-x-2 mb-2 md:mb-3">
-                            <span className="inline-block bg-blue-600 text-white text-[10px] md:text-xs font-bold uppercase tracking-wider px-2 py-1 rounded">
-                            {post.category}
+        <section className="relative w-full max-w-7xl mx-auto mt-6 px-4 sm:px-6 lg:px-8 mb-10">
+           {/* Aspect Ratio Box to prevent CLS */}
+           <div className="relative rounded-2xl overflow-hidden shadow-lg w-full aspect-video md:aspect-[21/9] bg-gray-200 group">
+              {heroPosts.map((post, index) => {
+                 const isFirst = index === 0;
+                 return (
+                    <div 
+                    key={post.id}
+                    className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
+                    >
+                    <Link to={`/post/${post.id}`} className="block w-full h-full relative">
+                        {/* PERFORMANCE: SrcSet for responsive image loading */}
+                        <img 
+                            src={getOptimizedHeroImage(post.imageUrl, 1280)} 
+                            srcSet={`
+                                ${getOptimizedHeroImage(post.imageUrl, 640)} 640w,
+                                ${getOptimizedHeroImage(post.imageUrl, 1024)} 1024w,
+                                ${getOptimizedHeroImage(post.imageUrl, 1280)} 1280w
+                            `}
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1280px"
+                            alt={post.title} 
+                            className="w-full h-full object-cover transition-transform duration-[4s] hover:scale-105" 
+                            loading={isFirst ? "eager" : "lazy"}
+                            fetchPriority={isFirst ? "high" : "auto"}
+                            decoding="async"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-80"></div>
+                        <div className="absolute bottom-0 left-0 p-5 md:p-10 w-full max-w-4xl">
+                            <span className="inline-block bg-blue-600 text-white text-[10px] md:text-xs font-bold uppercase tracking-wider px-2 py-1 rounded mb-2">
+                                {post.category}
                             </span>
+                            <h2 className="text-lg md:text-3xl lg:text-4xl font-black text-white leading-tight mb-2 drop-shadow-sm line-clamp-2">
+                                {post.title}
+                            </h2>
                         </div>
-                        <h2 className="text-lg md:text-3xl lg:text-4xl font-black text-white leading-tight mb-2 md:mb-3 drop-shadow-sm line-clamp-2">
-                          {post.title}
-                        </h2>
-                        <p className="hidden md:block text-gray-200 text-sm md:text-base max-w-xl line-clamp-2 font-medium opacity-90">
-                           {post.content.replace(/<[^>]+>/g, '').substring(0, 120)}...
-                        </p>
-                      </div>
-                  </Link>
-                </div>
-              ))}
+                    </Link>
+                    </div>
+                 );
+              })}
               
-              {/* Slider Dots */}
               <div className="absolute bottom-3 right-4 md:bottom-8 md:right-8 flex space-x-2 z-20">
                 {heroPosts.map((_, idx) => (
                   <button
@@ -193,54 +170,21 @@ const HomePage: React.FC = () => {
         </section>
       )}
 
-      {/* Latest Posts Section */}
       <div id="latest-posts" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="flex items-center justify-between mb-6">
-           <div className="flex items-center">
-               <div className="w-1 h-6 bg-blue-600 rounded mr-3"></div>
-               <h2 className="text-xl md:text-2xl font-black text-gray-900 tracking-tight">
-                    Latest Stories
-               </h2>
-           </div>
+        <div className="flex items-center mb-6">
+           <div className="w-1 h-6 bg-blue-600 rounded mr-3"></div>
+           <h2 className="text-xl md:text-2xl font-black text-gray-900 tracking-tight">Latest Stories</h2>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-           {currentPage === 1 
-              ? renderPostGrid([...heroPosts, ...currentLatestPosts]) 
-              : renderPostGrid(currentLatestPosts)
-           }
+           {currentPage === 1 ? renderPostGrid([...heroPosts, ...currentLatestPosts]) : renderPostGrid(currentLatestPosts)}
         </div>
         
-        {posts.length === 0 && (
-           <div className="text-center py-20 text-gray-500 bg-white rounded-xl shadow-sm mt-4">
-             No posts available at the moment.
-           </div>
-        )}
-
-        {/* Pagination Controls */}
         {totalPages > 1 && (
-            <div className="mt-12 mb-10 flex justify-center items-center space-x-2" role="navigation" aria-label="Pagination">
-                <button 
-                    onClick={prevPage}
-                    disabled={currentPage === 1}
-                    className={`px-4 py-2 rounded-lg font-bold text-sm transition-all flex items-center ${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 border border-gray-200 hover:bg-blue-50 hover:text-blue-600'}`}
-                    aria-label="Previous Page"
-                >
-                    <i className="fas fa-arrow-left mr-2" aria-hidden="true"></i> Prev
-                </button>
-                
-                <div className="px-4 text-sm font-bold text-gray-600">
-                    {currentPage} <span className="text-gray-300 mx-1">/</span> {totalPages}
-                </div>
-
-                <button 
-                    onClick={nextPage}
-                    disabled={currentPage === totalPages}
-                    className={`px-4 py-2 rounded-lg font-bold text-sm transition-all flex items-center ${currentPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white shadow-md hover:bg-blue-700'}`}
-                     aria-label="Next Page"
-                >
-                    Next <i className="fas fa-arrow-right ml-2" aria-hidden="true"></i>
-                </button>
+            <div className="mt-12 mb-10 flex justify-center items-center space-x-2">
+                <button onClick={prevPage} disabled={currentPage === 1} className={`px-4 py-2 rounded-lg font-bold text-sm ${currentPage === 1 ? 'bg-gray-100 text-gray-400' : 'bg-white hover:bg-blue-50 text-blue-600 border'}`}>Prev</button>
+                <span className="px-4 text-sm font-bold text-gray-600">{currentPage} / {totalPages}</span>
+                <button onClick={nextPage} disabled={currentPage === totalPages} className={`px-4 py-2 rounded-lg font-bold text-sm ${currentPage === totalPages ? 'bg-gray-100 text-gray-400' : 'bg-blue-600 text-white hover:bg-blue-700'}`}>Next</button>
             </div>
         )}
       </div>
