@@ -1,5 +1,5 @@
 
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import { BlogProvider } from './context/BlogContext';
 import Header from './components/Header';
@@ -12,8 +12,6 @@ const PostPage = React.lazy(() => import('./pages/PostPage'));
 const AdminPage = React.lazy(() => import('./pages/AdminPage'));
 const DownloaderPage = React.lazy(() => import('./pages/DownloaderPage'));
 
-// ULTRA-OPTIMIZED LAZY ADSENSE
-// This ensures scripts are NOT loaded during the Lighthouse 'no-interaction' audit.
 const LazyAdSense = () => {
   useEffect(() => {
     if (document.getElementById('adsense-script')) return;
@@ -28,7 +26,6 @@ const LazyAdSense = () => {
       script.crossOrigin = "anonymous";
       document.head.appendChild(script);
 
-      // Remove listeners
       window.removeEventListener('scroll', onInteraction);
       window.removeEventListener('mousemove', onInteraction);
       window.removeEventListener('touchstart', onInteraction);
@@ -36,7 +33,6 @@ const LazyAdSense = () => {
     };
 
     const onInteraction = () => {
-       // Only load if browser is idle to prevent jank
        if ('requestIdleCallback' in window) {
          (window as any).requestIdleCallback(loadAds, { timeout: 2000 });
        } else {
@@ -44,7 +40,6 @@ const LazyAdSense = () => {
        }
     };
 
-    // ONLY load on interaction. Never on timer. This is key for Lighthouse score.
     window.addEventListener('scroll', onInteraction, { passive: true, once: true });
     window.addEventListener('mousemove', onInteraction, { passive: true, once: true });
     window.addEventListener('touchstart', onInteraction, { passive: true, once: true });
@@ -61,6 +56,34 @@ const LazyAdSense = () => {
   return null;
 };
 
+const ScrollProgress = () => {
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    const updateScrollProgress = () => {
+      const currentScroll = window.scrollY;
+      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+      
+      if (scrollHeight) {
+        setScrollProgress(Number((currentScroll / scrollHeight).toFixed(2)) * 100);
+      }
+    };
+
+    window.addEventListener('scroll', updateScrollProgress);
+    
+    return () => window.removeEventListener('scroll', updateScrollProgress);
+  }, []);
+
+  return (
+    <div className="fixed top-0 left-0 w-full h-1 z-[100]">
+      <div 
+        className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-150 ease-out"
+        style={{ width: `${scrollProgress}%` }}
+      />
+    </div>
+  );
+};
+
 const PageLoader = () => (
   <div className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
      <SkeletonCard /> <SkeletonCard /> <SkeletonCard />
@@ -72,6 +95,7 @@ const App: React.FC = () => {
     <BlogProvider>
       <HashRouter>
         <LazyAdSense />
+        <ScrollProgress />
         <div className="flex flex-col min-h-screen bg-white">
           <Header />
           <main className="flex-grow">

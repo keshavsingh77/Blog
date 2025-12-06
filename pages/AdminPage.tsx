@@ -1,16 +1,12 @@
-
 import React, { useState, useEffect } from 'react';
 import { useBlog } from '../context/BlogContext';
 import { Post, PostStatus } from '../types';
 import { CATEGORIES } from '../constants';
-import { generateBlogPost } from '../services/geminiService';
-import Spinner from '../components/Spinner';
 import SEO from '../components/SEO';
 
 const AdminPage: React.FC = () => {
   const { posts, addPost, updatePost, deletePost, isAdminAuthenticated, loginAdmin, logoutAdmin } = useBlog();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [editingPost, setEditingPost] = useState<Post | null>(null);
   
   // Default to first new category
@@ -23,9 +19,6 @@ const AdminPage: React.FC = () => {
     author: 'Editor' 
   });
   
-  const [aiTopic, setAiTopic] = useState('');
-  const [error, setError] = useState<string | null>(null);
-
   // For Login
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
@@ -47,9 +40,7 @@ const AdminPage: React.FC = () => {
 
   const resetForm = () => {
     setFormData({ title: '', content: '', category: CATEGORIES[0] || 'Tech', tags: '', status: PostStatus.DRAFT, author: 'Editor' });
-    setAiTopic('');
     setEditingPost(null);
-    setError(null);
   };
 
   const handleOpenModal = (post: Post | null) => {
@@ -99,29 +90,6 @@ const AdminPage: React.FC = () => {
       });
     }
     handleCloseModal();
-  };
-
-  const handleGeneratePost = async () => {
-    if (!aiTopic.trim()) {
-      setError("Please enter a topic to generate a post.");
-      return;
-    }
-    setIsGenerating(true);
-    setError(null);
-    try {
-      const generated = await generateBlogPost(aiTopic);
-      setFormData(prev => ({
-        ...prev,
-        title: generated.title,
-        content: generated.content,
-        category: generated.category,
-        tags: generated.category // AI usually returns category, so use it as tag too
-      }));
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setIsGenerating(false);
-    }
   };
 
   const handleLogin = (e: React.FormEvent) => {
@@ -249,24 +217,7 @@ const AdminPage: React.FC = () => {
             </div>
             
             <div className="p-6">
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 p-4 rounded-lg mb-6 shadow-sm">
-                <h3 className="text-sm font-bold text-blue-800 mb-2 flex items-center uppercase tracking-wide"><i className="fas fa-robot mr-2"></i>AI Writer Assistant</h3>
-                <div className="flex items-stretch gap-2">
-                  <input
-                    type="text"
-                    value={aiTopic}
-                    onChange={(e) => setAiTopic(e.target.value)}
-                    placeholder="E.g., 'Review of the latest PS5 Pro'"
-                    className="flex-grow p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    disabled={isGenerating}
-                  />
-                  <button onClick={handleGeneratePost} disabled={isGenerating} className="bg-blue-600 text-white px-4 py-2 rounded font-bold hover:bg-blue-700 disabled:bg-blue-300 flex items-center justify-center min-w-[120px] shadow-sm transition">
-                    {isGenerating ? <Spinner /> : <><i className="fas fa-magic mr-2"></i>Generate</>}
-                  </button>
-                </div>
-                {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
-              </div>
-
+              
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label htmlFor="title" className="block text-sm font-bold text-gray-700 uppercase">Headline</label>

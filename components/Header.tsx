@@ -70,7 +70,7 @@ const Header: React.FC = () => {
                 to="/downloader"
                 className="hidden md:flex items-center px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-xs font-bold hover:bg-blue-100 transition"
               >
-                <i className="fas fa-download mr-1.5"></i> SnapLoad
+                <i className="fas fa-download mr-1.5"></i> Downloader
               </Link>
               <button
                 onClick={() => setIsSearchOpen(!isSearchOpen)}
@@ -149,7 +149,7 @@ const Header: React.FC = () => {
                         className="flex items-center px-4 py-3 font-bold text-gray-800 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-colors mb-2 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100"
                     >
                         <i className="fas fa-download w-6 text-center mr-3 text-blue-500"></i>
-                        SnapLoad
+                        Downloader
                     </Link>
 
                     <div className="mt-4 mb-2 px-4 text-xs font-black text-gray-400 uppercase tracking-wider">
