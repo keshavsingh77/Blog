@@ -14,7 +14,6 @@ const AdminPage: React.FC = () => {
   const [status, setStatus] = useState<{ type: 'success' | 'error' | 'info', msg: string } | null>(null);
   const [isAutoPosting, setIsAutoPosting] = useState(() => localStorage.getItem('auto_post_enabled') === 'true');
 
-  // CRITICAL: Check for AI connectivity on mount
   useEffect(() => {
     const checkAi = async () => {
       if (window.aistudio && typeof window.aistudio.hasSelectedApiKey === 'function') {
@@ -27,17 +26,17 @@ const AdminPage: React.FC = () => {
     checkAi();
   }, []);
 
-  // Fixes "google.ai.com refuses to connect" by using proper environment dialog
-  const handleConnectAi = async () => {
+  const handleConnectAi = async (e: React.MouseEvent) => {
+    e.preventDefault();
     try {
       if (window.aistudio && typeof window.aistudio.openSelectKey === 'function') {
         await window.aistudio.openSelectKey();
         setIsAiConnected(true);
-        setStatus({ type: 'success', msg: 'AI Studio connected successfully!' });
+        setStatus({ type: 'success', msg: 'AI Connected.' });
       }
     } catch (err) {
       console.error("Connection failed", err);
-      setStatus({ type: 'error', msg: 'Failed to open AI connection dialog.' });
+      setStatus({ type: 'error', msg: 'Connection failed.' });
     }
   };
 
@@ -45,7 +44,7 @@ const AdminPage: React.FC = () => {
     const newVal = !isAutoPosting;
     setIsAutoPosting(newVal);
     localStorage.setItem('auto_post_enabled', String(newVal));
-    setStatus({ type: 'info', msg: newVal ? 'Automatic mode enabled. Looking for viral news...' : 'Automatic mode disabled.' });
+    setStatus({ type: 'info', msg: newVal ? 'Auto mode: ON' : 'Auto mode: OFF' });
   };
 
   const handleManualGenerate = async (e: React.FormEvent) => {
@@ -53,23 +52,16 @@ const AdminPage: React.FC = () => {
     if (!topic.trim()) return;
     
     if (!isAiConnected) {
-      setStatus({ type: 'error', msg: 'AI Connection required. Click the button at the top right.' });
+      setStatus({ type: 'error', msg: 'Please connect AI first.' });
       return;
     }
 
     setIsGenerating(true);
-    setStatus({ type: 'info', msg: 'AI is researching the topic...' });
+    setStatus({ type: 'info', msg: 'Generating viral content...' });
 
     try {
-      // 1. Generate Content
       const aiPost = await generateBlogPost(topic);
-      
-      // 2. Generate Image
-      setStatus({ type: 'info', msg: 'Content ready. Generating professional image...' });
       const imageUrl = await generateImageForPost(aiPost.title);
-
-      // 3. Publish to Blogger
-      setStatus({ type: 'info', msg: 'Publishing to your Blogger site...' });
       const token = await requestAccessToken();
       await publishToBlogger(token, {
         title: aiPost.title,
@@ -77,17 +69,11 @@ const AdminPage: React.FC = () => {
         labels: aiPost.tags,
         imageUrl: imageUrl
       });
-
-      setStatus({ type: 'success', msg: `Successfully published: ${aiPost.title}` });
-      setTopic(''); // Clear only on success
+      setStatus({ type: 'success', msg: `Posted: ${aiPost.title}` });
+      setTopic('');
     } catch (error: any) {
       console.error(error);
-      if (error.message?.includes('Requested entity was not found')) {
-        setIsAiConnected(false);
-        setStatus({ type: 'error', msg: 'AI Project link expired. Please click "Connect AI" again.' });
-      } else {
-        setStatus({ type: 'error', msg: error.message || 'Error occurred during generation.' });
-      }
+      setStatus({ type: 'error', msg: 'Failed to generate post.' });
     } finally {
       setIsGenerating(false);
     }
@@ -95,114 +81,64 @@ const AdminPage: React.FC = () => {
 
   return (
     <div className="bg-gray-50 dark:bg-gray-950 min-h-screen pt-24 pb-16">
-      <SEO title="Admin Dashboard" description="Manage AI content generation and automated posting." />
+      <SEO title="System Admin" description="Internal management console." />
       
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-6">
-          <div>
-            <h1 className="text-4xl font-black text-gray-900 dark:text-white tracking-tight">Admin Center</h1>
-            <p className="text-gray-500 dark:text-gray-400 font-medium">Powering Creative Mind with Generative AI</p>
+      <div className="max-w-4xl mx-auto px-4">
+        <div className="flex items-center justify-between mb-8 border-b border-gray-200 dark:border-gray-800 pb-6">
+          <div className="flex items-center space-x-2">
+            <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
+            <p className="text-gray-800 dark:text-gray-200 font-black uppercase tracking-widest text-sm">Dashboard</p>
           </div>
-
-          <div className="flex items-center gap-3">
-            {!isAiConnected ? (
-              <button 
-                onClick={handleConnectAi}
-                className="flex items-center justify-center bg-red-600 hover:bg-red-700 text-white px-8 py-3.5 rounded-2xl font-black shadow-xl shadow-red-500/20 transition-all hover:scale-[1.02] active:scale-95"
-              >
-                <i className="fas fa-plug mr-3"></i> Connect AI Studio
-              </button>
-            ) : (
-              <div className="flex items-center bg-white dark:bg-gray-900 text-green-600 px-6 py-3.5 rounded-2xl border-2 border-green-100 dark:border-green-900/30 font-black text-sm shadow-sm">
-                <span className="w-2.5 h-2.5 bg-green-500 rounded-full mr-3 animate-pulse"></span>
-                AI ACTIVE
-              </div>
-            )}
-          </div>
+          {!isAiConnected ? (
+            <button onClick={handleConnectAi} className="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-xl font-bold text-xs shadow-lg transition-colors">Connect AI Studio</button>
+          ) : (
+            <div className="flex items-center text-green-600 font-bold text-xs bg-green-50 dark:bg-green-900/10 px-4 py-2 rounded-full">
+              <span className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span> AI READY
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
-            <section className="bg-white dark:bg-gray-900 p-8 md:p-10 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-200/20 dark:shadow-none">
-              <h2 className="text-xl font-black text-gray-900 dark:text-white mb-8 flex items-center">
-                <i className="fas fa-wand-sparkles text-blue-600 mr-4"></i> Create New Post
-              </h2>
-              <form onSubmit={handleManualGenerate} className="space-y-6">
-                <div>
-                  <label className="block text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">Target Topic / Viral Keyword</label>
-                  <input 
-                    type="text" 
-                    value={topic}
-                    onChange={(e) => setTopic(e.target.value)}
-                    disabled={isGenerating}
-                    placeholder="e.g., Top 5 hidden Instagram features for growth..."
-                    className="w-full px-6 py-5 bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 rounded-3xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all disabled:opacity-50 text-gray-900 dark:text-white font-bold text-lg"
-                  />
-                </div>
+          <div className="lg:col-span-2">
+            <section className="bg-white dark:bg-gray-900 p-8 rounded-[2rem] border border-gray-100 dark:border-gray-800 shadow-sm">
+              <h2 className="text-lg font-black mb-6 text-gray-900 dark:text-white uppercase tracking-tight">New Content</h2>
+              <form onSubmit={handleManualGenerate} className="space-y-4">
+                <input 
+                  type="text" 
+                  value={topic}
+                  onChange={(e) => setTopic(e.target.value)}
+                  disabled={isGenerating}
+                  placeholder="Enter topic or keywords..."
+                  className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-800 rounded-xl border-none outline-none font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                />
                 <button 
                   type="submit"
                   disabled={isGenerating || !topic.trim()}
-                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white py-5 rounded-[2rem] font-black text-xl shadow-2xl shadow-blue-500/30 transition-all flex items-center justify-center transform active:scale-[0.98]"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-black shadow-lg disabled:opacity-50 transition-all active:scale-[0.98]"
                 >
-                  {isGenerating ? (
-                    <>
-                      <i className="fas fa-spinner animate-spin mr-3"></i> Processing...
-                    </>
-                  ) : (
-                    <>
-                      <i className="fas fa-rocket mr-3"></i> Generate & Post
-                    </>
-                  )}
+                  {isGenerating ? 'AI is Writing...' : 'Generate & Publish'}
                 </button>
               </form>
             </section>
-
+            
             {status && (
-              <div className={`p-6 rounded-3xl border-2 flex items-start animate-fade-in-up ${
-                status.type === 'success' ? 'bg-green-50 border-green-100 text-green-800 dark:bg-green-900/10 dark:border-green-800 dark:text-green-400' :
-                status.type === 'error' ? 'bg-red-50 border-red-100 text-red-800 dark:bg-red-900/10 dark:border-red-800 dark:text-red-400' :
-                'bg-blue-50 border-blue-100 text-blue-800 dark:bg-blue-900/10 dark:border-blue-800 dark:text-blue-400'
-              }`}>
-                <div className="mr-4 mt-1">
-                   <i className={`fas text-xl ${status.type === 'success' ? 'fa-circle-check' : status.type === 'error' ? 'fa-circle-xmark' : 'fa-circle-info'}`}></i>
-                </div>
-                <p className="font-bold text-base">{status.msg}</p>
+              <div className={`mt-6 p-4 rounded-xl border-2 font-bold text-sm ${status.type === 'success' ? 'bg-green-50 border-green-100 text-green-700' : status.type === 'error' ? 'bg-red-50 border-red-100 text-red-700' : 'bg-blue-50 border-blue-100 text-blue-700'}`}>
+                {status.msg}
               </div>
             )}
           </div>
 
           <div className="space-y-6">
-            <section className="bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm">
-              <h3 className="text-lg font-black text-gray-900 dark:text-white mb-6 uppercase tracking-tight">Auto Pilot</h3>
-              <div className="p-6 bg-gray-50 dark:bg-gray-800/40 rounded-3xl border border-gray-100 dark:border-gray-700">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <p className="font-black text-gray-900 dark:text-white">Active Feed</p>
-                    <p className="text-xs text-gray-500 font-bold">2 Posts Per Day</p>
-                  </div>
-                  <button 
-                    onClick={toggleAutoPosting}
-                    className={`w-14 h-7 rounded-full relative transition-all shadow-inner ${isAutoPosting ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-700'}`}
-                  >
-                    <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all shadow-md ${isAutoPosting ? 'left-8' : 'left-1'}`}></div>
-                  </button>
-                </div>
-                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Status: {isAutoPosting ? 'Scanning Trends' : 'Standby'}</p>
-              </div>
-            </section>
-
-            <section className="bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm">
-              <h3 className="text-lg font-black text-gray-900 dark:text-white mb-6 uppercase tracking-tight">Quick Stats</h3>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center text-sm font-bold">
-                   <span className="text-gray-500 uppercase tracking-widest text-[10px]">Total Published</span>
-                   <span className="text-gray-900 dark:text-white text-lg">{posts.length}</span>
-                </div>
-                <div className="w-full h-[1px] bg-gray-50 dark:bg-gray-800"></div>
-                <div className="flex justify-between items-center text-sm font-bold">
-                   <span className="text-gray-500 uppercase tracking-widest text-[10px]">AI Authored</span>
-                   <span className="text-blue-600 text-lg">{posts.filter(p => p.author === 'Creative AI' || p.author === 'Creative Mind').length}</span>
-                </div>
+            <section className="bg-white dark:bg-gray-900 p-8 rounded-[2rem] border border-gray-100 dark:border-gray-800 shadow-sm">
+              <h3 className="text-xs font-black uppercase text-gray-400 mb-6 tracking-widest">Automation</h3>
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-gray-700 dark:text-gray-300">Auto Post</span>
+                <button 
+                  onClick={toggleAutoPosting}
+                  className={`w-12 h-6 rounded-full relative transition-all shadow-inner ${isAutoPosting ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-700'}`}
+                >
+                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${isAutoPosting ? 'left-7' : 'left-1'}`}></div>
+                </button>
               </div>
             </section>
           </div>

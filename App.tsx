@@ -1,10 +1,11 @@
 
 import React, { Suspense, useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { BlogProvider } from './context/BlogContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
+import GoogleAd from './components/GoogleAd';
 import ErrorBoundary from './components/ErrorBoundary';
 import { SkeletonPostDetail, SkeletonCard } from './components/SkeletonLoaders';
 
@@ -18,80 +19,32 @@ const ContactPage = React.lazy(() => import('./pages/ContactPage'));
 const LazyAdSense = () => {
   useEffect(() => {
     if (document.getElementById('adsense-script')) return;
-
-    const loadAds = () => {
-      if (document.getElementById('adsense-script')) return;
-      
-      const script = document.createElement('script');
-      script.id = 'adsense-script';
-      script.async = true;
-      script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9543073887536718";
-      script.crossOrigin = "anonymous";
-      document.head.appendChild(script);
-
-      window.removeEventListener('scroll', onInteraction);
-      window.removeEventListener('mousemove', onInteraction);
-      window.removeEventListener('touchstart', onInteraction);
-      window.removeEventListener('keydown', onInteraction);
-    };
-
-    const onInteraction = () => {
-       if ('requestIdleCallback' in window) {
-         (window as any).requestIdleCallback(loadAds, { timeout: 2000 });
-       } else {
-         setTimeout(loadAds, 200);
-       }
-    };
-
-    window.addEventListener('scroll', onInteraction, { passive: true, once: true });
-    window.addEventListener('mousemove', onInteraction, { passive: true, once: true });
-    window.addEventListener('touchstart', onInteraction, { passive: true, once: true });
-    window.addEventListener('keydown', onInteraction, { passive: true, once: true });
-
-    return () => {
-      window.removeEventListener('scroll', onInteraction);
-      window.removeEventListener('mousemove', onInteraction);
-      window.removeEventListener('touchstart', onInteraction);
-      window.removeEventListener('keydown', onInteraction);
-    };
+    const script = document.createElement('script');
+    script.id = 'adsense-script';
+    script.async = true;
+    script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9543073887536718";
+    script.crossOrigin = "anonymous";
+    document.head.appendChild(script);
   }, []);
-
   return null;
 };
 
 const ScrollProgress = () => {
   const [scrollProgress, setScrollProgress] = useState(0);
-
   useEffect(() => {
-    const updateScrollProgress = () => {
-      const currentScroll = window.scrollY;
-      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-      
-      if (scrollHeight > 0) {
-        setScrollProgress(Number((currentScroll / scrollHeight).toFixed(2)) * 100);
-      }
+    const update = () => {
+      const h = document.documentElement.scrollHeight - window.innerHeight;
+      if (h > 0) setScrollProgress((window.scrollY / h) * 100);
     };
-
-    window.addEventListener('scroll', updateScrollProgress);
-    
-    return () => window.removeEventListener('scroll', updateScrollProgress);
+    window.addEventListener('scroll', update);
+    return () => window.removeEventListener('scroll', update);
   }, []);
-
   return (
-    <div className="fixed top-0 left-0 w-full h-1 z-[100]">
-      <div 
-        className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-150 ease-out"
-        style={{ width: `${scrollProgress}%` }}
-      />
+    <div className="fixed top-0 left-0 w-full h-1 z-[300]">
+      <div className="h-full bg-blue-600 transition-all duration-150" style={{ width: `${scrollProgress}%` }} />
     </div>
   );
 };
-
-const PageLoader = () => (
-  <div className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-     <SkeletonCard /> <SkeletonCard /> <SkeletonCard />
-  </div>
-);
 
 const App: React.FC = () => {
   return (
@@ -100,18 +53,25 @@ const App: React.FC = () => {
         <BrowserRouter>
           <LazyAdSense />
           <ScrollProgress />
-          <div className="flex flex-col min-h-screen bg-white dark:bg-gray-950 transition-colors duration-300">
+          <div className="flex flex-col min-h-screen bg-white dark:bg-gray-950">
             <Header />
             <main className="flex-grow">
+              {/* PROFESSIONAL GLOBAL BANNER - Top Placement */}
+              <div className="max-w-7xl mx-auto px-4 mt-20 md:mt-24 mb-6">
+                 <GoogleAd slot="1641433819" format="horizontal" height="90px" className="rounded-2xl overflow-hidden shadow-sm" />
+              </div>
+
               <Suspense fallback={<SkeletonPostDetail />}>
                 <Routes>
                   <Route path="/" element={<HomePage />} />
-                  <Route path="/category/:slug" element={<Suspense fallback={<PageLoader />}><CategoryPage /></Suspense>} />
-                  <Route path="/post/:id" element={<Suspense fallback={<SkeletonPostDetail />}><PostPage /></Suspense>} />
-                  <Route path="/admin" element={<Suspense fallback={<PageLoader />}><AdminPage /></Suspense>} />
-                  <Route path="/privacy-policy" element={<Suspense fallback={<PageLoader />}><PrivacyPage /></Suspense>} />
-                  <Route path="/terms-of-service" element={<Suspense fallback={<PageLoader />}><TermsPage /></Suspense>} />
-                  <Route path="/contact" element={<Suspense fallback={<PageLoader />}><ContactPage /></Suspense>} />
+                  <Route path="/category/:slug" element={<CategoryPage />} />
+                  <Route path="/post/:id" element={<PostPage />} />
+                  <Route path="/admin" element={<AdminPage />} />
+                  <Route path="/privacy-policy" element={<PrivacyPage />} />
+                  <Route path="/terms-of-service" element={<TermsPage />} />
+                  <Route path="/contact" element={<ContactPage />} />
+                  {/* Fallback redirect to home */}
+                  <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </Suspense>
             </main>
