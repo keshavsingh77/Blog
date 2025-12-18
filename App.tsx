@@ -5,12 +5,14 @@ import { BlogProvider } from './context/BlogContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
+import ErrorBoundary from './components/ErrorBoundary';
 import { SkeletonPostDetail, SkeletonCard } from './components/SkeletonLoaders';
 
 const CategoryPage = React.lazy(() => import('./pages/CategoryPage'));
 const PostPage = React.lazy(() => import('./pages/PostPage'));
-const AdminPage = React.lazy(() => import('./pages/AdminPage'));
-const DownloaderPage = React.lazy(() => import('./pages/DownloaderPage'));
+const PrivacyPage = React.lazy(() => import('./pages/PrivacyPage'));
+const TermsPage = React.lazy(() => import('./pages/TermsPage'));
+const ContactPage = React.lazy(() => import('./pages/ContactPage'));
 
 const LazyAdSense = () => {
   useEffect(() => {
@@ -64,7 +66,7 @@ const ScrollProgress = () => {
       const currentScroll = window.scrollY;
       const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
       
-      if (scrollHeight) {
+      if (scrollHeight > 0) {
         setScrollProgress(Number((currentScroll / scrollHeight).toFixed(2)) * 100);
       }
     };
@@ -92,27 +94,30 @@ const PageLoader = () => (
 
 const App: React.FC = () => {
   return (
-    <BlogProvider>
-      <HashRouter>
-        <LazyAdSense />
-        <ScrollProgress />
-        <div className="flex flex-col min-h-screen bg-white">
-          <Header />
-          <main className="flex-grow">
-            <Suspense fallback={<SkeletonPostDetail />}>
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/category/:slug" element={<Suspense fallback={<PageLoader />}><CategoryPage /></Suspense>} />
-                <Route path="/post/:id" element={<Suspense fallback={<SkeletonPostDetail />}><PostPage /></Suspense>} />
-                <Route path="/downloader" element={<Suspense fallback={<PageLoader />}><DownloaderPage /></Suspense>} />
-                <Route path="/admin" element={<Suspense fallback={<div>Loading...</div>}><AdminPage /></Suspense>} />
-              </Routes>
-            </Suspense>
-          </main>
-          <Footer />
-        </div>
-      </HashRouter>
-    </BlogProvider>
+    <ErrorBoundary>
+      <BlogProvider>
+        <HashRouter>
+          <LazyAdSense />
+          <ScrollProgress />
+          <div className="flex flex-col min-h-screen bg-white dark:bg-gray-950 transition-colors duration-300">
+            <Header />
+            <main className="flex-grow">
+              <Suspense fallback={<SkeletonPostDetail />}>
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/category/:slug" element={<Suspense fallback={<PageLoader />}><CategoryPage /></Suspense>} />
+                  <Route path="/post/:id" element={<Suspense fallback={<SkeletonPostDetail />}><PostPage /></Suspense>} />
+                  <Route path="/privacy-policy" element={<Suspense fallback={<PageLoader />}><PrivacyPage /></Suspense>} />
+                  <Route path="/terms-of-service" element={<Suspense fallback={<PageLoader />}><TermsPage /></Suspense>} />
+                  <Route path="/contact" element={<Suspense fallback={<PageLoader />}><ContactPage /></Suspense>} />
+                </Routes>
+              </Suspense>
+            </main>
+            <Footer />
+          </div>
+        </HashRouter>
+      </BlogProvider>
+    </ErrorBoundary>
   );
 };
 

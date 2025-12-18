@@ -6,24 +6,49 @@
     <meta name="description" content="Creative Mind - Your daily source for viral tech tricks, gaming news, entertainment, and internet culture." />
     <meta name="google-site-verification" content="3pzphnk4tF8_SO4tk5qjVf_A7_axA3tM0pFpSQf5PWM" />
     <title>Creative Mind - Tech, Gaming & Viral Tips</title>
+
+    <!-- 1. CRITICAL: Global Shim for process.env must be first -->
+    <script>
+      window.process = {
+        env: { 
+          NODE_ENV: 'production'
+        },
+        cwd: () => '/',
+        browser: true
+      };
+      
+      // Initialize theme early to prevent flicker
+      if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark')
+      } else {
+        document.documentElement.classList.remove('dark')
+      }
+    </script>
     
-    <!-- Performance Optimization: Critical Preconnects -->
+    <!-- 2. Consolidated Import Map for React 18.2.0 Consistency -->
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@18.2.0",
+        "react-dom": "https://esm.sh/react-dom@18.2.0",
+        "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+        "react-router-dom": "https://esm.sh/react-router-dom@6.22.3?deps=react@18.2.0,react-dom@18.2.0",
+        "@google/genai": "https://esm.sh/@google/genai@1.34.0",
+        "react/jsx-runtime": "https://esm.sh/react@18.2.0/jsx-runtime",
+        "react/": "https://esm.sh/react@18.2.0/",
+        "react-dom/": "https://esm.sh/react-dom@18.2.0/"
+      }
+    }
+    </script>
+    
     <link rel="preconnect" href="https://cdn.tailwindcss.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://picsum.photos" />
-    <link rel="preconnect" href="https://blogger.googleusercontent.com" />
     
-    <!-- DNS Prefetch for Third Party Scripts -->
-    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-    <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
-    <link rel="dns-prefetch" href="https://googleads.g.doubleclick.net" />
-    <link rel="dns-prefetch" href="https://tpc.googlesyndication.com" />
-
-    <!-- Tailwind CSS (CDN) with Typography Plugin -->
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     <script>
       tailwind.config = {
+        darkMode: 'class',
         theme: {
           extend: {
             fontFamily: {
@@ -34,20 +59,8 @@
       }
     </script>
     
-    <!-- Non-blocking Font Awesome -->
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" as="style" />
-    <link 
-      rel="stylesheet" 
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" 
-      media="print" 
-      onload="this.media='all'" 
-    />
-    <noscript>
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    </noscript>
-    
-    <!-- Google Fonts (Optimized) -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" as="style" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'" />
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
 
     <style>
@@ -56,11 +69,8 @@
       .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       @keyframes fade-in-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
       .animate-fade-in-up { animation: fade-in-up 0.8s ease-out forwards; }
-      @keyframes fade-in-down { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-      .animate-fade-in-down { animation: fade-in-down 0.3s ease-out forwards; }
     </style>
 
-    <!-- Defer Google Analytics (GA4) so it doesn't block LCP -->
     <script defer src="https://www.googletagmanager.com/gtag/js?id=G-BHCBDSGG4E"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -68,19 +78,8 @@
       gtag('js', new Date());
       gtag('config', 'G-BHCBDSGG4E');
     </script>
-  <script type="importmap">
-{
-  "imports": {
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.24.0",
-    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.4"
-  }
-}
-</script>
 </head>
-  <body class="bg-gray-50 text-gray-800 font-sans antialiased">
+  <body class="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-200 font-sans antialiased transition-colors duration-300">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

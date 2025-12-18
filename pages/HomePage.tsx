@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useBlog } from '../context/BlogContext';
@@ -7,16 +6,12 @@ import SEO from '../components/SEO';
 import GoogleAd from '../components/GoogleAd';
 import { SkeletonCard, SkeletonHero } from '../components/SkeletonLoaders';
 
-// Helper to optimize image URLs for Hero
 const getOptimizedHeroImage = (url: string, width: number) => {
   if (!url) return '';
   if (url.includes('picsum.photos')) {
-    // Picsum dynamic resizing
     return url.replace(/\/seed\/([^/]+)\/\d+\/\d+/, `/seed/$1/${width}/${Math.round(width * 9/16)}`);
   }
   if (url.includes('googleusercontent.com') || url.includes('blogspot.com')) {
-    // Blogger dynamic resizing
-    // Replaces /s1600/ or /wXXX-hYYY/ with specific width, keeping aspect ratio
     return url.replace(/\/s\d+(-c)?\//, `/w${width}-h${Math.round(width * 9/16)}-p-k-no-nu/`)
               .replace(/\/w\d+-h\d+(-p-k-no-nu)?\//, `/w${width}-h${Math.round(width * 9/16)}-p-k-no-nu/`);
   }
@@ -63,15 +58,15 @@ const HomePage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="bg-gray-50 min-h-screen font-sans pt-16">
+      <div className="bg-gray-50 dark:bg-gray-950 min-h-screen font-sans pt-16">
          <div className="max-w-7xl mx-auto px-4 pt-4">
              <div className="flex space-x-3 overflow-hidden py-2 mb-4 animate-pulse">
-                 {[1,2,3,4,5].map(i => <div key={i} className="h-8 w-24 bg-gray-200 rounded-full"></div>)}
+                 {[1,2,3,4,5].map(i => <div key={i} className="h-8 w-24 bg-gray-200 dark:bg-gray-800 rounded-full"></div>)}
              </div>
          </div>
          <SkeletonHero />
          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="h-8 w-48 bg-gray-200 rounded mb-8 animate-pulse"></div>
+            <div className="h-8 w-48 bg-gray-200 dark:bg-gray-800 rounded mb-8 animate-pulse"></div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-5 md:gap-8">
                {[1,2,3,4,5,6].map(i => <SkeletonCard key={i} />)}
             </div>
@@ -85,7 +80,7 @@ const HomePage: React.FC = () => {
       <React.Fragment key={post.id}>
         <PostCard post={post} />
         {index === 2 && (
-           <div className="col-span-2 md:col-span-3 my-4 bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 min-h-[250px] relative">
+           <div className="col-span-2 md:col-span-3 my-4 bg-white dark:bg-gray-900 rounded-xl shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 min-h-[250px] relative">
               <GoogleAd slot="1909584638" format="fluid" layoutKey="-6t+ed+2i-1n-4w" className="w-full" />
            </div>
         )}
@@ -94,22 +89,22 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#FAFAFA] min-h-screen font-sans pt-16">
+    <div className="bg-[#FAFAFA] dark:bg-gray-950 min-h-screen font-sans pt-16 transition-colors duration-300">
       <SEO title="Home" description="Creative Mind - The best place for viral tech tips, gaming updates, and entertainment news." />
 
-      <div className="bg-white border-b border-gray-200 sticky top-16 z-40 shadow-sm">
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-16 z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center overflow-x-auto no-scrollbar space-x-3 py-3">
-             <span className="text-[10px] md:text-xs font-black text-blue-600 uppercase whitespace-nowrap mr-2 tracking-widest flex items-center">
+             <span className="text-[10px] md:text-xs font-black text-blue-600 dark:text-blue-400 uppercase whitespace-nowrap mr-2 tracking-widest flex items-center">
                 <i className="fas fa-bolt mr-2 text-yellow-500"></i> Creative Mind
              </span>
              {allTags.map(tag => (
-               <Link key={tag} to={`/category/${getCategorySlug(tag)}`} className="flex-shrink-0 px-4 py-1.5 rounded-full border border-gray-200 bg-gray-50 text-gray-700 text-[11px] font-bold hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all whitespace-nowrap flex items-center">
+               <Link key={tag} to={`/category/${getCategorySlug(tag)}`} className="flex-shrink-0 px-4 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-[11px] font-bold hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 hover:border-blue-600 transition-all whitespace-nowrap flex items-center">
                  #{tag}
                </Link>
              ))}
              {allTags.length === 0 && ['Creative Mind', 'Tech', 'AI'].map(tag => (
-                <Link key={tag} to={`/category/${getCategorySlug(tag)}`} className="flex-shrink-0 px-4 py-1.5 rounded-full border border-gray-200 bg-gray-50 text-gray-700 text-[11px] font-bold">#{tag}</Link>
+                <Link key={tag} to={`/category/${getCategorySlug(tag)}`} className="flex-shrink-0 px-4 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-[11px] font-bold">#{tag}</Link>
              ))}
           </div>
         </div>
@@ -117,8 +112,7 @@ const HomePage: React.FC = () => {
 
       {heroPosts.length > 0 && (
         <section className="relative w-full max-w-7xl mx-auto mt-6 px-4 sm:px-6 lg:px-8 mb-10">
-           {/* Aspect Ratio Box to prevent CLS */}
-           <div className="relative rounded-2xl overflow-hidden shadow-lg w-full aspect-video md:aspect-[21/9] bg-gray-200 group">
+           <div className="relative rounded-2xl overflow-hidden shadow-lg w-full aspect-video md:aspect-[21/9] bg-gray-200 dark:bg-gray-800 group">
               {heroPosts.map((post, index) => {
                  const isFirst = index === 0;
                  return (
@@ -127,7 +121,6 @@ const HomePage: React.FC = () => {
                     className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
                     >
                     <Link to={`/post/${post.id}`} className="block w-full h-full relative">
-                        {/* PERFORMANCE: SrcSet for responsive image loading */}
                         <img 
                             src={getOptimizedHeroImage(post.imageUrl, 1280)} 
                             srcSet={`
@@ -173,7 +166,7 @@ const HomePage: React.FC = () => {
       <div id="latest-posts" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex items-center mb-6">
            <div className="w-1 h-6 bg-blue-600 rounded mr-3"></div>
-           <h2 className="text-xl md:text-2xl font-black text-gray-900 tracking-tight">Latest Stories</h2>
+           <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white tracking-tight">Latest Stories</h2>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
@@ -182,9 +175,9 @@ const HomePage: React.FC = () => {
         
         {totalPages > 1 && (
             <div className="mt-12 mb-10 flex justify-center items-center space-x-2">
-                <button onClick={prevPage} disabled={currentPage === 1} className={`px-4 py-2 rounded-lg font-bold text-sm ${currentPage === 1 ? 'bg-gray-100 text-gray-400' : 'bg-white hover:bg-blue-50 text-blue-600 border'}`}>Prev</button>
-                <span className="px-4 text-sm font-bold text-gray-600">{currentPage} / {totalPages}</span>
-                <button onClick={nextPage} disabled={currentPage === totalPages} className={`px-4 py-2 rounded-lg font-bold text-sm ${currentPage === totalPages ? 'bg-gray-100 text-gray-400' : 'bg-blue-600 text-white hover:bg-blue-700'}`}>Next</button>
+                <button onClick={prevPage} disabled={currentPage === 1} className={`px-4 py-2 rounded-lg font-bold text-sm ${currentPage === 1 ? 'bg-gray-100 dark:bg-gray-800 text-gray-400' : 'bg-white dark:bg-gray-900 dark:border-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 border'}`}>Prev</button>
+                <span className="px-4 text-sm font-bold text-gray-600 dark:text-gray-400">{currentPage} / {totalPages}</span>
+                <button onClick={nextPage} disabled={currentPage === totalPages} className={`px-4 py-2 rounded-lg font-bold text-sm ${currentPage === totalPages ? 'bg-gray-100 dark:bg-gray-800 text-gray-400' : 'bg-blue-600 text-white hover:bg-blue-700'}`}>Next</button>
             </div>
         )}
       </div>

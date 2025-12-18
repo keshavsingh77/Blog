@@ -1,4 +1,3 @@
-
 import { Post, PostStatus } from './types';
 
 // The new categories are essentially the trending tags requested

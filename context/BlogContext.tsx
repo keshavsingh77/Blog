@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Post } from '../types';
 import { fetchPostsFromBlogger } from '../services/bloggerService';
@@ -7,12 +6,11 @@ interface BlogContextType {
   posts: Post[];
   isLoading: boolean;
   getPostById: (id: string) => Post | undefined;
-  isAdminAuthenticated: boolean;
-  loginAdmin: (password: string) => boolean;
-  logoutAdmin: () => void;
   addPost: (post: Omit<Post, 'id' | 'createdAt' | 'imageUrl'> & { imageUrl?: string }) => void;
   updatePost: (id: string, post: Partial<Post>) => void;
   deletePost: (id: string) => void;
+  theme: 'light' | 'dark';
+  toggleTheme: () => void;
 }
 
 const BlogContext = createContext<BlogContextType | undefined>(undefined);
@@ -20,9 +18,21 @@ const BlogContext = createContext<BlogContextType | undefined>(undefined);
 export const BlogProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>(
+    (localStorage.getItem('theme') as 'light' | 'dark') || 'light'
+  );
 
-  // Fetch posts on mount
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');
+
   useEffect(() => {
     const loadPosts = async () => {
       setIsLoading(true);
@@ -41,19 +51,6 @@ export const BlogProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const getPostById = (id: string): Post | undefined => {
     return posts.find(p => p.id === id);
-  };
-
-  const loginAdmin = (password: string): boolean => {
-    // Simple authentication for demo purposes
-    if (password === 'admin123') {
-      setIsAdminAuthenticated(true);
-      return true;
-    }
-    return false;
-  };
-
-  const logoutAdmin = () => {
-    setIsAdminAuthenticated(false);
   };
 
   const addPost = (postData: Omit<Post, 'id' | 'createdAt' | 'imageUrl'> & { imageUrl?: string }) => {
@@ -79,12 +76,11 @@ export const BlogProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       posts,
       isLoading,
       getPostById,
-      isAdminAuthenticated,
-      loginAdmin,
-      logoutAdmin,
       addPost,
       updatePost,
       deletePost,
+      theme,
+      toggleTheme
     }}>
       {children}
     </BlogContext.Provider>
