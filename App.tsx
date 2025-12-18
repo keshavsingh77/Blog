@@ -1,4 +1,3 @@
-
 import React, { Suspense, useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { BlogProvider } from './context/BlogContext';
@@ -60,7 +59,7 @@ const App: React.FC = () => {
           <div className="flex flex-col min-h-screen bg-white dark:bg-gray-950 transition-colors duration-300">
             <Header />
             <main className="flex-grow">
-              {/* GLOBAL TOP BANNER AD - Visible on all pages */}
+              {/* GLOBAL TOP BANNER AD */}
               <div className="max-w-7xl mx-auto px-4 mt-20 md:mt-24 mb-4">
                  <GoogleAd 
                     slot="1641433819" 
@@ -78,7 +77,7 @@ const App: React.FC = () => {
                   <Route path="/privacy-policy" element={<PrivacyPage />} />
                   <Route path="/terms-of-service" element={<TermsPage />} />
                   <Route path="/contact" element={<ContactPage />} />
-                  {/* Default redirect to home for any other route including old admin paths */}
+                  {/* Catch-all including former admin paths */}
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </Suspense>

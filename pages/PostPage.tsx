@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useBlog } from '../context/BlogContext';
@@ -39,7 +38,6 @@ const PostPage: React.FC = () => {
   const relatedPosts = posts.filter(p => p.id !== post.id && (p.category === post.category || p.tags.some(tag => post.tags.includes(tag)))).slice(0, 4);
   const trendingPosts = [...posts].filter(p => p.id !== post.id).sort(() => 0.5 - Math.random()).slice(0, 5);
 
-  // Logic to split content for In-Article Ads
   const paragraphs = post.content.split('</p>');
   let contentBeforeAd = post.content;
   let contentAfterAd = '';
@@ -55,7 +53,7 @@ const PostPage: React.FC = () => {
     <div className="bg-white dark:bg-gray-950 min-h-screen pt-16 transition-colors duration-300">
       <SEO title={post.title} description={descriptionSnippet} />
       
-      {/* 1. Hero Poster with Title */}
+      {/* 1. Hero Poster Image */}
       <div className="w-full relative h-[350px] md:h-[550px] overflow-hidden bg-gray-900">
          <div className="absolute inset-0">
              <img className="w-full h-full object-cover opacity-90" src={post.imageUrl} alt={post.title} />
@@ -73,7 +71,7 @@ const PostPage: React.FC = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        {/* Placement A: Banner Ad Below Title/Hero */}
+        {/* AD PLACEMENT 1: Below Poster Image */}
         <div className="mb-10">
            <GoogleAd 
               slot="1641433819" 
@@ -88,7 +86,7 @@ const PostPage: React.FC = () => {
             <article className="prose prose-lg md:prose-xl dark:prose-invert max-w-none text-gray-800 dark:text-gray-200">
                 <div dangerouslySetInnerHTML={{ __html: contentBeforeAd }} />
                 
-                {/* Placement B: In-Article Ad Within Content */}
+                {/* AD PLACEMENT 2: In-Article Ad In Content Flow */}
                 <GoogleAd 
                   slot="1641433819" 
                   format="fluid" 
@@ -100,7 +98,7 @@ const PostPage: React.FC = () => {
             </article>
 
             {/* Author Section (Myself) */}
-            <div className="mt-16 bg-gray-50 dark:bg-gray-900/50 rounded-[2.5rem] p-8 md:p-10 border border-gray-100 dark:border-gray-800">
+            <div id="author-section" className="mt-16 bg-gray-50 dark:bg-gray-900/50 rounded-[2.5rem] p-8 md:p-10 border border-gray-100 dark:border-gray-800">
                <div className="flex items-center space-x-6 mb-8">
                   <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center text-white text-2xl font-black shadow-lg">
                     CM
@@ -111,7 +109,7 @@ const PostPage: React.FC = () => {
                   </div>
                </div>
                
-               {/* Placement C: Ad Below Author Bio */}
+               {/* AD PLACEMENT 3: Below Myself Section */}
                <GoogleAd 
                   slot="1641433819" 
                   format="rectangle" 
@@ -121,7 +119,7 @@ const PostPage: React.FC = () => {
             </div>
 
             {/* Recommended Posts Section (Like) */}
-            <div className="mt-16 pt-16 border-t border-gray-100 dark:border-gray-800/60">
+            <div id="related-section" className="mt-16 pt-16 border-t border-gray-100 dark:border-gray-800/60">
                <div className="flex items-center mb-10">
                   <div className="w-2 h-8 bg-blue-600 rounded-full mr-4"></div>
                   <h3 className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter uppercase">Viral Recommendations</h3>
@@ -131,7 +129,7 @@ const PostPage: React.FC = () => {
                   {relatedPosts.map(p => <PostCard key={p.id} post={p} />)}
                </div>
 
-               {/* Placement D: Sponsored Recommendation Ad below Related Posts */}
+               {/* AD PLACEMENT 4: Below Like Section (Sponsored Multiplex) */}
                <GoogleAd 
                   slot="1909584638" 
                   format="autorelaxed" 
@@ -151,7 +149,7 @@ const PostPage: React.FC = () => {
                  />
 
                  <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-8 rounded-[3rem] shadow-sm">
-                    <h4 className="font-black text-gray-900 dark:text-white uppercase mb-6 text-[10px] tracking-[0.4em] opacity-60">Hot Trending</h4>
+                    <h4 className="font-black text-gray-900 dark:text-white uppercase mb-6 text-[10px] tracking-[0.4em] opacity-60">Trending Now</h4>
                     <div className="space-y-6">
                         {trendingPosts.map((tp, idx) => (
                             <Link key={tp.id} to={`/post/${tp.id}`} className="flex items-start group">

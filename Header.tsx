@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useBlog } from '../context/BlogContext';
@@ -77,7 +76,6 @@ const Header: React.FC = () => {
           </div>
         </div>
 
-        {/* Search Overlay */}
         {isSearchOpen && (
           <div className="fixed inset-0 top-16 left-0 w-full h-screen bg-black/40 backdrop-blur-sm z-[90]" onClick={() => setIsSearchOpen(false)}>
              <div className="bg-white dark:bg-gray-900 p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
@@ -97,7 +95,6 @@ const Header: React.FC = () => {
         )}
       </header>
 
-      {/* Sidebar Drawer */}
       <div className={`fixed inset-0 z-[1000] ${isMenuOpen ? 'visible' : 'invisible'}`}>
         <div 
           className={`absolute inset-0 bg-black/70 backdrop-blur-md transition-opacity duration-500 ${isMenuOpen ? 'opacity-100' : 'opacity-0'}`}
