@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 
 declare global {
@@ -14,81 +15,87 @@ interface GoogleAdProps {
   style?: React.CSSProperties;
   className?: string;
   responsive?: boolean;
+  showLabel?: boolean;
 }
 
 const GoogleAd: React.FC<GoogleAdProps> = ({ 
   slot, 
-  format, 
+  format = 'auto', 
   layoutKey,
   layout, 
   style, 
   className = '',
-  responsive = true
+  responsive = true,
+  showLabel = true
 }) => {
   const adRef = useRef<HTMLModElement>(null);
-  const [adLoaded, setAdLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    if (adLoaded) return;
-    const element = adRef.current;
-    if (!element) return;
+    // Prevent double pushing if the component re-renders
+    if (isLoaded) return;
 
-    // Smart Polling Mechanism: Wait for container width
-    const tryPushAd = () => {
-       try {
-         // Check if element has width to prevent "availableWidth=0" error
-         if (element && element.offsetParent !== null && element.clientWidth > 0) {
-            // Special check for fluid/in-feed ads which crash if too narrow
-            if (format === 'fluid' && element.clientWidth < 200) return false;
-            
-            (window.adsbygoogle = window.adsbygoogle || []).push({});
-            setAdLoaded(true);
-            return true;
-         }
-       } catch (e) {
-         console.warn('AdSense push deferred:', e);
-       }
-       return false;
+    const pushAd = () => {
+      try {
+        if (window.adsbygoogle && adRef.current && adRef.current.offsetParent !== null) {
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
+          setIsLoaded(true);
+        }
+      } catch (e) {
+        console.error('AdSense push error:', e);
+      }
     };
 
-    // Immediate attempt
-    if (tryPushAd()) return;
+    // Initialize with a small delay to ensure DOM is stable
+    const timer = setTimeout(() => {
+      pushAd();
+    }, 150);
 
-    // Observer attempt (Best for React/Responsive layouts)
-    const observer = new ResizeObserver((entries) => {
-        for (const entry of entries) {
-            if (entry.contentRect.width > 0) {
-                 if (tryPushAd()) observer.disconnect();
-            }
-        }
-    });
+    return () => clearTimeout(timer);
+  }, [isLoaded]);
 
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [slot, format, adLoaded]);
-
-  // STRICT CSS to prevent CLS (Cumulative Layout Shift)
-  const containerStyle: React.CSSProperties = {
-    display: 'block',
-    width: '100%',
-    minHeight: format === 'fluid' ? '250px' : '280px', // Reserve space immediately
-    backgroundColor: '#fafafa', // Subtle placeholder
-    ...style,
+  // Styling to prevent Cumulative Layout Shift (CLS)
+  const getMinHeight = () => {
+    if (format === 'fluid') return '280px';
+    if (format === 'horizontal') return '90px';
+    if (format === 'vertical') return '600px';
+    return '250px';
   };
 
   return (
-    <div className={`${className} google-ad-wrapper`} style={{ width: '100%', minHeight: '280px', display: 'block' }}>
-      <ins
-        ref={adRef}
-        className="adsbygoogle"
-        style={containerStyle}
-        data-ad-client="ca-pub-9543073887536718"
-        data-ad-slot={slot}
-        data-ad-format={format}
-        data-full-width-responsive={responsive ? "true" : "false"}
-        {...(layoutKey ? { 'data-ad-layout-key': layoutKey } : {})}
-        {...(layout ? { 'data-ad-layout': layout } : {})}
-      ></ins>
+    <div className={`ad-container my-8 w-full overflow-hidden ${className}`}>
+      {showLabel && (
+        <div className="text-[10px] text-gray-400 dark:text-gray-600 text-center uppercase tracking-[0.2em] mb-2 font-bold">
+          Advertisement
+        </div>
+      )}
+      <div 
+        className="relative bg-gray-50/50 dark:bg-gray-900/50 rounded-lg flex items-center justify-center border border-gray-100 dark:border-gray-800"
+        style={{ minHeight: getMinHeight() }}
+      >
+        <ins
+          ref={adRef}
+          className="adsbygoogle"
+          style={{ 
+            display: 'block', 
+            width: '100%', 
+            textAlign: 'center',
+            ...style 
+          }}
+          data-ad-client="ca-pub-9543073887536718"
+          data-ad-slot={slot}
+          data-ad-format={format}
+          data-full-width-responsive={responsive ? "true" : "false"}
+          {...(layoutKey ? { 'data-ad-layout-key': layoutKey } : {})}
+          {...(layout ? { 'data-ad-layout': layout } : {})}
+        ></ins>
+        
+        {!isLoaded && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+             <div className="w-6 h-6 border-2 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
