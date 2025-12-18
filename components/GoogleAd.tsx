@@ -35,7 +35,6 @@ const GoogleAd: React.FC<GoogleAdProps> = ({
   const [showSpinner, setShowSpinner] = useState(true);
 
   useEffect(() => {
-    // Prevent double pushing
     if (isLoaded) return;
 
     const pushAd = () => {
@@ -43,19 +42,17 @@ const GoogleAd: React.FC<GoogleAdProps> = ({
         if (window.adsbygoogle && adRef.current && adRef.current.offsetParent !== null) {
           (window.adsbygoogle = window.adsbygoogle || []).push({});
           setIsLoaded(true);
-          // Hide spinner after a delay to allow the ad to actually render
-          setTimeout(() => setShowSpinner(false), 2000);
+          // Standardize loading duration for visual smoothness
+          setTimeout(() => setShowSpinner(false), 1500);
         }
       } catch (e) {
-        console.error('AdSense push error:', e);
+        console.error('AdSense error:', e);
         setShowSpinner(false);
       }
     };
 
     const timer = setTimeout(pushAd, 300);
-    
-    // Safety timeout: if ad doesn't load in 5 seconds, hide spinner anyway
-    const safetyTimer = setTimeout(() => setShowSpinner(false), 5000);
+    const safetyTimer = setTimeout(() => setShowSpinner(false), 4000);
 
     return () => {
       clearTimeout(timer);
@@ -63,27 +60,28 @@ const GoogleAd: React.FC<GoogleAdProps> = ({
     };
   }, [isLoaded, slot]);
 
+  // MANAGED SIZES: Ensures consistent layout everywhere
   const getMinHeight = () => {
     if (height) return height;
     switch (format) {
-      case 'fluid': return '280px';
+      case 'autorelaxed': return '500px'; // Forced height for Multiplex/Recommended grids
       case 'horizontal': return '90px';
+      case 'rectangle': return '280px';
       case 'vertical': return '600px';
-      case 'rectangle': return '250px';
-      case 'autorelaxed': return '500px'; 
+      case 'fluid': return '320px';
       default: return '280px';
     }
   };
 
   return (
-    <div className={`ad-container w-full overflow-hidden clear-both transition-all duration-300 ${className}`}>
+    <div className={`ad-wrapper w-full overflow-hidden clear-both my-6 ${className}`}>
       {showLabel && (
         <div className="text-[9px] text-gray-400 dark:text-gray-600 text-center uppercase tracking-[0.4em] mb-2 font-black opacity-50">
-          Sponsored Content
+          Sponsored Recommendations
         </div>
       )}
       <div 
-        className="relative bg-gray-50/30 dark:bg-gray-900/20 rounded-2xl flex items-center justify-center border border-gray-100 dark:border-gray-800/40"
+        className="relative bg-gray-50/50 dark:bg-gray-900/40 rounded-3xl flex items-center justify-center border border-gray-100 dark:border-gray-800/60 transition-all duration-500"
         style={{ minHeight: getMinHeight(), ...style }}
       >
         <ins
@@ -104,9 +102,9 @@ const GoogleAd: React.FC<GoogleAdProps> = ({
         ></ins>
         
         {showSpinner && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none bg-gray-50/50 dark:bg-gray-900/50 z-10 transition-opacity duration-500">
-             <div className="w-5 h-5 border-2 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-2"></div>
-             <span className="text-[9px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest">Discovery</span>
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none bg-gray-50/80 dark:bg-gray-950/80 z-10 transition-opacity duration-500 rounded-3xl">
+             <div className="w-6 h-6 border-2 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-3"></div>
+             <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Loading Content</span>
           </div>
         )}
       </div>

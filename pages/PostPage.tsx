@@ -54,6 +54,7 @@ const PostPage: React.FC = () => {
     <div className="bg-white dark:bg-gray-950 min-h-screen pt-16 transition-colors duration-300">
       <SEO title={post.title} description={descriptionSnippet} />
       
+      {/* Hero Header */}
       <div className="w-full relative h-[350px] md:h-[550px] overflow-hidden bg-gray-900">
          <div className="absolute inset-0">
              <img className="w-full h-full object-cover opacity-90" src={post.imageUrl} alt={post.title} />
@@ -72,10 +73,8 @@ const PostPage: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           <main className="lg:col-span-8">
-            {/* Top Post Ad - Managed size for visibility */}
-            <div className="mb-10">
-              <GoogleAd slot="1641433819" format="horizontal" height="90px" />
-            </div>
+            {/* Top Post Ad - Managed size */}
+            <GoogleAd slot="1641433819" format="horizontal" height="90px" className="mb-10" />
 
             <article className="prose prose-lg dark:prose-invert max-w-none text-gray-800 dark:text-gray-200">
                 <div dangerouslySetInnerHTML={{ __html: contentBeforeAd }} />
@@ -86,27 +85,27 @@ const PostPage: React.FC = () => {
                 {contentAfterAd && <div dangerouslySetInnerHTML={{ __html: contentAfterAd }} />}
             </article>
 
-            {/* Bottom Recommendation Section - Matches Category Page Ad logic */}
+            {/* Bottom Section: MANAGED "Other Stories" Ad Setup */}
             <div className="mt-16 mb-12 border-t border-gray-100 dark:border-gray-800/60 pt-12">
                <div className="flex items-center mb-8">
-                  <span className="w-1.5 h-6 bg-blue-600 rounded-full mr-3"></span>
-                  <h3 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">You Might Also Like</h3>
+                  <div className="w-1.5 h-7 bg-blue-600 rounded-full mr-4"></div>
+                  <h3 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight uppercase">You Might Also Like</h3>
                </div>
                
-               {/* This ad unit behaves like the category feed grid */}
+               {/* This unit is professionally managed to behave like a standard stories grid */}
                <GoogleAd 
                 slot="1909584638" 
                 format="autorelaxed" 
                 height="500px" 
-                className="rounded-3xl shadow-sm overflow-hidden" 
+                className="rounded-[2.5rem] shadow-xl overflow-hidden border-2 border-gray-50 dark:border-gray-800/20" 
                />
             </div>
 
             {relatedPosts.length > 0 && (
                 <div className="mt-12">
                     <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-8 flex items-center">
-                        <span className="w-1.5 h-6 bg-indigo-600 rounded-full mr-3"></span>
-                        Fresh Picks
+                        <span className="w-1.5 h-7 bg-indigo-600 rounded-full mr-4"></span>
+                        <span className="uppercase">More From Creative Mind</span>
                     </h3>
                     <div className="grid grid-cols-2 gap-5 md:gap-8">
                         {relatedPosts.map(p => <PostCard key={p.id} post={p} />)}
@@ -117,23 +116,23 @@ const PostPage: React.FC = () => {
 
           <aside className="lg:col-span-4 space-y-8">
              <div className="sticky top-24 space-y-8">
-                 {/* Sidebar Managed Rectangle - Fixed size for consistency */}
+                 {/* Sidebar Standard Rectangle */}
                  <GoogleAd 
                     slot="1641433819" 
                     format="rectangle" 
                     height="280px" 
-                    className="shadow-sm rounded-2xl border border-gray-100 dark:border-gray-800"
+                    className="shadow-md rounded-3xl"
                  />
 
-                 <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-6 md:p-8 rounded-[2.5rem] shadow-sm">
-                    <h4 className="font-black text-gray-900 dark:text-white uppercase mb-6 text-xs tracking-[0.2em] flex items-center">
-                        <i className="fas fa-fire-alt text-orange-500 mr-2"></i> Hot Right Now
+                 <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-8 rounded-[3rem] shadow-sm">
+                    <h4 className="font-black text-gray-900 dark:text-white uppercase mb-6 text-xs tracking-[0.3em] flex items-center opacity-70">
+                        <i className="fas fa-chart-line text-blue-600 mr-2"></i> Trending
                     </h4>
                     <div className="space-y-6">
                         {trendingPosts.map((tp, idx) => (
                             <Link key={tp.id} to={`/post/${tp.id}`} className="flex items-start group">
-                                <span className="text-3xl font-black text-gray-100 dark:text-gray-800 group-hover:text-blue-500 transition-colors leading-none w-10 text-center">
-                                    0{idx + 1}
+                                <span className="text-4xl font-black text-gray-100 dark:text-gray-800 group-hover:text-blue-500 transition-colors leading-none w-12 text-center">
+                                    {idx + 1}
                                 </span>
                                 <div className="flex-1 ml-4 border-b border-gray-50 dark:border-gray-800 pb-4 group-last:border-0 group-last:pb-0">
                                     <h5 className="font-bold text-gray-800 dark:text-gray-200 leading-snug text-sm group-hover:text-blue-600 transition-colors line-clamp-2">
@@ -145,10 +144,7 @@ const PostPage: React.FC = () => {
                     </div>
                  </div>
 
-                 {/* Extra Sidebar Ad for long posts */}
-                 <div className="pt-4">
-                    <GoogleAd slot="1641433819" format="vertical" height="600px" />
-                 </div>
+                 <GoogleAd slot="1641433819" format="vertical" height="600px" />
              </div>
           </aside>
         </div>
