@@ -52,26 +52,31 @@ const GoogleAd: React.FC<GoogleAdProps> = ({
     }, 150);
 
     return () => clearTimeout(timer);
-  }, [isLoaded]);
+  }, [isLoaded, slot]);
 
-  // Styling to prevent Cumulative Layout Shift (CLS)
+  // Optimized Styling to prevent Cumulative Layout Shift (CLS)
+  // These values provide a realistic 'reserved' space for the ad type
   const getMinHeight = () => {
-    if (format === 'fluid') return '280px';
-    if (format === 'horizontal') return '90px';
-    if (format === 'vertical') return '600px';
-    return '250px';
+    switch (format) {
+      case 'fluid': return '280px';
+      case 'horizontal': return '100px';
+      case 'vertical': return '600px';
+      case 'rectangle': return '250px';
+      case 'autorelaxed': return '450px'; // Increased height for Multiplex/Grid ads
+      default: return '280px';
+    }
   };
 
   return (
-    <div className={`ad-container my-8 w-full overflow-hidden ${className}`}>
+    <div className={`ad-container w-full overflow-hidden clear-both ${className}`}>
       {showLabel && (
-        <div className="text-[10px] text-gray-400 dark:text-gray-600 text-center uppercase tracking-[0.2em] mb-2 font-bold">
+        <div className="text-[9px] text-gray-400 dark:text-gray-600 text-center uppercase tracking-[0.3em] mb-1.5 font-black opacity-80">
           Advertisement
         </div>
       )}
       <div 
-        className="relative bg-gray-50/50 dark:bg-gray-900/50 rounded-lg flex items-center justify-center border border-gray-100 dark:border-gray-800"
-        style={{ minHeight: getMinHeight() }}
+        className="relative bg-gray-50/30 dark:bg-gray-900/30 rounded-xl flex items-center justify-center border border-gray-100 dark:border-gray-800/50 transition-all duration-500"
+        style={{ minHeight: getMinHeight(), ...style }}
       >
         <ins
           ref={adRef}
@@ -79,8 +84,8 @@ const GoogleAd: React.FC<GoogleAdProps> = ({
           style={{ 
             display: 'block', 
             width: '100%', 
-            textAlign: 'center',
-            ...style 
+            height: '100%',
+            textAlign: 'center'
           }}
           data-ad-client="ca-pub-9543073887536718"
           data-ad-slot={slot}
@@ -91,8 +96,9 @@ const GoogleAd: React.FC<GoogleAdProps> = ({
         ></ins>
         
         {!isLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-             <div className="w-6 h-6 border-2 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none opacity-50">
+             <div className="w-5 h-5 border-2 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-2"></div>
+             <span className="text-[10px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest">Loading Ad</span>
           </div>
         )}
       </div>

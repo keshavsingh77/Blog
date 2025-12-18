@@ -69,9 +69,9 @@ const PostPage: React.FC = () => {
          </div>
       </div>
 
-      {/* Top Post Ad - Highly visible */}
+      {/* Top Post Ad - Fixed height for consistency */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        <GoogleAd slot="1641433819" format="horizontal" className="mt-0" />
+        <GoogleAd slot="1641433819" format="horizontal" className="my-0" />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -86,12 +86,17 @@ const PostPage: React.FC = () => {
                 {contentAfterAd && <div dangerouslySetInnerHTML={{ __html: contentAfterAd }} />}
             </article>
 
-            {/* Bottom Ad Unit - Before related content */}
-            <GoogleAd slot="1909584638" format="autorelaxed" className="mt-12" />
+            {/* Bottom Ad Unit - Large enough for Multiplex units */}
+            <div className="mt-16 mb-8 pt-8 border-t border-gray-100 dark:border-gray-800/50">
+               <GoogleAd slot="1909584638" format="autorelaxed" className="m-0" />
+            </div>
 
             {relatedPosts.length > 0 && (
-                <div className="mt-12 pt-12 border-t border-gray-100 dark:border-gray-800">
-                    <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-8">Related Stories</h3>
+                <div className="mt-8">
+                    <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-8 flex items-center">
+                        <span className="w-1.5 h-6 bg-blue-600 rounded-full mr-3"></span>
+                        Related Stories
+                    </h3>
                     <div className="grid grid-cols-2 gap-5 md:gap-6">
                         {relatedPosts.map(p => <PostCard key={p.id} post={p} />)}
                     </div>
@@ -101,8 +106,8 @@ const PostPage: React.FC = () => {
 
           <aside className="lg:col-span-4 space-y-8">
              <div className="sticky top-24 space-y-8">
-                 {/* Sidebar Sticky Ad */}
-                 <GoogleAd slot="1641433819" format="rectangle" responsive={false} style={{ height: '250px' }} />
+                 {/* Sidebar Unit */}
+                 <GoogleAd slot="1641433819" format="rectangle" />
 
                  <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-6 rounded-3xl shadow-sm">
                     <h4 className="font-black text-gray-900 dark:text-white uppercase mb-6 text-sm tracking-widest flex items-center">
@@ -111,7 +116,7 @@ const PostPage: React.FC = () => {
                     <div className="space-y-6">
                         {trendingPosts.map((tp, idx) => (
                             <Link key={tp.id} to={`/post/${tp.id}`} className="flex items-start group">
-                                <span className="text-2xl font-black text-gray-200 dark:text-gray-800 group-hover:text-red-500 transition-colors leading-none w-8 text-center">
+                                <span className="text-2xl font-black text-gray-200 dark:text-gray-800 group-hover:text-blue-500 transition-colors leading-none w-8 text-center">
                                     {idx + 1}
                                 </span>
                                 <div className="flex-1 ml-4 border-b border-gray-50 dark:border-gray-800 pb-4 group-last:border-0 group-last:pb-0">
