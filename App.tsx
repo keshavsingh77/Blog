@@ -1,6 +1,6 @@
 
 import React, { Suspense, useEffect, useState } from 'react';
-import { HashRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { BlogProvider } from './context/BlogContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -96,7 +96,7 @@ const App: React.FC = () => {
   return (
     <ErrorBoundary>
       <BlogProvider>
-        <HashRouter>
+        <BrowserRouter>
           <LazyAdSense />
           <ScrollProgress />
           <div className="flex flex-col min-h-screen bg-white dark:bg-gray-950 transition-colors duration-300">
@@ -115,7 +115,7 @@ const App: React.FC = () => {
             </main>
             <Footer />
           </div>
-        </HashRouter>
+        </BrowserRouter>
       </BlogProvider>
     </ErrorBoundary>
   );

@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
@@ -10,13 +11,10 @@ interface SEOProps {
 
 const SEO: React.FC<SEOProps> = ({ title, description, image, type = 'website' }) => {
   const location = useLocation();
-  // Using the provided Stream URL as the base for canonicals
   const siteUrl = 'https://movies4uhd.vercel.app';
   
-  // Construct canonical URL. 
-  // Note: Since HashRouter is used, the hash is part of the client-side route. 
-  // Search engines can crawl hash URLs, but standardizing the base is key.
-  const canonicalUrl = `${siteUrl}/#${location.pathname === '/' ? '' : location.pathname}`;
+  // Construct clean canonical URL (no hash)
+  const canonicalUrl = `${siteUrl}${location.pathname === '/' ? '' : location.pathname}`;
 
   useEffect(() => {
     // 1. Update Document Title
@@ -40,7 +38,7 @@ const SEO: React.FC<SEOProps> = ({ title, description, image, type = 'website' }
     }
     linkCanonical.setAttribute('href', canonicalUrl);
 
-    // 4. Update Open Graph Tags (Facebook, LinkedIn, Discord previews)
+    // 4. Update Open Graph Tags
     const setMetaTag = (property: string, content: string) => {
         let tag = document.querySelector(`meta[property="${property}"]`);
         if (!tag) {
