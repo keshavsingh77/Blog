@@ -82,7 +82,13 @@ const HomePage: React.FC = () => {
         {/* Inject Ad after 2nd and 5th items for maximum engagement */}
         {(index === 1 || index === 4) && (
            <div className="col-span-2 md:col-span-1">
-              <GoogleAd slot="1909584638" format="fluid" layoutKey="-6t+ed+2i-1n-4w" className="h-full m-0" />
+              <GoogleAd 
+                slot="1909584638" 
+                format="fluid" 
+                layoutKey="-6t+ed+2i-1n-4w" 
+                height="320px"
+                className="h-full m-0" 
+              />
            </div>
         )}
       </React.Fragment>
@@ -140,7 +146,7 @@ const HomePage: React.FC = () => {
 
       {/* Top Banner Ad - High Viewability */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <GoogleAd slot="1641433819" format="horizontal" className="my-6" />
+        <GoogleAd slot="1641433819" format="horizontal" height="90px" className="my-6" />
       </div>
 
       <div id="latest-posts" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

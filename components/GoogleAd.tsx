@@ -16,7 +16,7 @@ interface GoogleAdProps {
   className?: string;
   responsive?: boolean;
   showLabel?: boolean;
-  height?: string; // Optional precise height override
+  height?: string; 
 }
 
 const GoogleAd: React.FC<GoogleAdProps> = ({ 
@@ -32,9 +32,10 @@ const GoogleAd: React.FC<GoogleAdProps> = ({
 }) => {
   const adRef = useRef<HTMLModElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [showSpinner, setShowSpinner] = useState(true);
 
   useEffect(() => {
-    // Prevent double pushing if the component re-renders
+    // Prevent double pushing
     if (isLoaded) return;
 
     const pushAd = () => {
@@ -42,30 +43,34 @@ const GoogleAd: React.FC<GoogleAdProps> = ({
         if (window.adsbygoogle && adRef.current && adRef.current.offsetParent !== null) {
           (window.adsbygoogle = window.adsbygoogle || []).push({});
           setIsLoaded(true);
+          // Hide spinner after a delay to allow the ad to actually render
+          setTimeout(() => setShowSpinner(false), 2000);
         }
       } catch (e) {
         console.error('AdSense push error:', e);
+        setShowSpinner(false);
       }
     };
 
-    // Initialize with a small delay to ensure DOM is stable
-    const timer = setTimeout(() => {
-      pushAd();
-    }, 200);
+    const timer = setTimeout(pushAd, 300);
+    
+    // Safety timeout: if ad doesn't load in 5 seconds, hide spinner anyway
+    const safetyTimer = setTimeout(() => setShowSpinner(false), 5000);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(safetyTimer);
+    };
   }, [isLoaded, slot]);
 
-  // Optimized Styling to prevent Cumulative Layout Shift (CLS)
-  // Values are calibrated to match common AdSense responsive behaviors
   const getMinHeight = () => {
     if (height) return height;
     switch (format) {
-      case 'fluid': return '320px';
-      case 'horizontal': return '100px';
+      case 'fluid': return '280px';
+      case 'horizontal': return '90px';
       case 'vertical': return '600px';
-      case 'rectangle': return '280px';
-      case 'autorelaxed': return '550px'; // Multiplex ads need more room for the grid
+      case 'rectangle': return '250px';
+      case 'autorelaxed': return '500px'; 
       default: return '280px';
     }
   };
@@ -73,12 +78,12 @@ const GoogleAd: React.FC<GoogleAdProps> = ({
   return (
     <div className={`ad-container w-full overflow-hidden clear-both transition-all duration-300 ${className}`}>
       {showLabel && (
-        <div className="text-[10px] text-gray-400 dark:text-gray-600 text-center uppercase tracking-[0.3em] mb-2 font-black opacity-60">
-          ADVERTISEMENT
+        <div className="text-[9px] text-gray-400 dark:text-gray-600 text-center uppercase tracking-[0.4em] mb-2 font-black opacity-50">
+          Sponsored Content
         </div>
       )}
       <div 
-        className="relative bg-gray-50/50 dark:bg-gray-900/40 rounded-2xl flex items-center justify-center border border-gray-100 dark:border-gray-800/60 transition-all duration-500"
+        className="relative bg-gray-50/30 dark:bg-gray-900/20 rounded-2xl flex items-center justify-center border border-gray-100 dark:border-gray-800/40"
         style={{ minHeight: getMinHeight(), ...style }}
       >
         <ins
@@ -98,10 +103,10 @@ const GoogleAd: React.FC<GoogleAdProps> = ({
           {...(layout ? { 'data-ad-layout': layout } : {})}
         ></ins>
         
-        {!isLoaded && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none opacity-40">
-             <div className="w-6 h-6 border-2 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-3"></div>
-             <span className="text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Sponsored</span>
+        {showSpinner && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none bg-gray-50/50 dark:bg-gray-900/50 z-10 transition-opacity duration-500">
+             <div className="w-5 h-5 border-2 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-2"></div>
+             <span className="text-[9px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest">Discovery</span>
           </div>
         )}
       </div>
