@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useBlog } from '../context/BlogContext';
@@ -134,9 +135,17 @@ const Header: React.FC = () => {
             <Link 
               to="/" 
               onClick={() => setIsMenuOpen(false)}
-              className="flex items-center px-4 py-3 mb-8 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 font-bold rounded-xl border border-blue-100 dark:border-blue-900/30"
+              className="flex items-center px-4 py-3 mb-2 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 font-bold rounded-xl border border-blue-100 dark:border-blue-900/30"
             >
               <i className="fas fa-home mr-3 text-lg"></i> Home Feed
+            </Link>
+
+            <Link 
+              to="/admin" 
+              onClick={() => setIsMenuOpen(false)}
+              className="flex items-center px-4 py-3 mb-8 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 font-bold rounded-xl transition-colors"
+            >
+              <i className="fas fa-user-shield mr-3 text-lg"></i> Admin Dashboard
             </Link>
 
             {/* Theme Settings Section */}

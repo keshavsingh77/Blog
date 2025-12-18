@@ -10,6 +10,7 @@ import { SkeletonPostDetail, SkeletonCard } from './components/SkeletonLoaders';
 
 const CategoryPage = React.lazy(() => import('./pages/CategoryPage'));
 const PostPage = React.lazy(() => import('./pages/PostPage'));
+const AdminPage = React.lazy(() => import('./pages/AdminPage'));
 const PrivacyPage = React.lazy(() => import('./pages/PrivacyPage'));
 const TermsPage = React.lazy(() => import('./pages/TermsPage'));
 const ContactPage = React.lazy(() => import('./pages/ContactPage'));
@@ -107,6 +108,7 @@ const App: React.FC = () => {
                   <Route path="/" element={<HomePage />} />
                   <Route path="/category/:slug" element={<Suspense fallback={<PageLoader />}><CategoryPage /></Suspense>} />
                   <Route path="/post/:id" element={<Suspense fallback={<SkeletonPostDetail />}><PostPage /></Suspense>} />
+                  <Route path="/admin" element={<Suspense fallback={<PageLoader />}><AdminPage /></Suspense>} />
                   <Route path="/privacy-policy" element={<Suspense fallback={<PageLoader />}><PrivacyPage /></Suspense>} />
                   <Route path="/terms-of-service" element={<Suspense fallback={<PageLoader />}><TermsPage /></Suspense>} />
                   <Route path="/contact" element={<Suspense fallback={<PageLoader />}><ContactPage /></Suspense>} />

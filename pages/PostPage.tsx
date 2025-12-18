@@ -69,9 +69,9 @@ const PostPage: React.FC = () => {
          </div>
       </div>
 
-      {/* Top Post Ad - Fixed height for consistency */}
+      {/* Top Post Ad - Standard Horizontal */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        <GoogleAd slot="1641433819" format="horizontal" className="my-0" />
+        <GoogleAd slot="1641433819" format="horizontal" height="120px" className="my-0" />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -80,22 +80,31 @@ const PostPage: React.FC = () => {
             <article className="prose prose-lg dark:prose-invert max-w-none text-gray-800 dark:text-gray-200">
                 <div dangerouslySetInnerHTML={{ __html: contentBeforeAd }} />
                 
-                {/* In-Article Ad - Best for mobile reading */}
+                {/* In-Article Ad */}
                 <GoogleAd slot="1641433819" format="fluid" layout="in-article" className="my-10" />
                 
                 {contentAfterAd && <div dangerouslySetInnerHTML={{ __html: contentAfterAd }} />}
             </article>
 
-            {/* Bottom Ad Unit - Large enough for Multiplex units */}
-            <div className="mt-16 mb-8 pt-8 border-t border-gray-100 dark:border-gray-800/50">
-               <GoogleAd slot="1909584638" format="autorelaxed" className="m-0" />
+            {/* Managed Bottom Ad Unit - Optimized for Content Recommendations */}
+            <div className="mt-16 mb-12 pt-10 border-t border-gray-100 dark:border-gray-800/60">
+               <div className="flex items-center mb-6">
+                 <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.2em]">Recommendations</span>
+                 <div className="flex-1 h-[1px] bg-gray-100 dark:bg-gray-800 ml-4"></div>
+               </div>
+               <GoogleAd 
+                slot="1909584638" 
+                format="autorelaxed" 
+                height="580px" // Managed height to ensure a consistent grid experience
+                className="m-0" 
+               />
             </div>
 
             {relatedPosts.length > 0 && (
                 <div className="mt-8">
                     <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-8 flex items-center">
                         <span className="w-1.5 h-6 bg-blue-600 rounded-full mr-3"></span>
-                        Related Stories
+                        Handpicked for You
                     </h3>
                     <div className="grid grid-cols-2 gap-5 md:gap-6">
                         {relatedPosts.map(p => <PostCard key={p.id} post={p} />)}
@@ -106,8 +115,8 @@ const PostPage: React.FC = () => {
 
           <aside className="lg:col-span-4 space-y-8">
              <div className="sticky top-24 space-y-8">
-                 {/* Sidebar Unit */}
-                 <GoogleAd slot="1641433819" format="rectangle" />
+                 {/* Sidebar Managed Rectangle */}
+                 <GoogleAd slot="1641433819" format="rectangle" height="300px" />
 
                  <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-6 rounded-3xl shadow-sm">
                     <h4 className="font-black text-gray-900 dark:text-white uppercase mb-6 text-sm tracking-widest flex items-center">

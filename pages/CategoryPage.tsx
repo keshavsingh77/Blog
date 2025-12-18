@@ -55,8 +55,8 @@ const CategoryPage: React.FC = () => {
            <h1 className="text-4xl font-black text-gray-900 dark:text-white">{readableName}</h1>
       </div>
 
-      {/* Top Banner for Categories */}
-      <GoogleAd slot="1641433819" format="horizontal" className="mb-8" />
+      {/* Top Banner for Categories - Managed Size */}
+      <GoogleAd slot="1641433819" format="horizontal" height="120px" className="mb-8" />
       
       {currentPosts.length > 0 ? (
         <>
@@ -66,7 +66,13 @@ const CategoryPage: React.FC = () => {
                         <PostCard post={post} />
                         {idx === 2 && (
                              <div className="col-span-2 md:col-span-1">
-                                <GoogleAd slot="1909584638" format="fluid" layoutKey="-6t+ed+2i-1n-4w" className="h-full m-0" />
+                                <GoogleAd 
+                                  slot="1909584638" 
+                                  format="fluid" 
+                                  layoutKey="-6t+ed+2i-1n-4w" 
+                                  className="h-full m-0" 
+                                  style={{ minHeight: '100%' }}
+                                />
                              </div>
                         )}
                     </React.Fragment>
