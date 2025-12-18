@@ -39,10 +39,11 @@ const PostPage: React.FC = () => {
   const relatedPosts = posts.filter(p => p.id !== post.id && (p.category === post.category || p.tags.some(tag => post.tags.includes(tag)))).slice(0, 4);
   const trendingPosts = [...posts].filter(p => p.id !== post.id).sort(() => 0.5 - Math.random()).slice(0, 5);
 
+  // Logic to split content for In-Article Ads
   const paragraphs = post.content.split('</p>');
   let contentBeforeAd = post.content;
   let contentAfterAd = '';
-  const showInContentAd = paragraphs.length > 3;
+  const showInContentAd = paragraphs.length > 2;
 
   if (showInContentAd) {
     const splitIndex = Math.ceil(paragraphs.length / 2);
@@ -54,7 +55,7 @@ const PostPage: React.FC = () => {
     <div className="bg-white dark:bg-gray-950 min-h-screen pt-16 transition-colors duration-300">
       <SEO title={post.title} description={descriptionSnippet} />
       
-      {/* Hero Poster */}
+      {/* 1. Hero Poster with Title */}
       <div className="w-full relative h-[350px] md:h-[550px] overflow-hidden bg-gray-900">
          <div className="absolute inset-0">
              <img className="w-full h-full object-cover opacity-90" src={post.imageUrl} alt={post.title} />
@@ -71,9 +72,15 @@ const PostPage: React.FC = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Placement 1: Below Poster Image */}
+        
+        {/* Placement A: Banner Ad Below Title/Hero */}
         <div className="mb-10">
-           <GoogleAd slot="1641433819" format="horizontal" height="90px" className="rounded-xl overflow-hidden" />
+           <GoogleAd 
+              slot="1641433819" 
+              format="horizontal" 
+              height="90px" 
+              className="rounded-xl overflow-hidden shadow-sm" 
+           />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
@@ -81,12 +88,12 @@ const PostPage: React.FC = () => {
             <article className="prose prose-lg md:prose-xl dark:prose-invert max-w-none text-gray-800 dark:text-gray-200">
                 <div dangerouslySetInnerHTML={{ __html: contentBeforeAd }} />
                 
-                {/* Placement 2: Middle of Article */}
+                {/* Placement B: In-Article Ad Within Content */}
                 <GoogleAd 
                   slot="1641433819" 
                   format="fluid" 
                   layout="in-article" 
-                  className="my-14 border-y border-gray-100 dark:border-gray-800 py-6" 
+                  className="my-14 border-y border-gray-100 dark:border-gray-800 py-10" 
                 />
                 
                 {contentAfterAd && <div dangerouslySetInnerHTML={{ __html: contentAfterAd }} />}
@@ -100,31 +107,36 @@ const PostPage: React.FC = () => {
                   </div>
                   <div>
                     <h4 className="text-xl font-black text-gray-900 dark:text-white">About Creative Mind</h4>
-                    <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Your daily dose of tech tricks and digital magic.</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Unlocking viral tech secrets and digital wizardry.</p>
                   </div>
                </div>
                
-               {/* Placement 3: Below Myself */}
-               <GoogleAd slot="1641433819" format="rectangle" height="300px" className="rounded-3xl shadow-md" />
+               {/* Placement C: Ad Below Author Bio */}
+               <GoogleAd 
+                  slot="1641433819" 
+                  format="rectangle" 
+                  height="280px" 
+                  className="rounded-3xl shadow-md border border-gray-100 dark:border-gray-800" 
+               />
             </div>
 
-            {/* Related Posts Section */}
+            {/* Recommended Posts Section (Like) */}
             <div className="mt-16 pt-16 border-t border-gray-100 dark:border-gray-800/60">
                <div className="flex items-center mb-10">
                   <div className="w-2 h-8 bg-blue-600 rounded-full mr-4"></div>
-                  <h3 className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter uppercase">More Viral Tricks</h3>
+                  <h3 className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter uppercase">Viral Recommendations</h3>
                </div>
                
                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
                   {relatedPosts.map(p => <PostCard key={p.id} post={p} />)}
                </div>
 
-               {/* Placement 4: Below Like (Sponsored Recommendation) */}
+               {/* Placement D: Sponsored Recommendation Ad below Related Posts */}
                <GoogleAd 
-                slot="1909584638" 
-                format="autorelaxed" 
-                height="550px" 
-                className="rounded-[3rem] shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-800" 
+                  slot="1909584638" 
+                  format="autorelaxed" 
+                  height="550px" 
+                  className="rounded-[3rem] shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-800" 
                />
             </div>
           </main>
@@ -139,7 +151,7 @@ const PostPage: React.FC = () => {
                  />
 
                  <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-8 rounded-[3rem] shadow-sm">
-                    <h4 className="font-black text-gray-900 dark:text-white uppercase mb-6 text-[10px] tracking-[0.4em] opacity-60">Hot Right Now</h4>
+                    <h4 className="font-black text-gray-900 dark:text-white uppercase mb-6 text-[10px] tracking-[0.4em] opacity-60">Hot Trending</h4>
                     <div className="space-y-6">
                         {trendingPosts.map((tp, idx) => (
                             <Link key={tp.id} to={`/post/${tp.id}`} className="flex items-start group">
@@ -156,7 +168,12 @@ const PostPage: React.FC = () => {
                     </div>
                  </div>
 
-                 <GoogleAd slot="1641433819" format="vertical" height="600px" className="rounded-3xl" />
+                 <GoogleAd 
+                    slot="1641433819" 
+                    format="vertical" 
+                    height="600px" 
+                    className="rounded-3xl shadow-sm" 
+                 />
              </div>
           </aside>
         </div>
