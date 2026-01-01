@@ -7,60 +7,59 @@ interface PostCardProps {
 }
 
 const PostCard: React.FC<PostCardProps> = ({ post }) => {
-  const displayCategory = post.tags && post.tags.length > 0 ? post.tags[0] : post.category;
-  const getCategorySlug = (category: string) => category.toLowerCase().replace(/\s+/g, '-');
+  const getCategorySlug = (cat: string) => cat.toLowerCase().replace(/\s+/g, '-');
   
-  let thumbnailUrl = post.imageUrl;
-  
-  if (thumbnailUrl.includes('picsum.photos')) {
-    thumbnailUrl = thumbnailUrl.replace(/\/seed\/([^/]+)\/\d+\/\d+/, '/seed/$1/400/225');
-  } else if (thumbnailUrl.includes('googleusercontent.com') || thumbnailUrl.includes('blogspot.com')) {
-    thumbnailUrl = thumbnailUrl.replace(/\/s\d+(-c)?\//, '/w400-h225-p-k-no-nu/');
-    thumbnailUrl = thumbnailUrl.replace(/\/w\d+-h\d+(-p-k-no-nu)?\//, '/w400-h225-p-k-no-nu/');
-  }
-
   return (
-    <article 
-      className="group bg-white dark:bg-gray-900 rounded-2xl shadow-sm hover:shadow-xl dark:shadow-none dark:border-gray-800 transition-all duration-300 flex flex-col h-full overflow-hidden border border-gray-100 transform-gpu"
-    >
-      <div className="relative aspect-video overflow-hidden bg-gray-100 dark:bg-gray-800">
-         <Link to={`/post/${post.id}`} className="block w-full h-full" aria-label={`Read ${post.title}`}>
+    <article className="group relative bg-white dark:bg-gray-900 rounded-[2.5rem] overflow-hidden transition-all duration-700 hover:-translate-y-4 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.15)] dark:hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.4)] border border-gray-100 dark:border-gray-800 h-full flex flex-col">
+      <div className="relative aspect-[4/3] overflow-hidden">
+         <Link to={`/post/${post.id}`} className="block w-full h-full">
             <img 
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 transform-gpu" 
-              src={thumbnailUrl} 
+              className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" 
+              src={post.imageUrl} 
               alt={post.title} 
               loading="lazy"
-              decoding="async"
-              width="400"
-              height="225"
             />
          </Link>
+         <div className="absolute inset-0 bg-gradient-to-t from-gray-950/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
          
          <Link 
-            to={`/category/${getCategorySlug(displayCategory)}`} 
-            className="absolute top-3 left-3 bg-blue-600/90 backdrop-blur-sm text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded shadow-md hover:bg-blue-700 transition-colors"
+            to={`/category/${getCategorySlug(post.category)}`} 
+            className="absolute top-6 left-6 bg-white/10 backdrop-blur-md border border-white/20 text-white text-[9px] font-black uppercase tracking-widest px-4 py-2 rounded-xl transition-all hover:bg-blue-600 hover:border-blue-600"
          >
-           {displayCategory}
+           {post.category}
          </Link>
       </div>
 
-      <div className="p-4 flex flex-col flex-grow">
-        <div className="mb-2 flex items-center text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wide">
-           <span className="mr-3"><i className="far fa-clock mr-1" aria-hidden="true"></i> {new Date(post.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+      <div className="p-8 flex flex-col flex-grow">
+        <div className="flex items-center gap-3 mb-4">
+           <span className="text-[9px] font-black uppercase tracking-widest text-blue-600">
+             <i className="far fa-calendar-alt mr-2"></i>
+             {new Date(post.createdAt).toLocaleDateString()}
+           </span>
+           <span className="w-1 h-1 bg-gray-200 rounded-full"></span>
+           <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">
+             {post.author}
+           </span>
         </div>
         
-        <h2 className="text-base md:text-lg font-bold text-gray-900 dark:text-white mb-2 leading-snug group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
+        <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white mb-6 leading-tight group-hover:text-blue-600 transition-colors tracking-tighter italic">
           <Link to={`/post/${post.id}`}>
             {post.title}
           </Link>
         </h2>
         
-        <div className="mt-auto pt-3 border-t border-gray-50 dark:border-gray-800 flex justify-between items-center">
-           <Link to={`/post/${post.id}`} className="inline-flex items-center font-bold text-xs uppercase text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
-            Read More
+        <div className="mt-auto pt-6 border-t border-gray-50 dark:border-gray-800">
+           <Link to={`/post/${post.id}`} className="inline-flex items-center text-[10px] font-black uppercase tracking-[0.2em] text-gray-900 dark:text-white group-hover:text-blue-600 transition-all">
+            Read Secret <i className="fas fa-chevron-right ml-3 transform group-hover:translate-x-2 transition-transform"></i>
           </Link>
         </div>
       </div>
+      
+      {post.isLocal && (
+        <div className="absolute top-6 right-6 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-[10px] shadow-lg animate-pulse" title="AI Generated">
+           <i className="fas fa-robot"></i>
+        </div>
+      )}
     </article>
   );
 };

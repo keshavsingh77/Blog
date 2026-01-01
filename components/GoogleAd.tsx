@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 
 declare global {
@@ -19,6 +18,18 @@ interface GoogleAdProps {
   height?: string; 
 }
 
+const ADS_SCRIPT_ID = 'google-adsense-script';
+
+const injectAdSenseScript = () => {
+  if (document.getElementById(ADS_SCRIPT_ID)) return;
+  const script = document.createElement('script');
+  script.id = ADS_SCRIPT_ID;
+  script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9543073887536718";
+  script.async = true;
+  script.crossOrigin = "anonymous";
+  document.head.appendChild(script);
+};
+
 const GoogleAd: React.FC<GoogleAdProps> = ({ 
   slot, 
   format = 'auto', 
@@ -30,83 +41,85 @@ const GoogleAd: React.FC<GoogleAdProps> = ({
   showLabel = true,
   height
 }) => {
-  const adRef = useRef<HTMLModElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [showSpinner, setShowSpinner] = useState(true);
+  const [initAttempted, setInitAttempted] = useState(false);
 
-  // Lazy loading logic using IntersectionObserver
   useEffect(() => {
+    const currentContainer = containerRef.current;
+    if (!currentContainer) return;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true);
+          injectAdSenseScript();
           observer.disconnect();
         }
       },
-      { rootMargin: '200px' } // Load when within 200px of viewport
+      { rootMargin: '400px' }
     );
 
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-
+    observer.observe(currentContainer);
     return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
-    if (!isVisible || isLoaded) return;
+    if (!isVisible || initAttempted) return;
 
-    const pushAd = () => {
+    const tryPush = (retries = 0) => {
+      if (retries > 10) return; // Stop after 10 attempts
+
       try {
-        if (window.adsbygoogle && adRef.current && adRef.current.offsetParent !== null) {
+        if (window.adsbygoogle) {
           (window.adsbygoogle = window.adsbygoogle || []).push({});
-          setIsLoaded(true);
-          setTimeout(() => setShowSpinner(false), 1200);
+          setInitAttempted(true);
+        } else {
+          // Script not ready, try again in 300ms
+          setTimeout(() => tryPush(retries + 1), 300);
         }
       } catch (e) {
-        console.error('AdSense lazy-load error:', e);
-        setShowSpinner(false);
+        console.warn('AdSense Push Error:', e);
+        setInitAttempted(true); // Don't keep retrying if it crashes
       }
     };
 
-    const timer = setTimeout(pushAd, 200);
-    return () => clearTimeout(timer);
-  }, [isVisible, isLoaded, slot]);
+    tryPush();
+  }, [isVisible, initAttempted]);
 
   const getMinHeight = () => {
     if (height) return height;
     switch (format) {
       case 'horizontal': return '90px';
-      case 'rectangle': return '280px';
       case 'vertical': return '600px';
-      case 'fluid': return '300px';
-      case 'autorelaxed': return '550px';
-      default: return '280px';
+      case 'rectangle': return '250px';
+      default: return '200px';
     }
   };
 
   return (
-    <div ref={containerRef} className={`ad-wrapper w-full clear-both overflow-hidden my-4 ${className}`}>
+    <div 
+      ref={containerRef} 
+      className={`ad-container w-full overflow-hidden my-8 transition-opacity duration-700 ${isVisible ? 'opacity-100' : 'opacity-0'} ${className}`}
+    >
       {showLabel && (
-        <div className="text-[9px] text-gray-400 dark:text-gray-600 text-center uppercase tracking-[0.4em] mb-2 font-black opacity-30">
-          Sponsored
+        <div className="text-[10px] text-gray-400 dark:text-gray-500 text-center uppercase tracking-[0.3em] mb-3 font-black opacity-40 select-none">
+          Advertisement
         </div>
       )}
+      
       <div 
-        className="relative bg-gray-50/30 dark:bg-gray-900/20 rounded-2xl flex items-center justify-center border border-gray-100/50 dark:border-gray-800/30 transition-all duration-300"
+        className="relative bg-gray-50/50 dark:bg-gray-900/50 rounded-2xl flex flex-col items-center justify-center overflow-hidden"
         style={{ minHeight: getMinHeight(), ...style }}
       >
         {isVisible && (
           <ins
-            ref={adRef}
+            key={`ad-${slot}-${format}`}
             className="adsbygoogle"
             style={{ 
               display: 'block', 
-              width: '100%', 
+              width: '100%',
               minHeight: getMinHeight(),
-              textAlign: 'center'
             }}
             data-ad-client="ca-pub-9543073887536718"
             data-ad-slot={slot}
@@ -117,9 +130,9 @@ const GoogleAd: React.FC<GoogleAdProps> = ({
           ></ins>
         )}
         
-        {(showSpinner || !isVisible) && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white/40 dark:bg-gray-950/40 z-10 rounded-2xl backdrop-blur-[2px]">
-             <div className="w-4 h-4 border-2 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
+        {!initAttempted && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="w-5 h-5 border-2 border-blue-600/10 border-t-blue-600/40 rounded-full animate-spin"></div>
           </div>
         )}
       </div>

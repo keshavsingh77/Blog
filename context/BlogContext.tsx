@@ -1,96 +1,109 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { Post } from '../types';
 import { fetchPostsFromBlogger } from '../services/bloggerService';
+import { INITIAL_POSTS } from '../constants';
 
 interface BlogContextType {
   posts: Post[];
   isLoading: boolean;
+  error: string | null;
   getPostById: (id: string) => Post | undefined;
-  addPost: (post: Omit<Post, 'id' | 'createdAt' | 'imageUrl'> & { imageUrl?: string }) => void;
-  updatePost: (id: string, post: Partial<Post>) => void;
+  addPost: (post: Post) => void;
   deletePost: (id: string) => void;
   theme: 'light' | 'dark';
   toggleTheme: () => void;
+  refreshPosts: () => Promise<void>;
 }
 
 const BlogContext = createContext<BlogContextType | undefined>(undefined);
 
-export const BlogProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [theme, setTheme] = useState<'light' | 'dark'>(
-    (localStorage.getItem('theme') as 'light' | 'dark') || 'light'
-  );
+const LOCAL_STORAGE_KEY = 'creative_mind_vault_v3';
 
-  useEffect(() => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    localStorage.setItem('theme', theme);
-  }, [theme]);
+export const BlogProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [posts, setPosts] = useState<Post[]>(INITIAL_POSTS);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [theme, setTheme] = useState<'light' | 'dark'>(
+    (localStorage.getItem('theme') as 'light' | 'dark') || 'dark'
+  );
 
   const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');
 
   useEffect(() => {
-    const loadPosts = async () => {
-      setIsLoading(true);
-      try {
-        const fetchedPosts = await fetchPostsFromBlogger();
-        setPosts(fetchedPosts);
-      } catch (error) {
-        console.error("Error loading posts:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
-    loadPosts();
+  const refreshPosts = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const remotePosts = await fetchPostsFromBlogger();
+      
+      const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+      const localPosts: Post[] = saved ? JSON.parse(saved) : [];
+      
+      // Combine and Sort
+      const combined = [...localPosts, ...remotePosts];
+      const unique = Array.from(new Map(combined.map(p => [p.id, p])).values());
+      
+      const sorted = unique.sort((a, b) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      
+      setPosts(sorted.length > 0 ? sorted : INITIAL_POSTS);
+    } catch (err) {
+      console.error("Critical error syncing feed:", err);
+      setError("Sync failed. Using cached/static data.");
+      if (posts.length === 0) setPosts(INITIAL_POSTS);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [posts.length]);
+
+  useEffect(() => {
+    refreshPosts();
   }, []);
 
-  const getPostById = (id: string): Post | undefined => {
-    return posts.find(p => p.id === id);
-  };
+  const getPostById = (id: string) => posts.find(p => p.id === id);
 
-  const addPost = (postData: Omit<Post, 'id' | 'createdAt' | 'imageUrl'> & { imageUrl?: string }) => {
-    const newPost: Post = {
-      ...postData,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
-      imageUrl: postData.imageUrl || `https://picsum.photos/seed/${Date.now()}/800/400`,
-    };
-    setPosts([newPost, ...posts]);
-  };
-
-  const updatePost = (id: string, updatedData: Partial<Post>) => {
-    setPosts(posts.map(post => (post.id === id ? { ...post, ...updatedData } : post)));
+  const addPost = (newPost: Post) => {
+    setPosts(prev => {
+      const updated = [newPost, ...prev];
+      const locals = updated.filter(p => p.isLocal);
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(locals));
+      return updated;
+    });
   };
 
   const deletePost = (id: string) => {
-    setPosts(posts.filter(post => post.id !== id));
+    setPosts(prev => {
+      const updated = prev.filter(p => p.id !== id);
+      const locals = updated.filter(p => p.isLocal);
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(locals));
+      return updated;
+    });
   };
 
   return (
     <BlogContext.Provider value={{
       posts,
       isLoading,
+      error,
       getPostById,
       addPost,
-      updatePost,
       deletePost,
       theme,
-      toggleTheme
+      toggleTheme,
+      refreshPosts
     }}>
       {children}
     </BlogContext.Provider>
   );
 };
 
-export const useBlog = (): BlogContextType => {
+export const useBlog = () => {
   const context = useContext(BlogContext);
-  if (!context) {
-    throw new Error('useBlog must be used within a BlogProvider');
-  }
+  if (!context) throw new Error('useBlog must be used within BlogProvider');
   return context;
 };

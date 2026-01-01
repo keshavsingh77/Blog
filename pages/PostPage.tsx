@@ -1,178 +1,135 @@
-import React, { useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useEffect, useMemo, Suspense, lazy } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useBlog } from '../context/BlogContext';
 import SEO from '../components/SEO';
 import PostCard from '../components/PostCard';
-import GoogleAd from '../components/GoogleAd';
 import { SkeletonPostDetail } from '../components/SkeletonLoaders';
+
+const GoogleAd = lazy(() => import('../components/GoogleAd'));
 
 const PostPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { getPostById, posts, isLoading } = useBlog();
-  const post = id ? getPostById(id) : undefined;
+  const { posts, isLoading, getPostById } = useBlog();
+  const navigate = useNavigate();
+  
+  const post = useMemo(() => id ? getPostById(id) : undefined, [id, posts, getPostById]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [id]);
 
-  if (isLoading) {
-    return <SkeletonPostDetail />;
-  }
+  if (isLoading) return <SkeletonPostDetail />;
 
   if (!post) {
     return (
-      <div className="text-center py-20 bg-gray-50 dark:bg-gray-950 min-h-[80vh] flex flex-col justify-center items-center">
-        <SEO title="Post Not Found" description="The requested post could not be found." />
-        <h2 className="text-4xl font-black text-gray-800 dark:text-gray-200 mb-4 tracking-tight">Post not found</h2>
-        <Link to="/" className="bg-blue-600 text-white px-8 py-3 rounded-full font-bold">Go back to Home</Link>
+      <div className="min-h-[70vh] flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-24 h-24 bg-red-100 dark:bg-red-900/30 text-red-600 rounded-3xl flex items-center justify-center text-4xl mb-6">
+          <i className="fas fa-ghost"></i>
+        </div>
+        <h1 className="text-4xl font-black text-gray-900 dark:text-white mb-4 uppercase tracking-tighter">Content Not Found</h1>
+        <p className="text-gray-500 dark:text-gray-400 max-w-md mb-8">This post might have been moved or the URL is incorrect.</p>
+        <button onClick={() => navigate('/')} className="bg-blue-600 text-white px-10 py-4 rounded-2xl font-black shadow-xl">BACK TO HOME</button>
       </div>
     );
   }
 
-  const getCategorySlug = (text: string) => text.toLowerCase().replace(/\s+/g, '-');
-  const displayCategory = post.tags && post.tags.length > 0 ? post.tags[0] : post.category;
-  
-  const plainTextContent = post.content.replace(/<[^>]+>/g, '');
-  const descriptionSnippet = plainTextContent.substring(0, 160).trim();
-
-  const relatedPosts = posts.filter(p => p.id !== post.id && (p.category === post.category || p.tags.some(tag => post.tags.includes(tag)))).slice(0, 4);
-  const trendingPosts = [...posts].filter(p => p.id !== post.id).sort(() => 0.5 - Math.random()).slice(0, 5);
-
+  const related = posts.filter(p => p.id !== post.id && p.category === post.category).slice(0, 4);
   const paragraphs = post.content.split('</p>');
-  let contentBeforeAd = post.content;
-  let contentAfterAd = '';
-  const showInContentAd = paragraphs.length > 2;
-
-  if (showInContentAd) {
-    const splitIndex = Math.ceil(paragraphs.length / 2);
-    contentBeforeAd = paragraphs.slice(0, splitIndex).join('</p>') + '</p>';
-    contentAfterAd = paragraphs.slice(splitIndex).join('</p>');
-  }
+  const midPoint = Math.ceil(paragraphs.length / 2);
 
   return (
-    <div className="bg-white dark:bg-gray-950 min-h-screen pt-16 transition-colors duration-300">
-      <SEO title={post.title} description={descriptionSnippet} />
+    <div className="bg-white dark:bg-gray-950 min-h-screen">
+      <SEO title={post.title} description={post.content.replace(/<[^>]+>/g, '').substring(0, 160)} image={post.imageUrl} />
       
-      {/* 1. Hero Poster Image */}
-      <div className="w-full relative h-[350px] md:h-[550px] overflow-hidden bg-gray-900">
-         <div className="absolute inset-0">
-             <img className="w-full h-full object-cover opacity-90" src={post.imageUrl} alt={post.title} />
-         </div>
-         <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/60 to-transparent"></div>
-         <div className="absolute bottom-0 left-0 w-full p-6 md:p-12 lg:p-20 text-white max-w-7xl mx-auto">
-            <Link to={`/category/${getCategorySlug(displayCategory)}`} className="inline-block bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 mb-4 rounded-lg shadow-xl">
-              {displayCategory}
+      <div className="relative w-full h-[50vh] md:h-[70vh] bg-gray-900">
+        <img src={post.imageUrl} className="w-full h-full object-cover" alt={post.title} />
+        <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/40 to-transparent"></div>
+        <div className="absolute bottom-0 left-0 w-full p-6 md:p-12 lg:p-20">
+          <div className="max-w-7xl mx-auto">
+            <Link to={`/category/${post.category.toLowerCase().replace(/\s+/g, '-')}`} className="inline-block bg-blue-600 text-white text-[10px] font-black uppercase tracking-[0.2em] px-4 py-2 rounded-lg mb-6 shadow-2xl">
+              {post.category}
             </Link>
-            <h1 className="text-3xl md:text-5xl lg:text-7xl font-black leading-tight mb-4 drop-shadow-2xl">
-                {post.title}
+            <h1 className="text-3xl md:text-5xl lg:text-7xl font-black text-white leading-[1.1] drop-shadow-2xl max-w-5xl tracking-tight">
+              {post.title}
             </h1>
-         </div>
+          </div>
+        </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        {/* AD PLACEMENT 1: Below Poster Image */}
-        <div className="mb-10">
-           <GoogleAd 
-              slot="1641433819" 
-              format="horizontal" 
-              height="90px" 
-              className="rounded-xl overflow-hidden shadow-sm" 
-           />
-        </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16">
+        {/* Top Responsive Banner */}
+        <Suspense fallback={<div className="h-24 bg-gray-100 dark:bg-gray-900 animate-pulse rounded-2xl mb-12" />}>
+          <GoogleAd slot="1641433819" format="auto" responsive={true} className="mb-12 rounded-2xl overflow-hidden w-full" />
+        </Suspense>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
           <main className="lg:col-span-8">
-            <article className="prose prose-lg md:prose-xl dark:prose-invert max-w-none text-gray-800 dark:text-gray-200">
-                <div dangerouslySetInnerHTML={{ __html: contentBeforeAd }} />
-                
-                {/* AD PLACEMENT 2: In-Article Ad In Content Flow */}
+            <article className="prose prose-base sm:prose-lg lg:prose-xl dark:prose-invert max-w-none text-gray-800 dark:text-gray-200 leading-relaxed sm:leading-loose">
+              <div dangerouslySetInnerHTML={{ __html: paragraphs.slice(0, midPoint).join('</p>') + (paragraphs.length > midPoint ? '</p>' : '') }} />
+              
+              {/* Native In-Article Fluid Ad */}
+              <Suspense fallback={<div className="h-64 bg-gray-100 dark:bg-gray-900 animate-pulse rounded-2xl my-12" />}>
                 <GoogleAd 
                   slot="1641433819" 
                   format="fluid" 
                   layout="in-article" 
-                  className="my-14 border-y border-gray-100 dark:border-gray-800 py-10" 
+                  className="my-12 md:my-20 border-y border-gray-100 dark:border-gray-800 py-10 w-full" 
                 />
-                
-                {contentAfterAd && <div dangerouslySetInnerHTML={{ __html: contentAfterAd }} />}
+              </Suspense>
+              
+              <div dangerouslySetInnerHTML={{ __html: paragraphs.slice(midPoint).join('</p>') }} />
             </article>
 
-            {/* Author Section (Myself) */}
-            <div id="author-section" className="mt-16 bg-gray-50 dark:bg-gray-900/50 rounded-[2.5rem] p-8 md:p-10 border border-gray-100 dark:border-gray-800">
-               <div className="flex items-center space-x-6 mb-8">
-                  <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center text-white text-2xl font-black shadow-lg">
-                    CM
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-black text-gray-900 dark:text-white">About Creative Mind</h4>
-                    <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Unlocking viral tech secrets and digital wizardry.</p>
-                  </div>
-               </div>
-               
-               {/* AD PLACEMENT 3: Below Myself Section */}
-               <GoogleAd 
-                  slot="1641433819" 
-                  format="rectangle" 
-                  height="280px" 
-                  className="rounded-3xl shadow-md border border-gray-100 dark:border-gray-800" 
-               />
+            <div className="mt-20 bg-gray-50 dark:bg-gray-900 rounded-[2rem] md:rounded-[3rem] p-8 md:p-12 border border-gray-100 dark:border-gray-800">
+              <div className="flex flex-col md:flex-row items-center gap-8">
+                <div className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl flex items-center justify-center text-white text-3xl font-black shadow-2xl shrink-0">CM</div>
+                <div className="text-center md:text-left">
+                  <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">About Creative Mind</h3>
+                  <p className="text-gray-600 dark:text-gray-400 mt-3 font-medium text-lg leading-relaxed">Unlocking viral digital trends and tech secrets daily. Join our community of 50k+ readers.</p>
+                </div>
+              </div>
+              
+              {/* Standard Rectangle Ad */}
+              <Suspense fallback={<div className="h-64 bg-gray-100 dark:bg-gray-900 animate-pulse rounded-3xl mt-10" />}>
+                <GoogleAd slot="1641433819" format="rectangle" responsive={true} className="mt-10 rounded-3xl w-full" />
+              </Suspense>
             </div>
 
-            {/* Recommended Posts Section (Like) */}
-            <div id="related-section" className="mt-16 pt-16 border-t border-gray-100 dark:border-gray-800/60">
-               <div className="flex items-center mb-10">
-                  <div className="w-2 h-8 bg-blue-600 rounded-full mr-4"></div>
-                  <h3 className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter uppercase">Viral Recommendations</h3>
-               </div>
-               
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-                  {relatedPosts.map(p => <PostCard key={p.id} post={p} />)}
-               </div>
-
-               {/* AD PLACEMENT 4: Below Like Section (Sponsored Multiplex) */}
-               <GoogleAd 
-                  slot="1909584638" 
-                  format="autorelaxed" 
-                  height="550px" 
-                  className="rounded-[3rem] shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-800" 
-               />
+            <div className="mt-20">
+              <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-10 uppercase tracking-tighter border-l-8 border-blue-600 pl-6">Related Stories</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {related.map(p => <PostCard key={p.id} post={p} />)}
+              </div>
+              
+              {/* Multiplex Footer Ad */}
+              <Suspense fallback={<div className="h-64 bg-gray-100 dark:bg-gray-900 animate-pulse rounded-[2.5rem] mt-12" />}>
+                <GoogleAd slot="1909584638" format="autorelaxed" className="mt-12 rounded-[2.5rem] shadow-2xl w-full" />
+              </Suspense>
             </div>
           </main>
 
-          <aside className="lg:col-span-4">
-             <div className="sticky top-24 space-y-12">
-                 <GoogleAd 
-                    slot="1641433819" 
-                    format="rectangle" 
-                    height="280px" 
-                    className="shadow-xl rounded-3xl"
-                 />
-
-                 <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-8 rounded-[3rem] shadow-sm">
-                    <h4 className="font-black text-gray-900 dark:text-white uppercase mb-6 text-[10px] tracking-[0.4em] opacity-60">Trending Now</h4>
-                    <div className="space-y-6">
-                        {trendingPosts.map((tp, idx) => (
-                            <Link key={tp.id} to={`/post/${tp.id}`} className="flex items-start group">
-                                <span className="text-4xl font-black text-gray-100 dark:text-gray-800 group-hover:text-blue-500 transition-colors w-12 text-center">
-                                    {idx + 1}
-                                </span>
-                                <div className="flex-1 ml-4 border-b border-gray-50 dark:border-gray-800 pb-4 group-last:border-0 group-last:pb-0">
-                                    <h5 className="font-bold text-gray-800 dark:text-gray-200 leading-snug text-sm group-hover:text-blue-600 transition-colors line-clamp-2">
-                                        {tp.title}
-                                    </h5>
-                                </div>
-                            </Link>
-                        ))}
-                    </div>
+          <aside className="lg:col-span-4 space-y-12">
+            <div className="sticky top-24">
+              <div className="bg-blue-600 text-white p-8 rounded-3xl mb-8 shadow-xl">
+                 <h4 className="text-xs font-black uppercase tracking-[0.2em] mb-4 opacity-80">Newsletter</h4>
+                 <p className="text-xl font-black mb-6 leading-tight uppercase text-white">Get Viral Secrets</p>
+                 <div className="space-y-3">
+                    <input type="email" placeholder="Email Address" className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 placeholder:text-white/50 outline-none focus:bg-white/20 transition-all text-sm text-white" />
+                    <button className="w-full bg-white text-blue-600 font-black py-3 rounded-xl uppercase text-xs tracking-widest hover:bg-gray-100 transition-colors">Subscribe</button>
                  </div>
-
-                 <GoogleAd 
-                    slot="1641433819" 
-                    format="vertical" 
-                    height="600px" 
-                    className="rounded-3xl shadow-sm" 
-                 />
-             </div>
+              </div>
+              
+              {/* Vertical Sidebar Ad */}
+              <Suspense fallback={<div className="h-[600px] bg-gray-100 dark:bg-gray-900 animate-pulse rounded-3xl" />}>
+                <GoogleAd 
+                  slot="1641433819" 
+                  format="vertical" 
+                  height="600px" 
+                  responsive={true}
+                  className="rounded-3xl shadow-sm w-full" 
+                />
+              </Suspense>
+            </div>
           </aside>
         </div>
       </div>

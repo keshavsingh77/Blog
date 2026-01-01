@@ -1,139 +1,129 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useBlog } from '../context/BlogContext';
 import { CATEGORIES } from '../constants';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const { posts, theme, toggleTheme } = useBlog();
-  const navigate = useNavigate();
+  const { theme, toggleTheme, posts } = useBlog();
+  const location = useLocation();
 
-  const dynamicCategories = Array.from(
-    new Set([...(posts.flatMap(p => p.tags || [])), ...CATEGORIES])
-  ).sort((a, b) => a.localeCompare(b));
+  // Consolidate categories from constants and live posts
+  const allCategories = Array.from(new Set([
+    ...CATEGORIES,
+    ...posts.map(p => p.category)
+  ])).sort((a, b) => a.localeCompare(b));
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      setIsSearchOpen(false);
-      navigate(`/category/${searchQuery.toLowerCase().replace(/\s+/g, '-')}`);
-      setSearchQuery('');
-    }
-  };
+  const getCategorySlug = (cat: string) => cat.toLowerCase().replace(/\s+/g, '-');
 
-  const getCategorySlug = (category: string) => category.toLowerCase().replace(/\s+/g, '-');
-
+  // Automatically close sidebar menu when route changes
   useEffect(() => {
-    if (isMenuOpen || isSearchOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'auto';
-    }
-    return () => { document.body.style.overflow = 'auto'; };
-  }, [isMenuOpen, isSearchOpen]);
+    setIsMenuOpen(false);
+  }, [location.pathname]);
 
   return (
     <>
-      <header className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 fixed top-0 w-full z-[100] h-16 flex items-center shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex items-center justify-between relative">
-          
+      <header className="bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800 fixed top-0 w-full z-[500] h-16 flex items-center shadow-sm transition-all duration-300">
+        <div className="max-w-7xl mx-auto px-4 w-full flex items-center justify-between">
           <button 
             onClick={() => setIsMenuOpen(true)}
-            className="p-3 -ml-3 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors z-50 pointer-events-auto"
-            aria-label="Open Menu"
+            className="p-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors group"
+            aria-label="Open Navigation"
           >
-            <i className="fas fa-bars-staggered text-xl"></i>
+            <i className="fas fa-bars-staggered text-xl group-hover:scale-110 transition-transform"></i>
           </button>
 
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-            <Link to="/" className="flex items-center group pointer-events-auto">
-              <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center mr-3 text-white shadow-lg group-hover:rotate-6 transition-transform">
-                <i className="fas fa-lightbulb"></i>
-              </div>
-              <span className="text-xl font-black tracking-tighter text-gray-900 dark:text-white uppercase">
-                Creative<span className="text-blue-600">Mind</span>
-              </span>
-            </Link>
-          </div>
+          <Link to="/" className="flex items-center group">
+            <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center mr-3 text-white shadow-lg group-hover:rotate-12 transition-transform">
+              <i className="fas fa-brain text-sm"></i>
+            </div>
+            <span className="text-xl font-black tracking-tighter text-gray-900 dark:text-white uppercase">
+              Creative<span className="text-blue-600">Mind</span>
+            </span>
+          </Link>
 
-          <div className="flex items-center space-x-1 z-50">
+          <div className="flex items-center space-x-1 md:space-x-4">
+            <nav className="hidden lg:flex items-center space-x-6 mr-4">
+              <Link to="/" className={`text-xs font-black uppercase tracking-widest hover:text-blue-600 transition-colors ${location.pathname === '/' ? 'text-blue-600' : 'text-gray-500 dark:text-gray-400'}`}>Home</Link>
+              <Link to="/about" className={`text-xs font-black uppercase tracking-widest hover:text-blue-600 transition-colors ${location.pathname === '/about' ? 'text-blue-600' : 'text-gray-500 dark:text-gray-400'}`}>About</Link>
+              <Link to="/contact" className={`text-xs font-black uppercase tracking-widest hover:text-blue-600 transition-colors ${location.pathname === '/contact' ? 'text-blue-600' : 'text-gray-500 dark:text-gray-400'}`}>Contact</Link>
+            </nav>
             <button 
-              onClick={() => toggleTheme()}
-              className="w-10 h-10 flex items-center justify-center text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors pointer-events-auto"
+              onClick={toggleTheme} 
+              className="w-10 h-10 flex items-center justify-center text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors"
               aria-label="Toggle Theme"
             >
-              <i className={`fas ${theme === 'dark' ? 'fa-sun' : 'fa-moon'} text-lg`}></i>
+              <i className={`fas ${theme === 'dark' ? 'fa-sun' : 'fa-moon'}`}></i>
             </button>
-            <button 
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="w-10 h-10 flex items-center justify-center text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors pointer-events-auto"
-              aria-label="Toggle Search"
-            >
-              <i className={`fas ${isSearchOpen ? 'fa-times' : 'fa-search'} text-xl`}></i>
-            </button>
+            <Link to="/contact" className="hidden sm:flex bg-blue-600 text-white px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-500/20 hover:scale-105 transition-all">
+              Join Us
+            </Link>
           </div>
         </div>
-
-        {isSearchOpen && (
-          <div className="fixed inset-0 top-16 left-0 w-full h-screen bg-black/40 backdrop-blur-sm z-[90]" onClick={() => setIsSearchOpen(false)}>
-             <div className="bg-white dark:bg-gray-900 p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
-                <form onSubmit={handleSearch} className="max-w-4xl mx-auto flex gap-3">
-                  <input 
-                    type="text" 
-                    placeholder="Search viral content..." 
-                    className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-transparent focus:border-blue-500 rounded-2xl text-gray-900 dark:text-white outline-none transition-all font-bold"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    autoFocus
-                  />
-                  <button type="submit" className="bg-blue-600 text-white px-8 py-4 rounded-2xl font-black shadow-lg">FIND</button>
-                </form>
-             </div>
-          </div>
-        )}
       </header>
 
-      <div className={`fixed inset-0 z-[1000] ${isMenuOpen ? 'visible' : 'invisible'}`}>
+      {/* Side Menu Drawer */}
+      <div className={`fixed inset-0 z-[1000] transition-all duration-500 ${isMenuOpen ? 'visible' : 'invisible'}`}>
         <div 
-          className={`absolute inset-0 bg-black/70 backdrop-blur-md transition-opacity duration-500 ${isMenuOpen ? 'opacity-100' : 'opacity-0'}`}
+          className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-500 ${isMenuOpen ? 'opacity-100' : 'opacity-0'}`}
           onClick={() => setIsMenuOpen(false)}
         ></div>
-
-        <nav className={`absolute top-0 left-0 bg-white dark:bg-gray-900 w-[85%] max-w-sm h-full shadow-2xl flex flex-col transform transition-transform duration-500 ease-in-out ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-          <div className="p-6 h-16 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
-            <span className="font-black text-xl text-gray-900 dark:text-white tracking-tighter">NAVIGATE</span>
-            <button onClick={() => setIsMenuOpen(false)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
-              <i className="fas fa-xmark text-2xl text-gray-500"></i>
+        
+        <nav className={`absolute top-0 left-0 bg-white dark:bg-gray-950 w-full max-w-xs h-full shadow-2xl transform transition-transform duration-500 flex flex-col ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+          <div className="p-6 flex items-center justify-between border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+            <div className="flex items-center">
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3 text-white shadow-lg">
+                <i className="fas fa-brain text-xs"></i>
+              </div>
+              <span className="font-black text-gray-900 dark:text-white uppercase tracking-tighter">Creative Mind</span>
+            </div>
+            <button 
+              onClick={() => setIsMenuOpen(false)} 
+              className="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-gray-800 text-gray-500 hover:text-red-500 shadow-sm"
+              aria-label="Close"
+            >
+              <i className="fas fa-times"></i>
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-6 py-10 no-scrollbar">
+          <div className="flex-1 overflow-y-auto p-8 no-scrollbar">
             <div className="space-y-4 mb-10">
-              <Link 
-                to="/" 
-                onClick={() => setIsMenuOpen(false)}
-                className="flex items-center px-6 py-4 bg-blue-600 text-white font-black rounded-2xl shadow-xl shadow-blue-500/20 active:scale-95 transition-all"
-              >
-                <i className="fas fa-house mr-4 text-xl"></i> HOME FEED
+              <Link to="/" className={`flex items-center text-2xl font-black uppercase italic tracking-tighter transition-colors ${location.pathname === '/' ? 'text-blue-600' : 'text-gray-900 dark:text-white hover:text-blue-500'}`}>
+                Home
+              </Link>
+              <Link to="/about" className={`flex items-center text-2xl font-black uppercase italic tracking-tighter transition-colors ${location.pathname === '/about' ? 'text-blue-600' : 'text-gray-900 dark:text-white hover:text-blue-500'}`}>
+                About Us
+              </Link>
+              <Link to="/contact" className={`flex items-center text-2xl font-black uppercase italic tracking-tighter transition-colors ${location.pathname === '/contact' ? 'text-blue-600' : 'text-gray-900 dark:text-white hover:text-blue-500'}`}>
+                Contact Us
               </Link>
             </div>
 
             <div className="mb-10">
-              <h3 className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.5em] px-6 mb-6">Popular Tags</h3>
-              <div className="flex flex-wrap gap-2 px-2">
-                {dynamicCategories.slice(0, 15).map(cat => (
-                  <Link
-                    key={cat}
-                    to={`/category/${getCategorySlug(cat)}`}
-                    onClick={() => setIsMenuOpen(false)}
-                    className="px-4 py-2.5 rounded-xl text-xs font-black bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-blue-600 hover:text-white transition-all border border-gray-100 dark:border-gray-700 shadow-sm"
+              <h3 className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.4em] mb-6 pl-1">Categories</h3>
+              <div className="grid grid-cols-1 gap-2">
+                {allCategories.map(cat => (
+                  <Link 
+                    key={cat} 
+                    to={`/category/${getCategorySlug(cat)}`} 
+                    className="group flex items-center justify-between p-3 rounded-2xl bg-gray-50 dark:bg-gray-900 hover:bg-blue-600 transition-all duration-300"
                   >
-                    #{cat}
+                    <span className="text-sm font-bold text-gray-700 dark:text-gray-300 group-hover:text-white">{cat}</span>
+                    <i className="fas fa-chevron-right text-[10px] text-blue-500 group-hover:text-white"></i>
                   </Link>
                 ))}
               </div>
+            </div>
+
+            <div className="pt-8 border-t border-gray-100 dark:border-gray-800 flex flex-col space-y-3">
+              <Link to="/privacy-policy" className="text-xs font-black text-gray-400 uppercase tracking-widest hover:text-blue-500 transition-colors">Privacy Policy</Link>
+              <Link to="/terms-of-service" className="text-xs font-black text-gray-400 uppercase tracking-widest hover:text-blue-500 transition-colors">Terms of Service</Link>
+            </div>
+          </div>
+
+          <div className="p-8 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+            <div className="flex justify-between items-center text-xs text-gray-400">
+              <span className="font-bold">&copy; {new Date().getFullYear()} Creative Mind</span>
             </div>
           </div>
         </nav>

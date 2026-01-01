@@ -1,3 +1,4 @@
+
 export type Category = string;
 
 export enum PostStatus {
@@ -10,9 +11,10 @@ export interface Post {
   title: string;
   content: string;
   category: Category;
-  tags: string[]; // New field for tags
+  tags: string[];
   status: PostStatus;
   createdAt: string;
   imageUrl: string;
-  author?: string;
+  author: string;
+  isLocal?: boolean;
 }
