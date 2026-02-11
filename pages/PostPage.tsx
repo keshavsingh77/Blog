@@ -103,11 +103,11 @@ const PostPage: React.FC = () => {
                     The requested file has been validated. Click below to return to <span className="text-blue-600 font-black">Telegram</span> and receive your content.
                   </p>
                   <a
-                    href={`https://t.me/${BOT_USERNAME}?start=${token}`}
+                    href={`https://telegram.me/${BOT_USERNAME}?start=${token}`}
                     className="group relative inline-flex items-center gap-4 bg-[#0088cc] text-white px-12 py-6 rounded-2xl font-black uppercase tracking-widest hover:bg-[#0077bb] transition-all shadow-2xl hover:scale-[1.05] active:scale-95"
                   >
-                    <i className="fab fa-telegram-plane text-2xl group-hover:rotate-12 transition-transform"></i>
-                    <span className="text-lg">Get Final File</span>
+                    <span className="text-lg">Get File</span>
+                    <i className="fas fa-arrow-right-long transition-transform group-hover:translate-x-2"></i>
                   </a>
 
                   <div className="mt-12 flex items-center justify-center gap-4 opacity-20">
