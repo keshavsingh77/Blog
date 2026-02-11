@@ -1,5 +1,4 @@
-
-import React, { ErrorInfo, ReactNode } from 'react';
+import React, { Component, ErrorInfo, ReactNode } from 'react';
 
 // Define Props interface with children as optional to prevent mismatch errors in JSX consumers 
 // (index.tsx and App.tsx) where children were reported as missing.
@@ -16,12 +15,15 @@ interface State {
 // that both 'props' and 'state' are correctly recognized by the TypeScript compiler 
 // as belonging to the component instance.
 class ErrorBoundary extends React.Component<Props, State> {
+  private readonly fallbackChildren: ReactNode;
+
   constructor(props: Props) {
     super(props);
     this.state = {
       hasError: false,
       error: null
     };
+    this.fallbackChildren = props.children ?? null;
   }
 
   static getDerivedStateFromError(error: Error): State {

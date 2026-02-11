@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useSearchParams } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useSearchParams, useLocation } from 'react-router-dom';
 import { BlogProvider } from './context/BlogContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -15,6 +15,7 @@ const PostPage = lazy(() => import('./pages/PostPage'));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
+const SafeLinkPage = lazy(() => import('./pages/SafeLinkPage'));
 
 const App: React.FC = () => {
   return (
@@ -30,9 +31,11 @@ const App: React.FC = () => {
 
 const AppContent: React.FC = () => {
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const tokenFromUrl = searchParams.get('token');
   const tokenFromStorage = localStorage.getItem('bot_file_token');
-  const showGlobalLayout = !(tokenFromUrl || tokenFromStorage);
+  const isSLink = location.pathname.startsWith('/s/');
+  const showGlobalLayout = !(tokenFromUrl || tokenFromStorage || isSLink);
 
   return (
     <div className="flex flex-col min-h-screen bg-white dark:bg-gray-950 transition-colors duration-500">
@@ -48,6 +51,7 @@ const AppContent: React.FC = () => {
             <Route path="/privacy-policy" element={<PrivacyPage />} />
             <Route path="/terms-of-service" element={<TermsPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/s/:token" element={<SafeLinkPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>

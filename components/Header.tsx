@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useBlog } from '../context/BlogContext';
 import { CATEGORIES } from '../constants';
@@ -8,97 +8,100 @@ const Header: React.FC = () => {
   const { theme, toggleTheme, posts } = useBlog();
   const location = useLocation();
 
-  const allCategories = useMemo(() => {
-    const combined = [...CATEGORIES, ...posts.map(p => p.category)];
-    return Array.from(new Set(combined.filter(Boolean))).sort();
-  }, [posts]);
+  // Consolidate categories from constants and live posts
+  const allCategories = Array.from(new Set([
+    ...CATEGORIES,
+    ...posts.map(p => p.category)
+  ])).sort((a, b) => a.localeCompare(b));
 
   const getCategorySlug = (cat: string) => cat.toLowerCase().replace(/\s+/g, '-');
 
+  // Automatically close sidebar menu when route changes
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location.pathname]);
 
-  useEffect(() => {
-    if (isMenuOpen) document.body.style.overflow = 'hidden';
-    else document.body.style.overflow = 'unset';
-    return () => { document.body.style.overflow = 'unset'; };
-  }, [isMenuOpen]);
-
   return (
     <>
-      <header className="bg-white/80 dark:bg-gray-950/80 backdrop-blur-2xl border-b border-gray-100 dark:border-gray-800 fixed top-0 w-full z-[500] h-16 flex items-center">
-        <div className="max-w-7xl mx-auto px-4 w-full grid grid-cols-3 items-center">
-          
-          <div className="flex justify-start">
-            <Link to="/" className="flex items-center group">
-              <div className="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center mr-2 text-white shadow-lg group-hover:rotate-12 transition-transform">
-                <i className="fas fa-brain text-[10px]"></i>
+      <header className="bg-white/70 dark:bg-gray-950/70 backdrop-blur-2xl border-b border-gray-100/50 dark:border-gray-800/50 fixed top-0 w-full z-[500] h-16 flex items-center shadow-[0_4px_30px_rgba(0,0,0,0.03)] transition-all duration-300">
+        <div className="max-w-7xl mx-auto px-4 w-full flex items-center justify-between">
+          <button
+            onClick={() => setIsMenuOpen(true)}
+            className="md:hidden text-gray-700 dark:text-gray-200 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          >
+            <i className="fas fa-bars text-xl"></i>
+          </button>
+
+          <Link to="/" className="text-xl font-black tracking-tighter flex items-center gap-2 group">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform duration-300">
+              <span className="font-bold text-lg">C</span>
+            </div>
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 group-hover:to-blue-500 transition-all duration-300">
+              Creative Mind
+            </span>
+          </Link>
+
+          <nav className="hidden md:flex items-center gap-8">
+            <Link to="/" className={`text-sm font-medium transition-colors hover:text-blue-600 ${location.pathname === '/' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'}`}>
+              Home
+            </Link>
+            <div className="relative group">
+              <button className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-blue-600 transition-colors flex items-center gap-1 py-4">
+                Categories <i className="fas fa-chevron-down text-xs opacity-50"></i>
+              </button>
+              <div className="absolute top-full left-0 w-48 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-100 dark:border-gray-800 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0">
+                <div className="p-2 grid gap-1">
+                  {allCategories.slice(0, 5).map(cat => (
+                    <Link
+                      key={cat}
+                      to={`/category/${getCategorySlug(cat)}`}
+                      className="block px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                    >
+                      {cat}
+                    </Link>
+                  ))}
+                </div>
               </div>
-              <span className="text-base font-black tracking-tighter text-gray-900 dark:text-white uppercase hidden sm:block">
-                Creative<span className="text-blue-600">Mind</span>
-              </span>
+            </div>
+            <Link to="/about" className={`text-sm font-medium transition-colors hover:text-blue-600 ${location.pathname === '/about' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'}`}>
+              About
             </Link>
-          </div>
+          </nav>
 
-          <div className="flex justify-center">
-            <button 
-              onClick={() => setIsMenuOpen(true)}
-              className="group w-14 h-10 flex items-center justify-center text-gray-900 dark:text-white bg-gray-50/50 dark:bg-gray-900/50 backdrop-blur-md rounded-2xl hover:bg-blue-600 hover:text-white hover:scale-110 hover:shadow-2xl hover:shadow-blue-500/40 active:scale-95 transition-all duration-300 border border-gray-100 dark:border-gray-800"
-              aria-label="Menu"
+          <div className="flex items-center gap-4">
+            <button
+              onClick={toggleTheme}
+              className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
             >
-              <i className="fas fa-bars-staggered text-lg group-hover:rotate-12 transition-transform"></i>
-            </button>
-          </div>
-
-          <div className="flex justify-end items-center gap-4">
-            <Link to="/admin" className={`hidden md:block text-[9px] font-black uppercase tracking-[0.2em] px-4 py-2 rounded-lg border-2 transition-all ${location.pathname === '/admin' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-400 hover:text-blue-600'}`}>
-              Dashboard
-            </Link>
-            <button 
-              onClick={toggleTheme} 
-              className="w-10 h-10 flex items-center justify-center text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-2xl transition-all"
-            >
-              <i className={`fas ${theme === 'dark' ? 'fa-sun' : 'fa-moon'}`}></i>
+              {theme === 'dark' ? <i className="fas fa-sun"></i> : <i className="fas fa-moon"></i>}
             </button>
           </div>
         </div>
       </header>
 
-      {/* Modern Side Drawer */}
-      <div className={`fixed inset-0 z-[1000] transition-all duration-500 ${isMenuOpen ? 'visible' : 'invisible'}`}>
-        <div className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-500 ${isMenuOpen ? 'opacity-100' : 'opacity-0'}`} onClick={() => setIsMenuOpen(false)}></div>
-        <nav className={`absolute top-0 left-0 bg-white dark:bg-gray-950 w-full max-w-xs h-full shadow-2xl transform transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-          <div className="p-8 flex items-center justify-between border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50">
-             <span className="font-black text-gray-900 dark:text-white uppercase tracking-widest text-xs">Navigation</span>
-             <button onClick={() => setIsMenuOpen(false)} className="w-10 h-10 flex items-center justify-center rounded-2xl bg-white dark:bg-gray-800 shadow-sm hover:rotate-90 transition-all duration-500">
-               <i className="fas fa-times text-gray-400"></i>
-             </button>
-          </div>
-          <div className="p-8 flex-1 overflow-y-auto no-scrollbar">
-            <div className="flex flex-col space-y-4 mb-12">
-               {['/', '/admin', '/about', '/contact'].map((path) => (
-                 <Link key={path} to={path} className="text-3xl font-black text-gray-900 dark:text-white hover:text-blue-600 transition-colors italic tracking-tighter uppercase">
-                   {path === '/' ? 'Home' : path.substring(1)}
-                 </Link>
-               ))}
+      {/* Mobile Drawer */}
+      <div className={`fixed inset-0 z-[1000] transition-all duration-300 ${isMenuOpen ? 'visible' : 'invisible'}`}>
+        <div
+          className={`absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 ${isMenuOpen ? 'opacity-100' : 'opacity-0'}`}
+          onClick={() => setIsMenuOpen(false)}
+        />
+        <div className={`absolute top-0 left-0 w-[80%] max-w-[300px] h-full bg-white dark:bg-gray-950 shadow-2xl transition-transform duration-300 ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-8">
+              <span className="font-bold text-xl dark:text-white">Menu</span>
+              <button onClick={() => setIsMenuOpen(false)} className="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
+                <i className="fas fa-times"></i>
+              </button>
             </div>
-            <div>
-               <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6 border-l-4 border-blue-600 pl-3">Channels</h3>
-               <div className="grid grid-cols-1 gap-1">
-                 {allCategories.map(cat => (
-                   <Link key={cat} to={`/category/${getCategorySlug(cat)}`} className="group flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-2xl font-bold text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-600 hover:text-white transition-all shadow-sm">
-                     <span>{cat}</span>
-                     <i className="fas fa-arrow-right text-[10px] opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all"></i>
-                   </Link>
-                 ))}
-               </div>
-            </div>
+            <nav className="space-y-2">
+              <Link to="/" className="block px-4 py-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium">Home</Link>
+              {allCategories.map(cat => (
+                <Link key={cat} to={`/category/${getCategorySlug(cat)}`} className="block px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 font-medium">{cat}</Link>
+              ))}
+              <Link to="/about" className="block px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 font-medium">About</Link>
+            </nav>
           </div>
-          <div className="p-8 border-t border-gray-100 dark:border-gray-800 text-center">
-             <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">&copy; {new Date().getFullYear()} Creative Mind Studio</p>
-          </div>
-        </nav>
+        </div>
       </div>
     </>
   );
