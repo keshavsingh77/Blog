@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useSearchParams } from 'react-router-dom';
 import { BlogProvider } from './context/BlogContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -21,28 +21,38 @@ const App: React.FC = () => {
     <ErrorBoundary>
       <BlogProvider>
         <BrowserRouter>
-          <div className="flex flex-col min-h-screen bg-white dark:bg-gray-950 transition-colors duration-500">
-            <SafeLink />
-            <Header />
-            <main className="flex-grow pt-16">
-              <Suspense fallback={<SkeletonPostDetail />}>
-                <Routes>
-                  <Route path="/" element={<HomePage />} />
-                  <Route path="/about" element={<AboutPage />} />
-                  <Route path="/category/:slug" element={<CategoryPage />} />
-                  <Route path="/post/:id" element={<PostPage />} />
-                  <Route path="/privacy-policy" element={<PrivacyPage />} />
-                  <Route path="/terms-of-service" element={<TermsPage />} />
-                  <Route path="/contact" element={<ContactPage />} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-              </Suspense>
-            </main>
-            <Footer />
-          </div>
+          <AppContent />
         </BrowserRouter>
       </BlogProvider>
     </ErrorBoundary>
+  );
+};
+
+const AppContent: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get('token');
+  const showGlobalLayout = !token;
+
+  return (
+    <div className="flex flex-col min-h-screen bg-white dark:bg-gray-950 transition-colors duration-500">
+      <SafeLink />
+      {showGlobalLayout && <Header />}
+      <main className={`flex-grow ${showGlobalLayout ? 'pt-16' : ''}`}>
+        <Suspense fallback={<SkeletonPostDetail />}>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/category/:slug" element={<CategoryPage />} />
+            <Route path="/post/:id" element={<PostPage />} />
+            <Route path="/privacy-policy" element={<PrivacyPage />} />
+            <Route path="/terms-of-service" element={<TermsPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
+      </main>
+      {showGlobalLayout && <Footer />}
+    </div>
   );
 };
 

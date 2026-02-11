@@ -92,19 +92,29 @@ const PostPage: React.FC = () => {
               <div dangerouslySetInnerHTML={{ __html: paragraphs.slice(midPoint).join('</p>') }} />
 
               {token && (
-                <div className="mt-16 p-10 bg-gray-50 dark:bg-gray-900 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-[2.5rem] text-center">
-                  <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 text-green-600 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-6">
-                    <i className="fas fa-file-download"></i>
+                <div className="mt-20 p-12 md:p-16 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 border-4 border-dashed border-blue-500/20 rounded-[3rem] text-center shadow-2xl animate-fade-in-up">
+                  <div className="w-20 h-20 bg-blue-600 rounded-3xl flex items-center justify-center text-3xl mx-auto mb-8 text-white shadow-[0_20px_40px_-10px_rgba(59,130,246,0.5)]">
+                    <i className="fas fa-file-shield"></i>
                   </div>
-                  <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter mb-4">Your Link is Ready!</h3>
-                  <p className="text-gray-500 dark:text-gray-400 font-medium mb-8">Click the button below to return to Telegram and receive your file securely.</p>
+                  <h3 className="text-3xl md:text-5xl font-black text-gray-900 dark:text-white uppercase tracking-tighter mb-6 leading-tight">
+                    Your Secure Link <br className="hidden md:block" /> is Deployed!
+                  </h3>
+                  <p className="text-gray-500 dark:text-gray-400 text-lg md:text-xl font-medium mb-12 max-w-xl mx-auto leading-relaxed">
+                    The requested file has been validated. Click below to return to <span className="text-blue-600 font-black">Telegram</span> and receive your content.
+                  </p>
                   <a
                     href={`https://t.me/${BOT_USERNAME}?start=${token}`}
-                    className="inline-flex items-center gap-3 bg-[#0088cc] text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-[#0077bb] transition-all shadow-xl hover:scale-[1.05]"
+                    className="group relative inline-flex items-center gap-4 bg-[#0088cc] text-white px-12 py-6 rounded-2xl font-black uppercase tracking-widest hover:bg-[#0077bb] transition-all shadow-2xl hover:scale-[1.05] active:scale-95"
                   >
-                    <i className="fab fa-telegram-plane text-xl"></i>
-                    Get File (Open Telegram)
+                    <i className="fab fa-telegram-plane text-2xl group-hover:rotate-12 transition-transform"></i>
+                    <span className="text-lg">Get Final File</span>
                   </a>
+
+                  <div className="mt-12 flex items-center justify-center gap-4 opacity-20">
+                    <span className="w-12 h-px bg-gray-400"></span>
+                    <i className="fas fa-lock text-xs"></i>
+                    <span className="w-12 h-px bg-gray-400"></span>
+                  </div>
                 </div>
               )}
             </article>
