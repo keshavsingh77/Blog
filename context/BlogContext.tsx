@@ -8,8 +8,6 @@ interface BlogContextType {
   isLoading: boolean;
   error: string | null;
   getPostById: (id: string) => Post | undefined;
-  addPost: (post: Post) => void;
-  deletePost: (id: string) => void;
   theme: 'light' | 'dark';
   toggleTheme: () => void;
   refreshPosts: () => Promise<void>;
@@ -39,18 +37,18 @@ export const BlogProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setError(null);
     try {
       const remotePosts = await fetchPostsFromBlogger();
-      
+
       const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
       const localPosts: Post[] = saved ? JSON.parse(saved) : [];
-      
+
       // Combine and Sort
       const combined = [...localPosts, ...remotePosts];
       const unique = Array.from(new Map(combined.map(p => [p.id, p])).values());
-      
-      const sorted = unique.sort((a, b) => 
+
+      const sorted = unique.sort((a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
-      
+
       setPosts(sorted.length > 0 ? sorted : INITIAL_POSTS);
     } catch (err) {
       console.error("Critical error syncing feed:", err);
@@ -67,32 +65,12 @@ export const BlogProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const getPostById = (id: string) => posts.find(p => p.id === id);
 
-  const addPost = (newPost: Post) => {
-    setPosts(prev => {
-      const updated = [newPost, ...prev];
-      const locals = updated.filter(p => p.isLocal);
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(locals));
-      return updated;
-    });
-  };
-
-  const deletePost = (id: string) => {
-    setPosts(prev => {
-      const updated = prev.filter(p => p.id !== id);
-      const locals = updated.filter(p => p.isLocal);
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(locals));
-      return updated;
-    });
-  };
-
   return (
     <BlogContext.Provider value={{
       posts,
       isLoading,
       error,
       getPostById,
-      addPost,
-      deletePost,
       theme,
       toggleTheme,
       refreshPosts

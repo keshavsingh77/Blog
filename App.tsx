@@ -4,6 +4,7 @@ import { BlogProvider } from './context/BlogContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
+import SafeLink from './components/SafeLink';
 import ErrorBoundary from './components/ErrorBoundary';
 import { SkeletonPostDetail } from './components/SkeletonLoaders';
 
@@ -14,7 +15,6 @@ const PostPage = lazy(() => import('./pages/PostPage'));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
-const AdminPage = lazy(() => import('./pages/AdminPage'));
 
 const App: React.FC = () => {
   return (
@@ -22,6 +22,7 @@ const App: React.FC = () => {
       <BlogProvider>
         <BrowserRouter>
           <div className="flex flex-col min-h-screen bg-white dark:bg-gray-950 transition-colors duration-500">
+            <SafeLink />
             <Header />
             <main className="flex-grow pt-16">
               <Suspense fallback={<SkeletonPostDetail />}>
@@ -33,7 +34,6 @@ const App: React.FC = () => {
                   <Route path="/privacy-policy" element={<PrivacyPage />} />
                   <Route path="/terms-of-service" element={<TermsPage />} />
                   <Route path="/contact" element={<ContactPage />} />
-                  <Route path="/admin" element={<AdminPage />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </Suspense>
