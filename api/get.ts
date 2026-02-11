@@ -41,7 +41,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const now = new Date().getTime();
         const elapsedSeconds = (now - startTime) / 1000;
 
-        if (elapsedSeconds < 8) { // Giving 2s buffer for network latency
+        if (elapsedSeconds < 6) { // Giving 2s buffer for network latency
             return res.status(403).json({ error: 'Please wait for the countdown to complete.' });
         }
 

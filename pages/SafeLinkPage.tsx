@@ -5,7 +5,7 @@ import GoogleAd from '../components/GoogleAd';
 
 const SafeLinkPage: React.FC = () => {
     const { token } = useParams<{ token: string }>();
-    const [countdown, setCountdown] = useState(10);
+    const [countdown, setCountdown] = useState(8);
     const [isReady, setIsReady] = useState(false);
 
     useEffect(() => {
