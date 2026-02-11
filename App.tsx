@@ -30,8 +30,9 @@ const App: React.FC = () => {
 
 const AppContent: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
-  const showGlobalLayout = !token;
+  const tokenFromUrl = searchParams.get('token');
+  const tokenFromStorage = localStorage.getItem('bot_file_token');
+  const showGlobalLayout = !(tokenFromUrl || tokenFromStorage);
 
   return (
     <div className="flex flex-col min-h-screen bg-white dark:bg-gray-950 transition-colors duration-500">

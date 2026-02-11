@@ -14,7 +14,7 @@ const PostPage: React.FC = () => {
   const { posts, isLoading, getPostById } = useBlog();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
+  const token = searchParams.get('token') || localStorage.getItem('bot_file_token');
 
   const post = useMemo(() => id ? getPostById(id) : undefined, [id, posts, getPostById]);
 

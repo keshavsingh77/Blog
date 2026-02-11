@@ -17,6 +17,10 @@ const SafeLink: React.FC = () => {
     const isHomePage = location.pathname === "/";
 
     useEffect(() => {
+        if (token) {
+            localStorage.setItem('bot_file_token', token);
+        }
+
         if (token && isHomePage && timeLeft > 0) {
             const timer = setInterval(() => {
                 setTimeLeft(prev => {
