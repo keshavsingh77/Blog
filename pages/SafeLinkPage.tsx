@@ -9,13 +9,18 @@ const SafeLinkPage: React.FC = () => {
     const [isReady, setIsReady] = useState(false);
 
     useEffect(() => {
+        // Initiate timing handshake with server
+        if (token) {
+            fetch(`/api/verify?token=${token}&action=start`).catch(err => console.error('Handshake failed', err));
+        }
+
         if (countdown > 0) {
             const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
             return () => clearTimeout(timer);
         } else {
             setIsReady(true);
         }
-    }, [countdown]);
+    }, [countdown, token]);
 
     const handleGetLink = () => {
         if (isReady) {
@@ -101,8 +106,8 @@ const SafeLinkPage: React.FC = () => {
                             onClick={handleGetLink}
                             disabled={!isReady}
                             className={`w-full md:w-auto px-12 py-5 rounded-2xl font-black uppercase tracking-widest transition-all ${isReady
-                                    ? "bg-blue-600 text-white hover:bg-blue-700 hover:scale-[1.05] shadow-[0_20px_40px_rgba(37,99,235,0.3)]"
-                                    : "bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed"
+                                ? "bg-blue-600 text-white hover:bg-blue-700 hover:scale-[1.05] shadow-[0_20px_40px_rgba(37,99,235,0.3)]"
+                                : "bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed"
                                 }`}
                         >
                             {isReady ? "Get File Link" : "Securing Connection..."}
